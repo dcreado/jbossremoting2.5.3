@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - DispatcherServlet application context for Petclinic's web tier.
+	-->
+<beans>
+   <bean id="springHessianServerService" class="org.jboss.test.remoting.performance.spring.hessian.web.SpringHessianServerImpl"/>
+
+   <bean name="/springHessianServerService" class="org.springframework.remoting.caucho.HessianServiceExporter">
+       <property name="service" ref="springHessianServerService"/>
+       <property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.hessian.web.SpringHessianServer"/>
+   </bean>
+
+   <bean id="beanMapping" class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+       <property name="order"><value>1</value></property>
+   </bean>
+   
+</beans>

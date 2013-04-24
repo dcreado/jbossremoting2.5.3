@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# $Id: runtest 1983 2007-01-25 02:51:44Z ovidiu $
+#
+# Script that runs a single unit test case and allows to easily attach a debugger to it.
+#
+# Usage: runtest [-debug|-clientdebug|-serverdebug]
+#
+# where: -debug starts this VM in debug mode
+#        -clientdebug starts the JRUnit client VM in debug mode (see ServerLockupTestDriver.java)
+#        -serverddbug starts the JRUnit server VM in debug mode (see ServerLockupTestDriver.java)
+
+TARGET_CLASS=org.jboss.test.remoting.callback.exception.CallbackTestCase
+
+cygwin=false;
+case "`uname`" in
+    CYGWIN*)
+        cygwin=true
+        ;;
+esac
+
+if [ $cygwin = true ]; then
+    SEP=";"
+else
+    SEP=":"
+fi
+
+while [ "$1" != "" ]; do
+    if [ "$1" = "-debug" ]; then
+        if [ $cygwin = false ]; then
+            JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=12348"
+        else
+            JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_shmem,server=y,suspend=y,address=client"
+        fi
+    elif [ "$1" = "-clientdebug" ]; then
+        JAVA_OPTS="$JAVA_OPTS -Dclientdebug=true"
+    elif [ "$1" = "-serverdebug" ]; then
+        JAVA_OPTS="$JAVA_OPTS -Dserverdebug=true"
+    fi
+    shift
+done
+
+reldir=`dirname $0`
+java $JAVA_OPTS -cp \
+$reldir/../etc${SEP}\
+$reldir/../../output/classes${SEP}\
+$reldir/../../output/tests/classes${SEP}\
+$reldir/../../lib/junit/lib/junit.jar${SEP}\
+$reldir/../../lib/jboss/jboss-j2se.jar${SEP}\
+$reldir/../../lib/jboss/jboss-common.jar${SEP}\
+$reldir/../../lib/jboss/jrunit.jar${SEP}\
+$reldir/../../lib/jboss/jboss-jmx.jar${SEP}\
+$reldir/../../lib/jboss/jboss-serialization.jar${SEP}\
+$reldir/../../lib/apache-log4j/lib/log4j.jar${SEP}\
+$reldir/../../lib/sun-servlet/lib/servlet-api.jar${SEP}\
+$reldir/../../lib/apache-commons/lib/commons-httpclient.jar${SEP}\
+$reldir/../../lib/oswego-concurrent/lib/concurrent.jar${SEP}\
+$reldir/../../lib/jgroups/lib/jgroups.jar${SEP}\
+$reldir/../../lib/apache-commons/lib/commons-logging-api.jar${SEP}\
+$reldir/../../lib/trove/lib/trove.jar${SEP}\
+ junit.textui.TestRunner $TARGET_CLASS
+
+

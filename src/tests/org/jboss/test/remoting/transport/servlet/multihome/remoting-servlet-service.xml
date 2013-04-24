@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+
+           <mbean code="org.jboss.remoting.transport.Connector"
+                  name="jboss.remoting:service=Connector,transport=Servlet"
+                  display-name="Servlet transport Connector">
+
+              <attribute name="InvokerLocator">
+                 servlet://multihome/servlet-invoker/ServerInvokerServlet/?homes=localhost:7071!localhost:7082!localhost:7093
+              </attribute>
+
+              <attribute name="Configuration">
+                 <config>
+                    <handlers>
+                       <handler subsystem="test">org.jboss.test.remoting.multihome.TestInvocationHandler</handler>
+                    </handlers>
+                 </config>
+              </attribute>
+           </mbean>
+
+</server>

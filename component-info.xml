@@ -1,0 +1,19 @@
+<project name="remoting-component-info">
+   <!-- ============================================================ -->
+   <!-- Remoting                                                     -->
+   <!-- ============================================================ -->
+
+   <component id="remoting"
+              module="JBossRemoting"
+              version="5.0-SNAPSHOT">
+
+      <artifact id="jboss-remoting.jar"/>
+      <artifact id="jboss-remoting-tests.jar"/>
+      <artifact id="jboss-remoting-loading-tests.jar"/>
+      <export>
+         <include input="jboss-remoting.jar"/>
+      </export>
+   </component>
+
+
+</project>

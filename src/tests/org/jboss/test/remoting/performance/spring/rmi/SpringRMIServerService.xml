@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+
+      "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
+      <property name="serviceName" value="SpringRMIServerService"/>
+      <property name="service" ref="springRMIServerService"/>
+      <!--<property name="servicePort" value="1200"/>-->
+      <property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.rmi.SpringRMIServer"/>
+      <property name="registryPort" value="1199"/>
+   </bean>
+
+   <bean id="springRMIServerService" class="org.jboss.test.remoting.performance.spring.rmi.SpringRMIServerImpl">
+   </bean>
+
+</beans>

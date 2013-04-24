@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+   <mbean code="org.jboss.remoting.transport.Connector"
+          name="jboss.remoting:service=Connector,transport=Servlet,useRemotingContentType=default"
+          display-name="Servlet transport Connector (default)">
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="servlet">
+               <attribute name="serverBindAddress">127.0.0.1</attribute>
+               <attribute name="serverBindPort">8080</attribute>
+               <attribute name="path">servlet-invoker/ServerInvokerServlet/default</attribute>
+               <attribute name="datatype" isParam="true">test</attribute>
+               <attribute name="marshaller" isParam="true">org.jboss.test.remoting.transport.servlet.marshal.TestMarshaller</attribute>
+               <attribute name="unmarshaller" isParam="true">org.jboss.test.remoting.transport.servlet.marshal.TestUnMarshaller</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="test">org.jboss.test.remoting.transport.servlet.marshal.TestInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+   <mbean code="org.jboss.remoting.transport.Connector"
+          name="jboss.remoting:service=Connector,transport=Servlet,useRemotingContentType=false"
+          display-name="Servlet transport Connector (false)">
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="servlet">
+               <attribute name="serverBindAddress">127.0.0.1</attribute>
+               <attribute name="serverBindPort">8080</attribute>
+               <attribute name="path">servlet-invoker/ServerInvokerServlet/false</attribute>
+               <attribute name="datatype" isParam="true">test</attribute>
+               <attribute name="marshaller" isParam="true">org.jboss.test.remoting.transport.servlet.marshal.TestMarshaller</attribute>
+               <attribute name="unmarshaller" isParam="true">org.jboss.test.remoting.transport.servlet.marshal.TestUnMarshaller</attribute>
+               <attribute name="useRemotingContentType" isParam="true">false</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="test">org.jboss.test.remoting.transport.servlet.marshal.TestInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+   <mbean code="org.jboss.remoting.transport.Connector"
+          name="jboss.remoting:service=Connector,transport=Servlet,useRemotingContentType=true"
+          display-name="Servlet transport Connector (true)">
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="servlet">
+               <attribute name="serverBindAddress">127.0.0.1</attribute>
+               <attribute name="serverBindPort">8080</attribute>
+               <attribute name="path">servlet-invoker/ServerInvokerServlet/true</attribute>
+               <attribute name="datatype" isParam="true">test</attribute>
+               <attribute name="marshaller" isParam="true">org.jboss.test.remoting.transport.servlet.marshal.TestMarshaller</attribute>
+               <attribute name="unmarshaller" isParam="true">org.jboss.test.remoting.transport.servlet.marshal.TestUnMarshaller</attribute>
+               <attribute name="useRemotingContentType" isParam="true">true</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="test">org.jboss.test.remoting.transport.servlet.marshal.TestInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+</server>

@@ -1,0 +1,318 @@
+// JBoss, Home of Professional Open Source
+// Copyright 2005, JBoss Inc., and individual contributors as indicated
+// by the @authors tag. See the copyright.txt in the distribution for a
+// full listing of individual contributors.
+//
+// This is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation; either version 2.1 of
+// the License, or (at your option) any later version.
+//
+// This software is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this software; if not, write to the Free
+// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+// 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+//
+
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//***************************************************
+//****
+//****   Permissions to run Remoting.  This file is a sample security policy file
+//****   with the permissions necessary to run the code in the org.jboss.remoting.*
+//****   packages.  All security sensitive calls in Remoting are wrapped in a
+//****   java.security.AccessController.doPrivileged() call, so that Remoting classes
+//****   can function in the context of a java.lang.SecurityManager, given some
+//****   variation on the permissions listed below, even if the calling code runs without
+//****   these restrictions.
+//****
+//****   There are a few ways in which it may be necessary or desirable to modify the
+//****   the permissions listed below.
+//****
+//****   1. It may be necessary to change the java.io.FilePermission permissions, according
+//****      to the configuration of certain files.  See the "File permissions" section below,
+//****      as well as the accompanying remoting.security.policy.tests file, which is used
+//****      to run the Remoting test suite.
+//****
+//****   2. If Remoting is configured to operate with one or more MBeans in place of POJOs,
+//****      it might be necessary to grant additional MBeanPermissions.  See the MBean
+//****      permissions section below, as well as the MBeanPermissions granted to the
+//****      org.jboss.test.remoting.security.*ProxyTestCase test classes in the accompanying
+//****      remoting.security.policy.tests file, which is used to run the Remoting test suite
+//****
+//****   3. Some facilities always use MBeans.  The MBean permissions given below may be 
+//****      restricted to particular ObjectNames.
+//****
+//****   4. Some permission may be eliminated, according to which Remoting facilities are used.
+//****
+//****   Other than changes made according to items 1 and 2, it should not be necessary to grant
+//****   any additional permissions.
+//****
+//*************************************************** 
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+
+ 
+grant codeBase "file:${remoting.jar.dir}/jboss-remoting.jar"
+{
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// File permissions
+
+    // Used by org.jboss.remotinng.callback.CallbackStore.
+    // This permission might need to be changed, depending on where the CallbackStore
+    // is configured to exist, according to system property "jboss.server.data.dir".
+    // The default location is <current directory>/data.
+    permission java.io.FilePermission ".${/}data", "read, write, delete";
+    
+    // Permission for org.jboss.remoting.ident.Identity to create and read "jboss.identity" file.
+    // This permission might need to be changed, depending on the directory in which the
+    // "jboss.identity" file is configured to exist.  That directory is configed according to
+    // 
+    // 1. the "ServerDataDir" attribute of the "jboss.system:type=ServerConfig" MBean, if that MBean exists, or
+    // 2. the "jboss.identity.dir" system property, if that property exists, or
+    // 3. the current directory.
+    permission java.io.FilePermission ".", "read, write";
+    permission java.io.FilePermission "*", "read, write";
+    
+    // Used by org.jboss.remoting.loading.ClassByteClassLoader.
+    permission java.io.FilePermission "${java.io.tmpdir}${/}*", "read, write, delete";
+    
+// // Some variation of the following would be needed for SSL transports:
+//    permission java.io.FilePermission "${keystore}", "read";
+//    permission java.io.FilePermission "${truststore}", "read";
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// MBean permissions
+
+//    // Some variation of the following might be needed if Remoting gets an MBean in place of an ordinary object.
+//    // See below for examples.
+//    permission javax.management.MBeanPermission "*#*[*:*]", "getAttribute, setAttribute, invoke, registerMBean, unregisterMBean";
+    
+    permission javax.management.MBeanTrustPermission "register";
+            
+//  // Some variation of the following is used by org.jboss.remoting.callback.ServerInvokerCallbackHandler
+//  // if it is configured with an MBean which is a ServerSocketFactory.
+//  permission javax.management.MBeanPermission "*#SSLSocketBuilder[*:*]", "getAttribute";
+    
+//  // Some variation of the following may be used by org.jboss.remoting.callback.ServerInvokerCallbackHandler,
+//  // if it is configured with an MBean which is a ServerSocketFactory.
+//  permission javax.management.MBeanPermission "*#-[*:*]", "isInstanceOf";
+            
+    // Used by org.jboss.remoting.detection.AbstractDetector
+    permission javax.management.MBeanPermission "*#addServer[*:*]", "invoke";
+    permission javax.management.MBeanPermission "*#updateServer[*:*]", "invoke";
+    permission javax.management.MBeanPermission "*#removeServer[*:*]", "invoke";
+    permission javax.management.MBeanPermission "*#Servers[*:*]", "getAttribute";
+
+    // Used by org.jboss.remoting.detection.util.DetectorUtil
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+    permission javax.management.MBeanPermission "org.jboss.remoting.network.NetworkRegistry#-[remoting:type=NetworkRegistry]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[jboss.remoting:type=Connector,*]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.detection.*#-[remoting:type=Detector,*]", "registerMBean";
+    
+    // Used by org.jboss.remoting.ident.Identity
+    permission javax.management.MBeanPermission "javax.management.MBeanServerDelegate#MBeanServerId[JMImplementation:type=MBeanServerDelegate]", "getAttribute";
+    permission javax.management.MBeanPermission "-#ServerDataDir[jboss.system:type=ServerConfig]", "getAttribute";
+        
+    // Used by org.jboss.remoting.network.NetworkRegistryFinder
+    // (which is used by org.jboss.remoting.detection.AbstractDetector)
+    permission javax.management.MBeanPermission "*#-[*:*]", "queryMBeans";
+    
+    // Used by org.jboss.remoting.network.NetworkRegistryQuery
+    // (which is used by org.jboss.remoting.network.NetworkRegistryFinder)
+    permission javax.management.MBeanPermission "*#-[*:*]", "isInstanceOf";
+         
+    // Used by org.jboss.remoting.transport.Connector
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.*#-[jboss.remoting:service=invoker,*]", "registerMBean, unregisterMBean";
+
+//  // Some variation of the following would be necessary for org.jboss.remoting.transport.Connector
+//  // if it is configured to use an MBean as an org.jboss.remoting.ServerInvocationHandler
+//  permission javax.management.MBeanPermission "*#Invoker[*:*]", "setAttribute";
+//  permission javax.management.MBeanPermission "*#MBeanServer[*:*]", "setAttribute";
+//  permission javax.management.MBeanPermission "*#*[*:*]", "invoke";
+    
+//  // Some variation of the following would be necessary for subclasses of org.jboss.remoting.transport.ServerInvoker
+//  // if they are configured with an MBean which is a ServerSocketFactory
+//  permission javax.management.MBeanPermission "*#createServerSocket[*:*]", "invoke";
+
+    // Used by org.jboss.remoting.transport.servlet.web.ServerInvokerServlet
+    permission javax.management.MBeanServerPermission "findMBeanServer";
+   
+    // Used by org.jboss.remoting.transporter.InternalTransporterServices
+    permission javax.management.MBeanPermission "org.jboss.remoting.network.NetworkRegistry#-[remoting:type=NetworkRegistry]", "registerMBean";
+    
+    // Used by org.jboss.remoting.transporter.TransporterClient and org.jboss.remoting.transporter.Transporter.Server
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+   
+   
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Runtime permissions
+
+    // Used by remote class loading system
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.lang.RuntimePermission "getClassLoader";
+    permission java.lang.RuntimePermission "setContextClassLoader";
+
+    // Used by org.jboss.remoting.detection.jndi.JNDIDetector
+    permission java.lang.RuntimePermission "org.jboss.naming.NamingContext.getLocal";
+    
+    // Used by:
+    //   org.jboss.remoting.security.SSLSocketBuilder
+    //   org.jboss.remoting.transport.coyote.CoyoteInvoker
+    //   org.jboss.remoting.transport.http.HTTPClientInvoker
+    //   org.jboss.remoting.transport.servlet.web.ServerInvokerServlet
+    //   org.jboss.remoting.transporter.TransporterHandler
+    //   org.jboss.remoting.InvokerRegistry 
+    permission java.lang.RuntimePermission "accessClassInPackage.*";
+    
+    // Used by org.jboss.remoting.transport.coyote.CoyoteInvoker
+    permission java.lang.RuntimePermission "loadLibrary.tcnative-1";
+    permission java.lang.RuntimePermission "loadLibrary.libtcnative-1";
+    
+    // Used to guard access to InvokerRegistry state
+    permission java.lang.RuntimePermission "invokerRegistryUpdate";
+    
+    
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Socket permissions.  Can't create sockets without it.
+
+    permission java.net.SocketPermission "*:*", "accept,connect,listen,resolve";
+    
+    
+/////////////////////////////////////////////////////////////////////////////////////////////
+// System properties accessed by Remoting
+
+    // Used by org.jboss.remoting.MicroRemoteClientInvoker
+    permission java.util.PropertyPermission "org.jboss.remoting.classloadingParentFirstDelegation", "read";
+    
+    // Used by org.jboss.remoting.callback.CallbackStore,
+    //         org.jboss.remoting.callback.ServerInvokerCallbackHandler
+    permission java.util.PropertyPermission "file.separator", "read";
+    permission java.util.PropertyPermission "jboss.server.data.dir", "read";
+    
+    // Used by org.jboss.remoting.detection.jndi.JNDIDetector
+    permission java.util.PropertyPermission "java.naming.factory.initial", "write";
+    permission java.util.PropertyPermission "jboss.global.jnp.disableDiscovery", "read";
+        
+    // Used by org.jboss.remoting.detection.util.DetectorUtil
+    permission java.util.PropertyPermission "jboss.identity", "read, write";
+        
+    // Used by org.jboss.remoting.ident.Identity
+    permission java.util.PropertyPermission "jboss.identity", "read, write";
+    permission java.util.PropertyPermission "jboss.identity.dir", "read";
+    permission java.util.PropertyPermission "jboss.identity.domain", "read";
+        
+    // Used by org.jboss.remoting.InvokerLocator
+    permission java.util.PropertyPermission "jboss.bind.address", "read";
+    permission java.util.PropertyPermission "legacyParsing", "read";
+    permission java.util.PropertyPermission "remoting.bind_by_host", "read";
+    permission java.util.PropertyPermission "suppressHostWarning", "read";
+        
+    // Used by org.jboss.remoting.loading.CompressedClassBytes
+    permission java.util.PropertyPermission "jboss.remoting.compression.debug", "read";   
+    permission java.util.PropertyPermission "jboss.remoting.compression.min", "read"; 
+          
+    // Used by org.jboss.remoting.network.NetworkRegistry
+    permission java.util.PropertyPermission "jboss.remoting.domain", "write";
+    permission java.util.PropertyPermission "jboss.remoting.instanceid", "write";
+    permission java.util.PropertyPermission "jboss.remoting.jmxid", "write";
+        
+    // Used by org.jboss.remoting.security.SSLSocketBuilder
+    permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.keyStorePassword", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.keyStoreType", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.trustStorePassword", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.trustStoreType", "read";
+    permission java.util.PropertyPermission "org.jboss.remoting.defaultSocketFactory", "read";
+    
+    // Used by org.jboss.remoting.serialization.SerializationStreamFactory
+    permission java.util.PropertyPermission "SERIALIZATION", "read";
+                
+    // Used by org.jboss.remoting.ServerInvoker
+    permission java.util.PropertyPermission "remoting.bind_by_host", "read";
+    
+    // Used by org.jboss.remoting.stream.StreamServer
+    permission java.util.PropertyPermission "remoting.stream.host", "read";   
+    permission java.util.PropertyPermission "remoting.stream.port", "read"; 
+    permission java.util.PropertyPermission "remoting.stream.transport", "read"; 
+    
+    // Used by Used by org.jboss.remoting.transport.coyote.CoyoteInvoker
+    permission java.util.PropertyPermission "java.library.path", "read";
+    permission java.util.PropertyPermission "org.apache.coyote.USE_CUSTOM_STATUS_MSG_IN_HEADER", "read";
+    permission java.util.PropertyPermission "org.apache.tomcat.util.*", "read";
+    permission java.util.PropertyPermission "tomcat.util.buf.StringCache.*", "read";
+    
+    // Used by org.jboss.remoting.transport.http.HTTPClientInvoker
+    permission java.util.PropertyPermission "http.basic.username", "read";
+    permission java.util.PropertyPermission "http.basic.password", "read";
+    permission java.util.PropertyPermission "http.proxy.username", "read";
+    permission java.util.PropertyPermission "http.proxy.password", "read";
+    permission java.util.PropertyPermission "http.proxyHost", "read";
+    permission java.util.PropertyPermission "http.proxyPort", "read";
+    
+    // Used by org.jboss.remoting.transport.http.ssl.HTTPSClientInvoker
+    permission java.util.PropertyPermission "org.jboss.security.ignoreHttpsHost" , "read";
+    
+    // Used by org.jboss.remoting.util.SecurityUtility
+    permission java.util.PropertyPermission "skipAccessControl", "read";
+
+    // Used by org.jboss.remoting.Version
+    permission java.util.PropertyPermission "jboss.remoting.pre_2_0_compatible", "read";
+    permission java.util.PropertyPermission "jboss.remoting.version", "read, write";
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// JBoss permissions
+
+    // Used by JNDIDetector
+    permission org.jboss.naming.JndiPermission "detection", "createSubcontext";
+    permission org.jboss.naming.JndiPermission "detection", "listBindings";
+    permission org.jboss.naming.JndiPermission "detection", "lookup";
+    permission org.jboss.naming.JndiPermission "detection/*", "rebind"; 
+    permission org.jboss.naming.JndiPermission "detection/*", "unbind";   
+    
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Permissions used by JBossSerialization.
+// [TODO - JBoss Serialization SHOULD be doing these operations in a privileged block - JBSER-105]
+
+    permission java.lang.RuntimePermission "accessDeclaredMembers";
+    permission java.lang.RuntimePermission "accessClassInPackage.*";
+    permission java.lang.RuntimePermission "reflectionFactoryAccess";
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.io.SerializablePermission "enableSubclassImplementation";
+
+    // Used by org.jboss.remoting.serialization.impl.java.MarshalledValueOutputStream
+    permission java.io.SerializablePermission "enableSubstitution";
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Permissions used by Logging
+// [TODO - We should use a version of JBoss logging + log4j that does this stuff in privileged blocks]
+
+    permission java.io.FilePermission "${remoting.jar.dir}${/}jboss-remoting.jar", "read";
+    permission java.io.FilePermission "${log4j.jar.dir}${/}log4j.jar", "read";
+    permission java.io.FilePermission "${log4j.config.dir}${/}log4j.properties", "read";
+    permission java.io.FilePermission "${log4j.config.dir}${/}log4j.xml", "read";
+    
+    permission java.util.PropertyPermission "org.jboss.logging.Logger.pluginClass", "read";
+    permission java.util.PropertyPermission "log4j.defaultInitOverride", "read";
+    permission java.util.PropertyPermission "elementAttributeLimit", "read";
+    permission java.util.PropertyPermission "maxOccurLimit", "read";
+    permission java.util.PropertyPermission "entityExpansionLimit", "read";
+    permission java.util.PropertyPermission "javax.xml.parsers.DocumentBuilderFactory", "read";
+    permission java.util.PropertyPermission "log4j.ignoreTCL", "read";
+    permission java.util.PropertyPermission "log4j.configuratorClass", "read";
+    permission java.util.PropertyPermission "log4j.configDebug", "read";
+    permission java.util.PropertyPermission "log4j.debug", "read";
+    permission java.util.PropertyPermission "log4j.configuration", "read";
+    permission java.util.PropertyPermission "org.apache.commons.logging.*", "read";
+};
+

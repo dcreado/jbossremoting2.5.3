@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<!--
+ JBoss, the OpenSource J2EE webOS
+
+ Distributable under LGPL license.
+ See terms of license at gnu.org.
+-->
+
+<!-- ================================================================== -->
+<!-- Remoting component definition                                        -->
+<!-- ================================================================== -->
+
+<project name="project"
+   default="build"
+   basedir="."
+   >
+
+   <import file="../tools/etc/jbossbuild/tasks.xml"/>
+   <import file="component-info.xml"/>
+
+   <!-- =============================================================== -->
+   <!-- The component definition                                        -->
+   <!-- =============================================================== -->
+
+   <componentdef component="remoting" description="JBoss Remoting">
+
+      <!-- ============================================================ -->
+      <!-- The main source                                              -->
+      <!-- ============================================================ -->
+
+      <source id="main"
+         rmic="**/RMIServerInvoker.class">
+         <include component="apache-commons"/>
+         <include component="oswego-concurrent"/>
+         <include component="apache-log4j"/>
+         <include component="junit-junit"/>
+         <include component="sun-jmx"/>
+         <include component="sun-jaxp"/>
+
+         <include component="common"/>
+         <include component="naming"/>
+         <include component="j2se"/>
+         <include component="system"/>
+         <include component="sun-servlet"/>
+
+      </source>
+
+      <!-- tests currently includes jrunit,which we are not ready to handle yet
+      <source id="tests" test="org/jboss/test/remoting/**/*TestCase.java">
+         <include input="main"/>
+         <include component="apache-commons"/>
+         <include component="oswego-concurrent"/>
+         <include component="apache-log4j"/>
+         <include component="junit-junit"/>
+         <include component="sun-jmx"/>
+         <include component="sun-jaxp"/>
+
+         <include component="javagroups-javagroups"/>
+
+         <include component="common"/>
+         <include component="naming"/>
+         <include component="j2se"/>
+         <include component="system"/>
+         <include component="sun-servlet"/>
+      </source>
+      
+       so for now we leave it out -->
+
+      <resource id="resources-etc" path="../etc"/>
+
+      <!-- ============================================================ -->
+      <!-- jboss-remoting.jar                                             -->
+      <!-- ============================================================ -->
+
+      <artifactdef artifact="jboss-remoting.jar">
+         <include input="main">
+            <include pattern="org/jboss/remoting/**"/>
+            <include pattern="org/jboss/aspects/remoting/**"/>
+         </include>
+         <include input="resources-etc">
+            <!-- Include xmbean descriptors -->
+            <include pattern="org/jboss/**/*.xml"/>
+            <!-- Exclude files for the distro -->
+            <exclude pattern="build.xml"/>
+            <exclude pattern="example-service.xml"/>
+         </include>
+      </artifactdef>
+
+      <artifactdef artifact="jboss-remoting-tests.jar">
+      <!--
+         <include input="tests">
+            <include pattern="org/jboss/test/remoting/**"/>
+            <include pattern="org/jboss/test/dtf/**"/>
+            <exclude pattern="org/jboss/test/remoting/marshall/dynamic/remote/**/Test*Marshaller*"/>
+            <exclude pattern="org/jboss/test/remoting/marshall/dynamic/remote/**/TestWrapper*"/>
+         </include>
+         -->
+      </artifactdef>
+
+      <artifactdef artifact="jboss-remoting-loading-tests.jar">
+      <!--
+         <include input="tests">
+            <include pattern="org/jboss/test/remoting/marshall/dynamic/remote/**/Test*Marshaller*"/>
+            <include pattern="org/jboss/test/remoting/marshall/dynamic/remote/**/TestWrapper*"/>
+         </include>
+         -->
+      </artifactdef>
+
+   </componentdef>
+
+   <!-- Generate the targets -->
+   <generate generate="remoting"/>
+
+</project>

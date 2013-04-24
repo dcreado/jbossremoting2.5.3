@@ -1,0 +1,31 @@
+The jars included in this directory are from the JBossAS sub-projects and are needed by JBossRemoting.
+The files currently listed match the versions on http://svn.jboss.org/repos/jbossas/branches/JBPAPP_5_0 on 12/25/09.
+
+File                          Version       From 
+-------                       -------       ----
+jboss-common-core.jar         2.2.16.GA     http://repository.jboss.com/maven2/org/jboss/jboss-common-core/2.2.16.GA/
+jboss-j2se.jar                JBPAPP_5_1:   build: http://svn.jboss.org/repos/jbossas/branches/JBPAPP_5_1: revision 104587
+jboss-jmx.jar                 JBPAPP_5_0:   build: http://svn.jboss.org/repos/jbossas/branches/JBPAPP_5_1: revision 104587
+jboss-logging-log4j.jar       2.1.0.GA      http://repository.jboss.com/maven2/org/jboss/logging/jboss-logging-log4j/2.1.0.GA/
+jboss-logging-spi.jar         2.1.0.GA      http://repository.jboss.com/maven2/org/jboss/logging/jboss-logging-spi/2.1.0.GA//
+jboss-serialization.jar       1.0.3.GA      http://repository.jboss.com/maven2/jboss/jboss-serialization/1.0.3.GA/
+jnpserver.jar                 5.0.3.GA      http://repository.jboss.com/maven2/org/jboss/naming/jnpserver/5.0.3.GA/
+
+
+
+Only exception to this is the jrunit.jar.  There is no release of this currently, so having to use locally built version.
+However, can reproduce the binary using the appropriate CVS tag from the jrunit project.
+
+11/16/06:  A new jrunit.jar has been committed, built from jrunit CVS version remoting_binary_111606.
+
+11/22/06:  A new jrunit.jar has been committed, built from jrunit CVS version remoting_binary_112206.
+
+01/12/07:  A new jrunit.jar has been committed, built from jrunit CVS version remoting_binary_011207.
+
+12/12/07:  A new jrunit.jar has been committed.  
+
+04/30/08:  A new jrunit.jar has been committed, built from jrunit CVS version remoting_binary_043008.
+
+05/07/08:  A new jrunit.jar has been committed, built from jrunit CVS version remoting_binary_050708.
+
+08/10/08:  A new jrunit.jar has been committed, built from jrunit CVS version remoting_binary_081008

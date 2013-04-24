@@ -1,0 +1,125 @@
+// JBoss, Home of Professional Open Source
+// Copyright 2005, JBoss Inc., and individual contributors as indicated
+// by the @authors tag. See the copyright.txt in the distribution for a
+// full listing of individual contributors.
+//
+// This is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation; either version 2.1 of
+// the License, or (at your option) any later version.
+//
+// This software is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this software; if not, write to the Free
+// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+// 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+//
+
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//******************************************************************
+//****    Minimal set of permissions for Remoting classes       ****
+//******************************************************************
+//******************************************************************
+
+grant codeBase "file:${remoting.jar.dir}/jboss-remoting.jar"
+{
+    // Permissions to read test keystores and truststores
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}bisocket${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}bisocket${/}ssl${/}.truststore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}http${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}http${/}ssl${/}.truststore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}rmi${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}rmi${/}ssl${/}.truststore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}socket${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}socket${/}ssl${/}.truststore", "read";
+  
+    // org.jboss.test.remoting.transport.http.ssl.custom.HTTPSInvokerTestCase
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#createServerSocket[test:type=serversocketfactory]", "invoke";
+ };   
+    
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//******************************************************************
+//****          Minimal set of permissions for tests            ****
+//******************************************************************
+//****************************************************************** 
+
+grant codeBase "file:${build.home}/output/tests/classes/-"
+{
+    // Permissions to read test keystores and truststores
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}bisocket${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}bisocket${/}ssl${/}.truststore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}rmi${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}rmi${/}ssl${/}.truststore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}socket${/}ssl${/}.keystore", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}transport${/}socket${/}ssl${/}.truststore", "read";
+
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+    
+    // org.jboss.test.remoting.transport.http.ssl.custom.HTTPSInvokerTestCase
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#-[test:type=serversocketfactory]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[test:transport=coyote,type=connector]", "registerMBean";
+    
+    permission java.util.PropertyPermission "org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "read";
+    permission java.util.PropertyPermission "jrunit.bind_addr", "read";
+
+    // org.jboss.test.remoting.transport.InvokerTestDriver
+    permission java.util.PropertyPermission "remoting.metadata", "read";
+    permission java.util.PropertyPermission "jvm.mx", "read";
+    
+    // org.jboss.remoting.transport.http.HTTPClientInvoket
+    permission java.util.PropertyPermission "http.proxyHost", "read";
+    
+    // org.jboss.test.taskdefs.XMLJUnitMultipleResultFormatter
+    permission java.util.PropertyPermission "jboss-junit-configuration", "read";
+    
+    // org.jboss.test.remoting.transport.InvokerClientTest
+    permission java.util.PropertyPermission "remoting.metadata.callback", "read";
+    
+    // org.jboss.test.remoting.transport.web.WebInvokerTestClient
+    permission java.util.PropertyPermission "check_content_type", "read";
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////
+// TODO - We should use a version of JBoss logging + log4j that does this stuff in privileged blocks
+
+      permission java.io.FilePermission "${build.home}${/}src${/}etc${/}log4j.properties", "read";
+      permission java.io.FilePermission "${build.home}${/}src${/}etc${/}log4j.xml", "read";
+      permission java.io.FilePermission "${build.home}${/}lib${/}apache-log4j${/}lib${/}log4j.jar", "read";
+      permission java.io.FilePermission "${build.home}${/}output${/}classes${/}-", "read";
+      permission java.lang.RuntimePermission "accessClassInPackage.*";
+      permission java.util.PropertyPermission "org.jboss.logging.Logger.pluginClass", "read";
+      permission java.util.PropertyPermission "log4j.defaultInitOverride", "read";
+      permission java.util.PropertyPermission "elementAttributeLimit", "read";
+      permission java.util.PropertyPermission "maxOccurLimit", "read";
+      permission java.util.PropertyPermission "entityExpansionLimit", "read";
+      permission java.util.PropertyPermission "javax.xml.parsers.DocumentBuilderFactory", "read";
+      permission java.util.PropertyPermission "log4j.ignoreTCL", "read";
+      permission java.util.PropertyPermission "log4j.configuratorClass", "read";
+      permission java.util.PropertyPermission "log4j.configDebug", "read";
+      permission java.util.PropertyPermission "log4j.debug", "read";
+      permission java.util.PropertyPermission "log4j.configuration", "read";
+      permission java.util.PropertyPermission "org.apache.commons.logging.LogFactory", "read";
+      permission java.util.PropertyPermission "org.apache.commons.logging.Log", "read";
+};
+
+
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//******************************************************************
+//****           Permissions for third party libraries          ****
+//******************************************************************
+//****************************************************************** 
+grant codeBase "file:${build.home}/lib/-"
+{
+    permission java.security.AllPermission;
+};
+
+grant codeBase "file:${ant.library.dir}/-"
+{
+    permission java.security.AllPermission;
+};

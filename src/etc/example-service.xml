@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+
+<!-- ======================================================== -->
+<!-- Example JBoss Remoting Service Configuration file        -->
+<!-- ======================================================== -->
+<server>
+
+   <!-- NOTE: set this up to the path where your libraries are -->
+   <classpath codebase="lib"
+      archives="*"/>
+
+   <!-- For detailed description of all these configuration attributes, please see the -->
+   <!-- JBoss Remoting User's Guide or wiki (http://www.jboss.org/wiki/Wiki.jsp?page=Remoting_configuration) -->
+
+
+   <!-- The NetworkRegistry contains all the local and remote -->
+   <!-- servers that it recognizes.  The remote ones registered -->
+   <!-- are dependant on the detectors running and which domains -->
+   <!-- they are configured to identify.                         -->
+   <mbean code="org.jboss.remoting.network.NetworkRegistry"
+      name="jboss.remoting:service=NetworkRegistry"/>
+
+
+   <!-- ******************************************************************** -->
+   <!-- CONNECTORS/INVOKERS                                                  -->
+   <!-- The following section covers all the different transport types       -->
+   <!-- that can be configured for the Connector (socket, sslsocket, rmi     -->
+   <!-- http, and https).                                                    -->
+   <!-- ******************************************************************** -->
+
+   <!-- The Connector is the core component of the remoting server service. -->
+   <!-- It binds the remoting invoker (transport protocol, callback configuration, -->
+   <!-- data marshalling, etc.) with the invocation handlers.  -->
+   <!-- This particular Connector is for the standard socket protocol. -->
+   <mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:service=Connector,transport=Socket"
+      display-name="Socket transport Connector">
+
+      <!-- Can either just specify the InvokerLocator attribute and not the invoker element in the -->
+      <!-- Configuration attribute, or do the full invoker configuration in the in invoker element -->
+      <!-- of the Configuration attribute. -->
+
+      <!-- Remember that if you do use more than one param on the uri, will have to include as a CDATA, -->
+      <!-- otherwise, parser will complain. -->
+      <!-- <attribute name="InvokerLocator"><![CDATA[socket://${jboss.bind.address}:8084/?enableTcpNoDelay=false&clientMaxPoolSize=30]]></attribute> -->
+
+      <attribute name="Configuration">
+         <config>
+            <!-- Other than transport type and handler, none of these configurations are required (will just use defaults). -->
+            <invoker transport="socket">
+               <!-- The following are specific to socket invoker -->
+               <attribute name="numAcceptThreads">1</attribute>
+               <attribute name="maxPoolSize">303</attribute>
+               <attribute name="clientMaxPoolSize" isParam="true">304</attribute>
+               <attribute name="socketTimeout">60000</attribute>
+               <!-- To set socketTimeout on client as well, add "isParam" -->
+               <!--<attribute name="socketTimeout" isParam="true">60000</attribute>-->
+               <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
+               <attribute name="serverBindPort">6666</attribute>
+               <!-- <attribute name="clientConnectAddress" isParam="true">216.23.33.2</attribute> -->
+               <!-- <attribute name="clientConnectPort" isParam="true">7777</attribute> -->
+               <attribute name="enableTcpNoDelay" isParam="true">false</attribute>
+               <attribute name="backlog">200</attribute>
+               <!-- The following is for callback configuration and is independent of invoker type -->
+               <attribute name="callbackMemCeiling">30</attribute>
+               <!-- indicates callback store by fully qualified class name -->
+               <attribute name="callbackStore">org.jboss.remoting.callback.CallbackStore</attribute>
+               <!-- indicates callback store by object name -->
+               <!-- <attribute name="callbackStore">jboss.remoting:service=CallbackStore,type=Serializable</attribute> -->
+               <!-- config params for callback store.  if were declaring callback store via object name, -->
+               <!-- could have specified these config params there. -->
+               <!-- StoreFilePath indicates to which directory to write the callback objects. -->
+               <!-- The default value is the property value of 'jboss.server.data.dir' and if this is not set, -->
+               <!-- then will be 'data'. Will then append 'remoting' and the callback client's session id. -->
+               <!-- An example would be 'data\remoting\5c4o05l-9jijyx-e5b6xyph-1-e5b6xyph-2'. -->
+               <attribute name="StoreFilePath">callback</attribute>
+               <!-- StoreFileSuffix indicates the file suffix to use for the callback objects written to disk. -->
+               <!-- The default value is ser. -->
+               <attribute name="StoreFileSuffix">cst</attribute>
+               <!-- Sets the callback error handler to use when determining how to manage failed push callbacks -->
+               <!-- When not specified, the default is org.jboss.remoting.callback.DefaultCallbackErrorHandler -->
+               <!-- <attribute name="callbackErrorHandler">org.jboss.remoting.callback.DefaultCallbackErrorHandler</attribute> -->
+            </invoker>
+            <!-- At least one handler is required by the connector.  If have more than one, must declare -->
+            <!-- different subsystem values.  Otherwise, all invocations will be routed to the only one -->
+            <!-- that is declared. -->
+            <handlers>
+               <!-- specify handler by fully qualified classname -->
+               <handler subsystem="mock">org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</handler>
+               <!-- can also specify handler by object name -->
+               <!-- <handler subsystem="mock">test:type=handler</handler> -->
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+
+   <!-- This Connector is for the SSL based socket transport.  -->
+   <!-- It is basically the same as the regular socket configuration -->
+   <!-- with the exception of the protocol name (sslsocket) and -->
+   <!-- the serverSocketFactory attribute.  Due to this, will   -->
+   <!-- shorten the extra attributes to highlight the specific -->
+   <!-- differences between sslsocket and socket transports. -->
+   <mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:service=Connector,transport=SSLSocket"
+      display-name="SSL Socket transport Connector">
+
+      <attribute name="Configuration">
+         <config>
+            <!-- Other than transport type and handler, none of these configurations are required (will just use defaults). -->
+            <!-- This includes the serverSocketFactory, but are including it here to show how to reference the -->
+            <!-- SSL server socket factory implementation provided with JBossRemoting.  -->
+            <invoker transport="sslsocket">
+               <!-- The following is for setting the server socket factory.  If want ssl support -->
+               <!-- use a server socket factory that supports ssl.  The only requirement is that -->
+               <!-- the server socket factory value must be an ObjectName, meaning the -->
+               <!-- server socket factory implementation must be a MBean and also -->
+               <!-- MUST implement the org.jboss.remoting.security.ServerSocketFactoryMBean interface. -->
+               <attribute name="serverSocketFactory">jboss.remoting:service=ServerSocketFactory,type=SSL</attribute>
+               <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
+               <attribute name="serverBindPort">6667</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="mock">org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+      <!-- This depends is included because need to make sure this mbean is running before configure invoker. -->
+      <depends>jboss.remoting:service=ServerSocketFactory,type=SSL</depends>
+   </mbean>
+
+   <!-- This Connector is for the http based transport.  -->
+   <!-- This invoker will basically run as a standalone http server -->
+   <mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:service=Connector,transport=HTTP"
+      display-name="HTTP transport Connector">
+
+      <!-- Since there are no special configuration properties for this invoker, will just use the following -->
+      <!-- to declare the invoker and not within the 'invoker' element within the 'Configuration' attribute below. -->
+      <!-- IMPORTANT to note can only be either 'InvokerLocator' attribute OR 'invoker' element, not both. -->
+      <attribute name="InvokerLocator">http://${jboss.bind.address}:6668</attribute>
+
+      <attribute name="Configuration">
+         <config>
+            <handlers>
+               <handler subsystem="mock">org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+
+   <!-- This Connector is for the https based transport.  -->
+   <!-- This invoker will basically run as a standalone https server -->
+   <mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:service=Connector,transport=HTTPS"
+      display-name="HTTPS transport Connector">
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="https">
+               <!-- When doing https, this attribute MUST be set and MUST always be the same value. -->
+               <attribute name="SSLImplementation">org.jboss.remoting.transport.coyote.ssl.RemotingSSLImplementation</attribute>
+               <!-- The following is for setting the server socket factory.  If want ssl support -->
+               <!-- use a server socket factory that supports ssl.  The only requirement is that -->
+               <!-- the server socket factory value must be an ObjectName, meaning the -->
+               <!-- server socket factory implementation must be a MBean and also -->
+               <!-- MUST implement the org.jboss.remoting.security.ServerSocketFactoryMBean interface. -->
+               <attribute name="serverSocketFactory">jboss.remoting:service=ServerSocketFactory,type=SSL</attribute>
+               <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
+               <attribute name="serverBindPort">6669</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="mock">org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+      <!-- This depends is included because need to make sure this mbean is running before configure invoker. -->
+      <depends>jboss.remoting:service=ServerSocketFactory,type=SSL</depends>
+   </mbean>
+
+   <!-- This Connector is for the rmi based transport.  -->
+   <mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:service=Connector,transport=RMI"
+      display-name="RMI transport Connector">
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="rmi">
+               <!-- The port on which to create the RMI registry. -->
+               <!-- The default is 3455. -->
+               <attribute name="registryPort" isParam="true">7000</attribute>
+               <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
+               <attribute name="serverBindPort">6670</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="mock">org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+
+   <!-- This Connector is for the multiplex based transport.  The multiplex client and server invokers     -->
+   <!-- inherit much of their functionality from the socket invokers and use a subset of their parameters. -->       
+   <mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:service=Connector,transport=Multiplex"
+      display-name="Multiplex transport Connector">
+
+      <attribute name="Configuration">
+         <config>
+            <!-- Other than transport type and handler, none of these configurations are required (will just use defaults). -->
+            <invoker transport="multiplex">
+               <!-- The following are specific to socket/multiplex invoker -->
+               <attribute name="numAcceptThreads">1</attribute>
+               <attribute name="maxPoolSize">303</attribute>
+               <attribute name="clientMaxPoolSize" isParam="true">304</attribute>
+               
+               <attribute name="socketTimeout">60000</attribute>
+               <!-- To set socketTimeout on client as well, add "isParam" -->
+               <!--<attribute name="socketTimeout" isParam="true">60000</attribute>-->
+                  
+               <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
+               <attribute name="serverBindPort">6666</attribute>
+               <!-- <attribute name="clientConnectAddress" isParam="true">216.23.33.2</attribute> -->
+               <!-- <attribute name="clientConnectPort" isParam="true">7777</attribute> -->
+               
+               <!-- The following two parameters, enableTcpNoDelay and backlog, are not currently used. -->
+               <!-- <attribute name="enableTcpNoDelay" isParam="true">false</attribute>-->
+               <!-- <attribute name="backlog">200</attribute>-->
+               
+               <!-- The following is for callback configuration and is independent of invoker type -->
+               <attribute name="callbackMemCeiling">30</attribute>
+               <!-- indicates callback store by fully qualified class name -->
+               <attribute name="callbackStore">org.jboss.remoting.callback.CallbackStore</attribute>
+               <!-- indicates callback store by object name -->
+               <!-- <attribute name="callbackStore">jboss.remoting:service=CallbackStore,type=Serializable</attribute> -->
+               <!-- config params for callback store.  if were declaring callback store via object name, -->
+               <!-- could have specified these config params there. -->
+               <!-- StoreFilePath indicates to which directory to write the callback objects. -->
+               <!-- The default value is the property value of 'jboss.server.data.dir' and if this is not set, -->
+               <!-- then will be 'data'. Will then append 'remoting' and the callback client's session id. -->
+               <!-- An example would be 'data\remoting\5c4o05l-9jijyx-e5b6xyph-1-e5b6xyph-2'. -->
+               <attribute name="StoreFilePath">callback</attribute>
+               <!-- StoreFileSuffix indicates the file suffix to use for the callback objects written to disk. -->
+               <!-- The default value is ser. -->
+               <attribute name="StoreFileSuffix">cst</attribute>
+               <!-- Sets the callback error handler to use when determining how to manage failed push callbacks -->
+               <!-- When not specified, the default is org.jboss.remoting.callback.DefaultCallbackErrorHandler -->
+               <!-- <attribute name="callbackErrorHandler">org.jboss.remoting.callback.DefaultCallbackErrorHandler</attribute> -->
+            </invoker>
+            <!-- At least one handler is required by the connector.  If have more than one, must declare -->
+            <!-- different subsystem values.  Otherwise, all invocations will be routed to the only one -->
+            <!-- that is declared. -->
+            <handlers>
+               <!-- specify handler by fully qualified classname -->
+               <handler subsystem="mock">org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</handler>
+               <!-- can also specify handler by object name -->
+               <!-- <handler subsystem="mock">test:type=handler</handler> -->
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+   
+   <!-- ******************************************************************** -->
+   <!-- DETECTORS                                                            -->
+   <!-- Zero or more detectors are allowed.                                  -->
+   <!-- Currently only have implementation for multicast and jndi            -->
+   <!-- ******************************************************************** -->
+
+   <!-- The multicast detector uses multicase to broadcast detection messages -->
+   <mbean code="org.jboss.remoting.detection.multicast.MulticastDetector"
+      name="jboss.remoting:service=Detector,transport=multicast">
+      <!-- The address to bind to for the network interface. -->
+      <!-- <attribute name="BindAddress">${jboss.bind.address}</attribute> -->
+      <!-- The IP that is used to broadcast detection messages on via multicast. -->
+      <!-- To be more specific, will be the ip of the multicast group the detector will join. -->
+      <!-- This attribute is ignored if the Address has already been set when started. -->
+      <!-- Default is 224.1.9.1. -->
+      <attribute name="DefaultIP">224.1.9.2</attribute>
+      <!-- Multicast group port that the detector will join on.  Default is 2410 -->
+      <attribute name="Port">2411</attribute>
+      <!-- The IP of the multicast group that the detector will join. -->
+      <!-- The default will be that of the DefaultIP if not explicitly set. -->
+      <attribute name="Address">224.1.9.3</attribute>
+      <attribute name="DefaultTimeDelay">10000</attribute>
+      <attribute name="HeartbeatTimeDelay">5000</attribute>
+   </mbean>
+
+   <mbean code="org.jboss.remoting.detection.jndi.JNDIDetector"
+      name="jboss.remoting:service=Detector,transport=jndi">
+      <!-- host to which the detector will connect to for the JNDI server. -->
+      <attribute name="Host">localhost</attribute>
+      <!-- port to which detector will connect to for the JNDI server. -->
+      <attribute name="Port">5555</attribute>
+      <!-- context factory string used when connecting to the JNDI server. -->
+      <!-- The default is org.jnp.interfaces.NamingContextFactory. -->
+      <!-- <attribute name="ContextFactory">org.acme.NamingContextFactory</attribute> -->
+      <!-- url package string to use when connecting to the JNDI server. -->
+      <!-- The default is org.jboss.naming:org.jnp.interfaces. -->
+      <!-- <attribute name="URLPackage">org.acme.naming</attribute> -->
+      <!-- Sets the number of detection iterations before manually pinging -->
+      <!-- remote server to make sure still alive. This is needed since remote server -->
+      <!-- could crash and yet still have an entry in the JNDI server, -->
+      <!-- thus making it appear that it is still there. The default value is 5. -->
+      <attribute name="CleanDetectionNumber">20</attribute>
+
+      <!-- Specifies the domains in which the detector will recognize -->
+      <!-- detections.  If servers are not configured to be in these -->
+      <!-- domains, they will not be added to NetworkRegistry. -->
+      <attribute name="Configuration">
+         <domains>
+            <domain>roxanne</domain>
+            <domain>sparky</domain>
+         </domains>
+      </attribute>
+   </mbean>
+
+
+   <!-- Persitent store for remoting callbacks (pull model).  -->
+   <mbean code="org.jboss.remoting.callback.CallbackStore"
+      name="jboss.remoting:service=CallbackStore,type=Serializable"
+      display-name="Persisted Callback Store">
+
+      <!-- the directory to store the persisted callbacks into -->
+      <attribute name="StoreFilePath">callback_store</attribute>
+      <!-- the file suffix to use for each callback persisted to disk -->
+      <attribute name="StoreFileSuffix">cbk</attribute>
+   </mbean>
+
+
+   <!-- This section is for custom (SSL) server socket factory  -->
+
+   <!-- This service is used to build the SSL Server socket factory -->
+   <!-- This will be where all the store/trust information will be set. -->
+   <!-- If do not need to make any custom configurations, no extra attributes -->
+   <!-- need to be set for the SSLSocketBuilder and just need to set the -->
+   <!-- javax.net.ssl.keyStore and javax.net.ssl.keyStorePassword system properties. -->
+   <!-- This can be done by just adding something like the following to the run script for JBoss -->
+   <!-- (this one is for run.bat): -->
+   <!-- set JAVA_OPTS=-Djavax.net.ssl.keyStore=.keystore -Djavax.net.ssl.keyStorePassword=opensource %JAVA_OPTS% -->
+   <!-- Otherwise, if want to customize the attributes for SSLSocketBuilder, will need to uncomment them below. -->
+   <mbean code="org.jboss.remoting.security.SSLSocketBuilder"
+      name="jboss.remoting:service=SocketBuilder,type=SSL"
+      display-name="SSL Server Socket Factory Builder">
+      <!-- IMPORTANT - If making ANY customizations, this MUST be set to false. -->
+      <!-- Otherwise, will used default settings and the following attributes will be ignored. -->
+      <attribute name="UseSSLServerSocketFactory">false</attribute>
+      <!-- This is the url string to the key store to use -->
+      <attribute name="KeyStoreURL">.keystore</attribute>
+      <!-- The password for the key store -->
+      <attribute name="KeyStorePassword">opensource</attribute>
+      <!-- The password for the keys (will use KeystorePassword if this is not set explicitly. -->
+      <attribute name="KeyPassword">opensource</attribute>
+      <!-- The protocol for the SSLContext.  Default is TLS. -->
+      <attribute name="SecureSocketProtocol">TLS</attribute>
+      <!-- The algorithm for the key manager factory.  Default is SunX509. -->
+      <attribute name="KeyManagementAlgorithm">SunX509</attribute>
+      <!-- The type to be used for the key store. -->
+      <!-- Defaults to JKS.  Some acceptable values are JKS (Java Keystore - Sun's keystore format), -->
+      <!-- JCEKS (Java Cryptography Extension keystore - More secure version of JKS), and -->
+      <!-- PKCS12 (Public-Key Cryptography Standards #12 keystore - RSA's Personal Information Exchange Syntax Standard). -->
+      <!-- These are not case sensitive. -->
+      <attribute name="KeyStoreType">JKS</attribute>
+   </mbean>
+
+   <!-- The server socket factory mbean to be used as attribute to socket invoker -->
+   <!-- See serverSocketFactory attribute above for where it is used -->
+   <!-- This service provides the exact same API as the ServerSocketFactory, so -->
+   <!-- can be set as an attribute of that type on any MBean requiring an ServerSocketFactory. -->
+   <mbean code="org.jboss.remoting.security.SSLServerSocketFactoryService"
+      name="jboss.remoting:service=ServerSocketFactory,type=SSL"
+      display-name="SSL Server Socket Factory">
+      <depends optional-attribute-name="SSLSocketBuilder"
+         proxy-type="attribute">jboss.remoting:service=SocketBuilder,type=SSL</depends>
+   </mbean>
+
+
+</server>

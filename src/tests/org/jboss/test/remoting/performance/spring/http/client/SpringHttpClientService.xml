@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+
+      "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <!--<bean class="org.jboss.test.remoting.performance.spring.rmi.SpringRMIPerformanceClient">-->
+      <!--<property name="springRMIServerService" ref="springRMIServerService"/>-->
+   <!--</bean>-->
+<!---->
+   <!--<bean id="springRMIServerService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">-->
+      <!--<property name="serviceUrl" value="rmi://localhost:1199/SpringRMIServerService"/>-->
+      <!--<property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.rmi.SpringRMIServer"/>-->
+   <!--</bean>-->
+
+   <bean id="springHttpServerService" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+     <property name="serviceUrl" value="http://localhost:8080/remoting/springHttpServerService"/>
+     <property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.http.web.SpringHttpServer"/>
+   </bean>
+
+   <!--
+   Callback server factories are now created programmatically.
+   <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
+      <property name="serviceName" value="SpringHttpCallbackServerService"/>
+      <property name="service" ref="springHttpCallbackServerService"/>
+      <property name="servicePort" value="1300"/>
+      <property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.http.client.SpringHttpCallbackServer"/>
+      <property name="registryPort" value="1299"/>
+   </bean>
+   -->
+   
+   <bean id="springHttpCallbackServerService"
+         class="org.jboss.test.remoting.performance.spring.http.client.SpringHttpCallbackServerImpl">
+   </bean>
+
+
+</beans>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="src/tests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/apache-log4j/lib/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j/lib/dom4j.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jboss-jmx.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jboss-serialization.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jnpserver.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jrunit.jar"/>
+	<classpathentry kind="lib" path="lib/jrunit-libs/lib/jcommon-1.0.0-rc1.jar"/>
+	<classpathentry kind="lib" path="lib/jrunit-libs/lib/jfreechart-1.0.0-rc1.jar"/>
+	<classpathentry kind="lib" path="lib/junit/lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/oswego-concurrent/lib/concurrent.jar"/>
+	<classpathentry kind="lib" path="lib/spring/aopalliance/aopalliance.jar"/>
+	<classpathentry kind="lib" path="lib/spring/caucho/hessian-2.1.12.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-aop.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-beans.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-context.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-core.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-remoting.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-web.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-webmvc.jar"/>
+	<classpathentry kind="lib" path="lib/trove/lib/trove.jar"/>
+	<classpathentry kind="lib" path="lib/jgroups/lib/jgroups-all.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jboss-common-core.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jboss-j2se.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jboss-logging-log4j.jar"/>
+	<classpathentry kind="lib" path="lib/jboss/jboss-logging-spi.jar"/>
+	<classpathentry kind="lib" path="lib/jbossweb/jbossweb.jar"/>
+	<classpathentry kind="var" path="ANT_HOME/lib/ant-junit.jar"/>
+	<classpathentry kind="lib" path="lib/apache-commons/lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/servlet/lib/servlet-api.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

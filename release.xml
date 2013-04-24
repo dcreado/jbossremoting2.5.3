@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+
+<!--
+ JBoss, the OpenSource J2EE webOS
+
+ Distributable under LGPL license.
+ See terms of license at gnu.org.
+-->
+
+<!-- ================================================================== -->
+<!-- JBossAS main build definition                                      -->
+<!-- ================================================================== -->
+
+<project name="main.build"
+         default="build"
+         basedir="."
+>
+   <!-- Import the types -->
+   <import file="../tools/etc/jbossbuild/tasks.xml"/>
+
+   <property file="synchronize.properties"/>
+   <property file="cvs.properties"/>
+   <!-- =============================================================== -->
+   <!-- The Main project definition                                     -->
+   <!-- =============================================================== -->
+
+   <build id="jbossremoting"
+          impltitle="JBossRemoting"
+          implversion="1.1.0_beta"
+          implvendor="JBoss Inc."
+          implurl="http://www.jboss.org/products/remoting"
+          description="JBoss Remoting"
+          cvsroot="${cvsroot}"
+          thirdpartypath="../thirdparty/"
+          location="http://cruisecontrol.jboss.com/repository"
+          targetdefs="targets">
+
+      <!-- ============================================================ -->
+      <!-- Common utilities                                             -->
+      <!-- ============================================================ -->
+
+      <component id="common"
+                 module="jboss-common"
+                 version="5.0-SNAPSHOT"
+      >
+         <artifact id="jboss-common.jar" release="lib"/>
+         <artifact id="jboss-common-client.jar"/>
+         <artifact id="namespace.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- J2SE                                                         -->
+      <!-- ============================================================ -->
+
+      <component id="j2se"
+                 module="jboss-j2se"
+                 version="5.0-SNAPSHOT"
+      >
+         <artifact id="jboss-j2se.jar" release="lib"/>
+         <artifact id="jboss-jmx-compliance.jar"/>
+         <artifact id="jmxcompliance-MyMBeans.jar"/>
+         <artifact id="jmxcompliance-MyMBeans2.jar"/>
+         <artifact id="jmxcompliance-MoreMBeans.jar"/>
+         <artifact id="jmxcompliance-Test.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- Naming                                                       -->
+      <!-- ============================================================ -->
+
+      <component id="naming"
+                 module="jnp"
+                 version="5.0-SNAPSHOT"
+      >
+         <artifact id="jnpserver.jar" release="lib"/>
+         <artifact id="jnp-client.jar"/>
+         <artifact id="jnp-tests.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- JMX                                                          -->
+      <!-- ============================================================ -->
+
+      <component id="jmx"
+                 module="jmx"
+                 version="5.0-SNAPSHOT"
+      >
+         <artifact id="jboss-jmx.jar" release="lib"/>
+         <artifact id="jboss-jmx-core.jar"/>
+         <artifact id="jboss-jmx-testsuite.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- Remoting                                                     -->
+      <!-- ============================================================ -->
+
+      <component id="remoting"
+                 module="JBossRemoting"
+                 version="5.0-SNAPSHOT"
+      >
+         <artifact id="jboss-remoting.jar" release="lib"/>
+         <artifact id="jboss-remoting-tests.jar"/>
+         <artifact id="jboss-remoting-loading-tests.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- Apache Commons                                               -->
+      <!-- ============================================================ -->
+
+      <component id="apache-commons" version="mixed">
+         <artifact id="commons-logging.jar" release="lib"/>
+         <artifact id="commons-httpclient.jar" release="lib"/>
+         <artifact id="commons-discovery.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- DOM4J                                                        -->
+      <!-- ============================================================ -->
+
+      <component id="dom4j-dom4j" version="1.5">
+         <artifact id="dom4j.jar" release="lib"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- JUnit                                                        -->
+      <!-- ============================================================ -->
+
+      <component id="junit-junit" version="3.8.1">
+         <artifact id="junit.jar" release="lib"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- Apache Log4j                                                 -->
+      <!-- ============================================================ -->
+
+      <component id="apache-log4j" version="1.2.8">
+         <artifact id="log4j.jar" release="lib"/>
+         <artifact id="snmpTrapAppender.jar"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- Oswego Concurrent Library                                    -->
+      <!-- ============================================================ -->
+
+      <component id="oswego-concurrent" version="1.0">
+         <artifact id="concurrent.jar" release="lib"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- JGroups                                                      -->
+      <!-- ============================================================ -->
+
+      <component id="javagroups-javagroups" version="2.2.7">
+         <artifact id="jgroups.jar" release="lib"/>
+      </component>
+
+      <!-- ============================================================ -->
+      <!-- System                                                          -->
+      <!-- ============================================================ -->
+
+      <component id="system"
+                 module="jboss-system"
+                 version="5.0-SNAPSHOT"
+      >
+         <artifact id="jboss-system.jar" release="lib"/>
+     </component>
+   </build>
+
+   <!-- Generate the targets -->
+   <generate generate="jbossremoting"/>
+
+</project>

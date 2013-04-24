@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+   <mbean code="org.jboss.remoting.transport.Connector"
+          name="jboss.remoting:service=Connector,transport=Servlet"
+          display-name="Servlet transport Connector">
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="servlet">
+               <attribute name="serverBindAddress">localhost</attribute>
+               <attribute name="serverBindPort">8080</attribute>
+               <attribute name="preserveLines">false</attribute>
+               <attribute name="path">servlet-invoker/ServerInvokerServlet</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="test">org.jboss.test.remoting.transport.servlet.nopreservelines.TestInvocationHandler</handler>
+            </handlers>
+         </config>
+      </attribute>
+   </mbean>
+</server>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+
+              <mbean code="org.jboss.remoting.transport.Connector"
+                  name="jboss.remoting:service=Connector,transport=Servlet,target=tests"
+                  display-name="Servlet transport Connector">
+
+              <attribute name="InvokerLocator">
+                 servlet://localhost:8080/servlet-invoker/ServerInvokerServlet/?createUniqueObjectName=true&amp;useAllParams=true&amp;blockingMode=blocking
+              </attribute>
+
+              <attribute name="Configuration">
+                 <config>
+                    <handlers>
+                       <handler subsystem="test">org.jboss.test.remoting.transport.servlet.callback.TestInvocationHandler</handler>
+                    </handlers>
+                 </config>
+              </attribute>
+           </mbean>
+
+
+</server>

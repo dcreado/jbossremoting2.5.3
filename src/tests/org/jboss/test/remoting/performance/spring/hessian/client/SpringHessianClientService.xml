@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+
+      "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <!--<bean class="org.jboss.test.remoting.performance.spring.rmi.SpringRMIPerformanceClient">-->
+      <!--<property name="springRMIServerService" ref="springRMIServerService"/>-->
+   <!--</bean>-->
+<!---->
+   <!--<bean id="springRMIServerService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">-->
+      <!--<property name="serviceUrl" value="rmi://localhost:1199/SpringRMIServerService"/>-->
+      <!--<property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.rmi.SpringRMIServer"/>-->
+   <!--</bean>-->
+
+   <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
+      <property name="serviceName" value="SpringHessianCallbackServerService"/>
+      <property name="service" ref="springHessianCallbackServerService"/>
+      <property name="servicePort" value="1300"/>
+      <property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.hessian.client.SpringHessianCallbackServer"/>
+      <property name="registryPort" value="1299"/>
+   </bean>
+
+   <bean id="springHessianCallbackServerService"
+         class="org.jboss.test.remoting.performance.spring.hessian.client.SpringHessianCallbackServerImpl">
+   </bean>
+
+
+</beans>

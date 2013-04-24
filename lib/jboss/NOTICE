@@ -1,0 +1,9 @@
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+In particular, the JBossRemoting class org.jboss.remoting.transport.coyote.ssl.RemotingSSLSupport
+uses code from the class org.apache.tomcat.util.net.SSLSupport (version 299219) class out of
+the Apache tomcat-connectors project.
+
+The Apache license under which this is covered can be found at http://www.apache.org/licenses/LICENSE-2.0.txt.
+

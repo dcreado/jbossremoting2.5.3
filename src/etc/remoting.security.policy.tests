@@ -1,0 +1,252 @@
+// JBoss, Home of Professional Open Source
+// Copyright 2005, JBoss Inc., and individual contributors as indicated
+// by the @authors tag. See the copyright.txt in the distribution for a
+// full listing of individual contributors.
+//
+// This is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation; either version 2.1 of
+// the License, or (at your option) any later version.
+//
+// This software is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this software; if not, write to the Free
+// Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+// 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+//
+
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//******************************************************************
+//****   Permissions needed by Remoting to run the test suite   ****
+//******************************************************************
+//******************************************************************     
+
+grant codeBase "file:${build.home}/output/lib/jboss-remoting.jar"
+{
+    // Permission to read test keystores
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}-", "read";
+    
+    // Permission for org.jboss.remoting.callback.CallbackStore
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}-", "read, write, delete";
+ 
+    // Permission for org.jboss.remoting.ConnectionNotifier   
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.lease.InjectedConnectionListenerTestCase$TestConnectionListener#handleConnectionException[jboss:type=connectionlistener]", "invoke";
+ 
+    // org.jboss.test.remoting.detection.metadata.MetadataTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.detection.metadata.MetadataTestCase$TestNetworkRegistry#-[remoting:type=NetworkRegistry]", "isInstanceOf";
+
+    // org.jboss.test.remoting.handler.mbean.ServerTest
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.handler.mbean.MBeanHandler#Invoker[test:type=handler]", "setAttribute";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.handler.mbean.MBeanHandler#MBeanServer[test:type=handler]", "setAttribute";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.handler.mbean.MBeanHandler#*[test:type=handler]", "invoke";
+ 
+    // org.jboss.test.remoting.security.CallbackErrorHandlerProxyTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestCallbackErrorHandler#*[test:type=TestCallbackErrorHandler]", "setAttribute, invoke";
+
+    // org.jboss.test.remoting.security.CallbackStoreProxyTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestCallbackStore#*[test:type=Callbackstore]", "setAttribute, invoke";
+
+    // org.jboss.test.remoting.security.NetworkRegistryProxyTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestNetworkRegistry#addServer[test:type=TestNetworkRegistry]", "invoke";
+
+    // org.jboss.test.remoting.security.ServerInvokerHandlerProxyTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestServerInvocationHandler#*[test:type=TestServerInvocationHandler]", "setAttribute, invoke";
+
+    // org.jboss.test.remoting.security.ServerSocketFactoryProxyTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestServerSocketFactory#createServerSocket[test:type=SSLServerSocketFactoryService]", "invoke";
+
+    // org.jboss.test.remoting.transport.bisocket.ssl.builder.SSLBisocketInvokerTestCase
+    // org.jboss.test.remoting.transport.http.ssl.basic.HTTPSInvokerTestCase
+    // org.jboss.test.remoting.transport.http.ssl.builder.HTTPSInvokerTestCase
+    // org.jboss.test.remoting.transport.http.ssl.custom.HTTPSInvokerTestCase
+    // org.jboss.test.remoting.transport.rmi.ssl.builder.RMIInvokerTestCase
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#createServerSocket[test:type=serversocketfactory]", "invoke";
+    
+    // org.jboss.test.remoting.transport.{bisocket,http,socket}.ssl.config.FactoryConfigTestCase
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#createServerSocket[jboss:type=serversocketfactory]", "invoke";
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#SSLSocketBuilder[jboss:type=serversocketfactory]", "getAttribute";
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#SSLSocketBuilder[jboss:type=serversocketfactory2]", "getAttribute";
+    
+    // org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase$SerializableServerSocketFactory#SSLSocketBuilder[jboss:type=serversocketfactory]", "getAttribute";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase$SerializableServerSocketFactory#SSLSocketBuilder[jboss:type=serversocketfactory2]", "getAttribute";
+    
+    // org.jboss.test.remoting.transport.http.connection.socketfactory.by_mbean.SocketFactoryByMBeanTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.http.connection.socketfactory.by_mbean.SocketFactoryTestServer$ServerSocketFactoryMock#createServerSocket[jboss:type=serversocketfactory]", "invoke";
+
+    // org.jboss.test.remoting.transport.http.ssl.config.FactoryConfigTestCase
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#createServerSocket[jboss:type=serversocketfactory2]", "invoke";
+
+    // org.jboss.test.remoting.transport.rmi.connection.socketfactory.by_mbean.SocketFactoryByMBeanTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.connection.socketfactory.by_mbean.SocketFactoryTestServer$ServerSocketFactoryMock#createServerSocket[jboss:type=serversocketfactory]", "invoke";
+    
+    // org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase$SerializableServerSocketFactory#createServerSocket[jboss:type=serversocketfactory]", "invoke";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase$SerializableServerSocketFactory#createServerSocket[jboss:type=serversocketfactory2]", "invoke";
+
+    // org.jboss.test.remoting.transport.{bisocket,rmi}.ssl.builder.SSLBisocketInvokerTestCase
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#SSLSocketBuilder[test:type=serversocketfactory]", "getAttribute";
+
+    // Subclasses of org.jboss.test.remoting.transport.config.FactoryConfigTestCaseParent and FactoryConfigTestCaseSSLParent
+    // org.jboss.test.remoting.transport.{http,socket}.connection.socketfactory.by_mbean.SocketFactoryTestServer
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.socket.connection.socketfactory.by_mbean.SocketFactoryTestServer$ServerSocketFactoryMock#createServerSocket[jboss:type=serversocketfactory]", "invoke";
+
+    // org.jboss.test.remoting.transport.http.proxy.ProxyAuthenticationTestCase
+    permission java.util.PropertyPermission "http.proxyHost", "write";
+    permission java.util.PropertyPermission "http.proxyPort", "write";
+    permission java.util.PropertyPermission "proxySet", "write";
+    permission java.util.PropertyPermission "http.proxy.username", "write";
+    permission java.util.PropertyPermission "http.proxy.password", "write";
+};
+
+
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//****************************************************************************
+//****              Permissions used by the test suite                    ****
+//****  (tests.functional.main, tests.functional.main.http,               ****
+//****   tests.functional.main.core, and tests.functional.main.http.core) ****
+//****************************************************************************
+//****************************************************************************
+
+grant codeBase "file:${build.home}/output/tests/classes/-"
+{
+    permission java.io.FilePermission "${build.home}${/}output${/}tests${/}classes${/}org${/}jboss${/}test${/}remoting${/}classloader${/}race${/}test.jar", "read";
+
+    // Used by the descendents of org.jboss.test.remoting.shutdown.ShutdownTestParent.
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+
+    permission java.lang.RuntimePermission "enableContextClassLoaderOverride";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.lang.RuntimePermission "getClassLoader";
+    permission java.lang.RuntimePermission "setContextClassLoader";
+    permission java.lang.RuntimePermission "org.jboss.naming.NamingContext.getLocal";
+        
+    permission javax.management.MBeanTrustPermission "register";
+
+    permission javax.management.MBeanPermission "org.jboss.remoting.detection.jndi.JNDIDetector#-[remoting:type=JNDIDetector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.detection.multicast.MulticastDetector#-[remoting:*]", "registerMBean, unregisterMBean, queryMBeans, isInstanceOf";
+    permission javax.management.MBeanPermission "org.jboss.remoting.detection.multicast.MulticastDetector#*[test:type=MulticastDetector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.network.NetworkRegistry#-[remoting:type=NetworkRegistry]", "registerMBean, unregisterMBean, queryMBeans, isInstanceOf, addNotificationListener";
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#-[jboss:type=serversocketfactory2]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#-[*:type=serversocketfactory]", "registerMBean, queryMBeans, isInstanceOf";
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#createServerSocket[jboss:*]", "invoke";
+    permission javax.management.MBeanPermission "org.jboss.remoting.security.SSLServerSocketFactoryService#createServerSocket[test:type=serversocketfactory]", "invoke";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.*#-[jboss.remoting:service=invoker,*]", "unregisterMBean, registerMBean, queryMBeans, isInstanceOf";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[jboss.remoting:type=Connector,*]", "registerMBean, unregisterMBean, queryMBeans, isInstanceOf";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[jboss:type=connector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[test:type=connector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[test:transport=socket,type=connector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[test:transport=sslsocket,type=connector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[test:transport=coyote,type=connector]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.Connector#-[test:type=Connector]","registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.remoting.transport.socket.SocketServerInvoker#Configuration[jboss.remoting:service=invoker,*]", "getAttribute";
+        
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.detection.jndi.JNDIDetectorTest1$TestNetworkRegistry#-[remoting:type=NetworkRegistry]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.detection.jndi.JNDIDetectorTest2$TestNetworkRegistry#-[remoting:type=NetworkRegistry]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.detection.metadata.MetadataTestCase$TestNetworkRegistry#-[remoting:type=NetworkRegistry]", "registerMBean, unregisterMBean, queryMBeans, isInstanceOf, addNotificationListener";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.handler.mbean.MBeanHandler#-[test:type=handler]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.lease.InjectedConnectionListenerTestCase$TestConnectionListener#-[jboss:type=connectionlistener]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.lease.InjectedConnectionListenerTestCase$TestConnectionListener#handleConnectionException[jboss:type=connectionlistener]", "invoke";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestCallbackErrorHandler#*[test:type=TestCallbackErrorHandler]", "registerMBean, getAttribute";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestCallbackStore#*[test:type=Callbackstore]", "registerMBean, getAttribute, invoke";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestNetworkRegistry#*[test:type=TestNetworkRegistry]", "registerMBean, unregisterMBean, getAttribute";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestServerInvocationHandler#*[test:type=TestServerInvocationHandler]", "registerMBean, getAttribute, invoke";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.security.TestServerSocketFactory#*[test:type=SSLServerSocketFactoryService]", "registerMBean, getAttribute";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.config.FactoryConfigTestCaseParent$SelfIdentifyingServerSocketFactory#-[jboss:type=serversocketfactory]", "registerMBean, queryMBeans, isInstanceOf";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.http.connection.socketfactory.by_mbean.SocketFactoryTestServer$ServerSocketFactoryMock#-[jboss:type=serversocketfactory]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.connection.socketfactory.by_mbean.SocketFactoryTestServer$ServerSocketFactoryMock#-[jboss:type=serversocketfactory]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase$SerializableServerSocketFactory#-[jboss:type=serversocketfactory2]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.rmi.ssl.config.FactoryConfigTestCase$SerializableServerSocketFactory#-[jboss:type=serversocketfactory]", "registerMBean";
+    permission javax.management.MBeanPermission "org.jboss.test.remoting.transport.socket.connection.socketfactory.by_mbean.SocketFactoryTestServer$ServerSocketFactoryMock#-[jboss:type=serversocketfactory]", "registerMBean";
+
+    permission javax.management.MBeanServerPermission "createMBeanServer, findMBeanServer";
+    
+    // org.jboss.test.remoting.classloader.InvokerTestCase
+    permission java.io.FilePermission "${build.home}${/}lib${/}-", "read";
+    permission java.io.FilePermission "${build.home}${/}output${/}lib${/}jboss-remoting.jar", "read";
+    permission java.lang.RuntimePermission "accessDeclaredMembers";
+    
+    // org.jboss.test.remoting.transport.connector.ObjectNameWithZeroesAddressTestCase
+    permission javax.management.MBeanPermission "*#-[*:*]", "queryMBeans";
+        
+    // Several test cases.
+    permission java.util.PropertyPermission "jrunit.bind_addr", "read";
+    
+    // org.jboss.ant.taskdefs.XMLJUnitMultipleResultFormatter
+    permission java.util.PropertyPermission "jboss-junit-configuration", "read";
+    
+    // This is technically the JNP server, but it seems intentional - note that this might mask other problems though
+    permission java.net.SocketPermission "*:*", "accept, connect, resolve";
+    
+    // jndi detection test cases
+    permission java.util.PropertyPermission "java.naming.factory.initial", "write";
+    permission java.util.PropertyPermission "jboss.global.jnp.disableDiscovery", "read";
+    permission org.jboss.naming.JndiPermission "detection", "createSubcontext";
+    permission org.jboss.naming.JndiPermission "detection", "listBindings";
+    permission org.jboss.naming.JndiPermission "detection", "lookup";
+    permission org.jboss.naming.JndiPermission "detection/*", "rebind"; 
+    permission org.jboss.naming.JndiPermission "detection/*", "unbind"; 
+
+    // MalformedLocatorTestCase, RemoteClassloaderTestCase
+    permission java.lang.RuntimePermission "setIO";
+        
+    // MalformedLocatorTestCase
+    permission java.util.PropertyPermission "suppressHostWarning", "write";
+    
+    // org.jboss.test.remoting.security.InvokerRegistryUpdateTestCase
+    permission java.lang.RuntimePermission "invokerRegistryUpdate";
+
+    // TODO - this stuff ought to be in privileged blocks within the Ant JUnit task
+    permission java.util.PropertyPermission "*", "read, write"; // ugh
+
+    // TESTING ONLY - Use with the LoggingSecurityManager to locate needed permissions for the above block
+//    permission java.security.AllPermission;
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// TODO - We should use a version of JBoss logging + log4j that does this stuff in privileged blocks
+
+      permission java.io.FilePermission "${build.home}${/}src${/}etc${/}log4j.properties", "read";
+      permission java.io.FilePermission "${build.home}${/}src${/}etc${/}log4j.xml", "read";
+      permission java.io.FilePermission "${build.home}${/}lib${/}apache-log4j${/}lib${/}log4j.jar", "read";
+      permission java.io.FilePermission "${build.home}${/}output${/}classes${/}-", "read";
+      permission java.lang.RuntimePermission "accessClassInPackage.*";
+      permission java.util.PropertyPermission "org.jboss.logging.Logger.pluginClass", "read";
+      permission java.util.PropertyPermission "log4j.defaultInitOverride", "read";
+      permission java.util.PropertyPermission "elementAttributeLimit", "read";
+      permission java.util.PropertyPermission "maxOccurLimit", "read";
+      permission java.util.PropertyPermission "entityExpansionLimit", "read";
+      permission java.util.PropertyPermission "javax.xml.parsers.DocumentBuilderFactory", "read";
+      permission java.util.PropertyPermission "log4j.ignoreTCL", "read";
+      permission java.util.PropertyPermission "log4j.configuratorClass", "read";
+      permission java.util.PropertyPermission "log4j.configDebug", "read";
+      permission java.util.PropertyPermission "log4j.debug", "read";
+      permission java.util.PropertyPermission "log4j.configuration", "read";
+      permission java.util.PropertyPermission "org.apache.commons.logging.LogFactory", "read";
+      permission java.util.PropertyPermission "org.apache.commons.logging.Log", "read";
+};
+
+
+//****************************************************************************************************************************************************************
+//****************************************************************************************************************************************************************
+//******************************************************************
+//****           Permissions for third party libraries          ****
+//******************************************************************
+//******************************************************************
+
+grant codeBase "file:${build.home}/lib/-"
+{
+    permission java.security.AllPermission;
+};
+
+grant codeBase "file:${ant.library.dir}/-"
+{
+    permission java.security.AllPermission;
+};

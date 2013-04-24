@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+
+<!-- ======================================================== -->
+<!-- Example JBoss Remoting Service Configuration file        -->
+<!-- ======================================================== -->
+<server>
+
+   <!-- NOTE: set this up to the path where your libraries are -->
+   <classpath codebase="lib"
+      archives="*"/>
+
+   <mbean code="org.jboss.remoting.network.NetworkRegistry"
+      name="jboss.remoting:service=NetworkRegistry"/>
+
+   <!-- MBean Server Invocation Handler -->
+   <mbean code="org.jboss.test.remoting.handler.mbean.MBeanHandler"
+      name="test:type=handler"/>
+
+
+   <mbean code="org.jboss.remoting.transport.Connector"
+      xmbean-dd="org/jboss/remoting/transport/Connector.xml"
+      name="jboss.remoting:service=Connector,transport=Socket"
+      display-name="Socket transport Connector">
+
+      <!-- Can either just specify the InvokerLocator attribute and not the invoker element in the -->
+      <!-- Configuration attribute, or do the full invoker configuration in the in invoker element -->
+      <!-- of the Configuration attribute. -->
+
+      <!-- Remember that if you do use more than one param on the uri, will have to include as a CDATA, -->
+      <!-- otherwise, parser will complain. -->
+      <!--       <attribute name="InvokerLocator"><![CDATA[socket://${jboss.bind.address}:8084/?enableTcpNoDelay=false&clientMaxPoolSize=30]]></attribute>-->
+
+      <attribute name="Configuration">
+         <config>
+            <invoker transport="socket">
+               <attribute name="numAcceptThreads">1</attribute>
+               <attribute name="maxPoolSize">303</attribute>
+               <attribute name="clientMaxPoolSize" isParam="true">304</attribute>
+               <attribute name="socketTimeout">60000</attribute>
+               <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
+               <attribute name="serverBindPort">5400</attribute>
+               <!--              <attribute name="clientConnectAddress">216.23.33.2</attribute> -->
+               <!--              <attribute name="clientConnectPort">7777</attribute> -->
+               <attribute name="enableTcpNoDelay" isParam="true">false</attribute>
+               <attribute name="backlog">200</attribute>
+            </invoker>
+            <handlers>
+               <handler subsystem="test">test:type=handler</handler>
+            </handlers>
+         </config>
+      </attribute>
+
+   </mbean>
+
+   <mbean code="org.jboss.remoting.detection.multicast.MulticastDetector"
+      name="jboss.remoting:service=Detector,transport=multicast">
+      <!-- you can specifically bind the detector to a specific IP address here
+      <attribute name="BindAddress">${jboss.bind.address}</attribute>
+      -->
+      <attribute name="Port">2410</attribute>
+   </mbean>
+
+</server>

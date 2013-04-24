@@ -1,0 +1,7 @@
+output
+bin
+build.log
+test_logs
+JBossRemoting-remoting_2_x.iml
+JBossRemoting-remoting_2_x.ipr
+JBossRemoting-remoting_2_x.iws

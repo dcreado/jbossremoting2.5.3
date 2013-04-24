@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC
+   "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+   "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<!-- The the JBossRemoting server invoker servlet web.xml descriptor
+$Id: web.xml 4903 2009-03-24 07:33:10Z ron.sigal@jboss.com $
+-->
+<web-app>
+    <servlet>
+        <servlet-name>ServerInvokerServletDefault</servlet-name>
+        <description>The ServerInvokerServlet receives requests via HTTP
+           protocol from within a web container and passes it onto the
+           ServletServerInvoker for processing.
+        </description>
+        <servlet-class>org.jboss.remoting.transport.servlet.web.ServerInvokerServlet</servlet-class>
+        <init-param>
+            <param-name>locatorUrl</param-name>
+            <param-value>servlet://127.0.0.1:8080/servlet-invoker/ServerInvokerServlet/default/?datatype=test&amp;marshaller=org.jboss.test.remoting.transport.servlet.marshal.TestMarshaller&amp;unmarshaller=org.jboss.test.remoting.transport.servlet.marshal.TestUnmarshaller</param-value>
+            <description>The servlet server invoker locator url</description>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>ServerInvokerServletFalse</servlet-name>
+        <description>The ServerInvokerServlet receives requests via HTTP
+           protocol from within a web container and passes it onto the
+           ServletServerInvoker for processing.
+        </description>
+        <servlet-class>org.jboss.remoting.transport.servlet.web.ServerInvokerServlet</servlet-class>
+        <init-param>
+            <param-name>locatorUrl</param-name>
+            <param-value>servlet://127.0.0.1:8080/servlet-invoker/ServerInvokerServlet/false/?datatype=test&amp;marshaller=org.jboss.test.remoting.transport.servlet.marshal.TestMarshaller&amp;unmarshaller=org.jboss.test.remoting.transport.servlet.marshal.TestUnmarshaller&amp;useRemotingContentType=false</param-value>
+            <description>The servlet server invoker locator url</description>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>ServerInvokerServletTrue</servlet-name>
+        <description>The ServerInvokerServlet receives requests via HTTP
+           protocol from within a web container and passes it onto the
+           ServletServerInvoker for processing.
+        </description>
+        <servlet-class>org.jboss.remoting.transport.servlet.web.ServerInvokerServlet</servlet-class>
+        <init-param>
+            <param-name>locatorUrl</param-name>
+            <param-value>servlet://127.0.0.1:8080/servlet-invoker/ServerInvokerServlet/true/?datatype=test&amp;marshaller=org.jboss.test.remoting.transport.servlet.marshal.TestMarshaller&amp;unmarshaller=org.jboss.test.remoting.transport.servlet.marshal.TestUnmarshaller&amp;useRemotingContentType=true</param-value>
+            <description>The servlet server invoker locator url</description>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServerInvokerServletDefault</servlet-name>
+        <url-pattern>/ServerInvokerServlet/default/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServerInvokerServletFalse</servlet-name>
+        <url-pattern>/ServerInvokerServlet/false/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServerInvokerServletTrue</servlet-name>
+        <url-pattern>/ServerInvokerServlet/true/*</url-pattern>
+    </servlet-mapping>
+</web-app>
+

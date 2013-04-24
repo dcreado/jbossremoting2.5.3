@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!--  JBoss, the OpenSource J2EE webOS                                      -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+
+<!-- $Id: build.xml 4265 2008-05-29 04:31:44Z ron.sigal@jboss.com $ -->
+
+<project default="compile-sample-classes" name="JBoss/Remoting">
+
+   <property name="examples.root" value="${basedir}"/>
+   <property name="lib.dir" value="${examples.root}/../lib"/>
+
+   <!-- ================================================================== -->
+   <!-- Configuration                                                      -->
+   <!-- ================================================================== -->
+
+   <!-- ========= -->
+   <!-- Libraries -->
+   <!-- ========= -->
+   <path id="library.classpath">
+      <fileset dir="${lib.dir}">
+        <include name="**/*.jar"/>
+      </fileset>
+      </path>
+
+   <!-- Compile all sample files -->
+   <target name="compile-sample-classes">
+     <javac destdir="${examples.root}"
+       target="1.4"
+       source="1.4"
+       failonerror="yes">
+       <src path="${examples.root}"/>
+       <classpath refid="library.classpath"/>
+       <include name="**/*.java"/>
+     </javac>
+   </target>
+
+   <target name="run-simple-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.simple.SimpleClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-simple-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.simple.SimpleServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-http-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.http.SimpleClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-http-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.http.SimpleServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-callback-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.callback.CallbackClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-callback-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.callback.CallbackServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-detector-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.detection.multicast.SimpleDetectorClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-detector-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.detection.multicast.SimpleDetectorServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-oneway-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.oneway.OnewayClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-oneway-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.oneway.OnewayServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-stream-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.stream.StreamingClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-stream-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.stream.StreamingServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-simple-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.simple.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-simple-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.simple.Server" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-basic-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.basic.client.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-basic-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.basic.server.Server" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-multiple-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.multiple.client.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-multiple-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.multiple.server.Server" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-proxy-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.proxy.client.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-proxy-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.proxy.server.Server" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-clustered-client" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.clustered.client.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-clustered-socket-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.clustered.server.SocketServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-clustered-rmi-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.clustered.server.RMIServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-clustered-http-server" depends="compile-sample-classes">
+             <java classname="org.jboss.remoting.samples.transporter.clustered.server.HTTPServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-bisocket-client" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.bisocket.BisocketSampleClient" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+
+   <target name="run-bisocket-server" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.bisocket.BisocketSampleServer" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <!-- check to see if running jdk1.5 -->
+   <target name="get-jvm">
+      <condition property="isJDK5">
+         <equals arg1="${ant.java.version}" arg2="1.5"/>
+      </condition>
+   </target>
+
+   <!-- Following check to make sure being run using JDK 1.5 (otherwise print message) -->
+   <target name="run-serialization-client" depends="get-jvm,run-actual-serialization-client,jdk-message"/>
+
+   <target name="run-serialization-server" depends="get-jvm,run-actual-serialization-server,jdk-message"/>
+
+   <target name="jdk-message" unless="isJDK5">
+      <echo>*** This sample can only be run using JDK 1.5 ***</echo>
+   </target>
+
+   <target name="run-actual-serialization-client" depends="compile-sample-classes" if="isJDK5">
+             <java classname="org.jboss.remoting.samples.serialization.SerializationClient" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-actual-serialization-server" depends="compile-sample-classes" if="isJDK5">
+             <java classname="org.jboss.remoting.samples.serialization.SerializationServer" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-serialization-client" depends="get-jvm,run-actual-transporter-serialization-client,jdk-message"/>
+
+   <target name="run-transporter-serialization-server" depends="get-jvm,run-actual-transporter-serialization-server,jdk-message"/>
+
+   <target name="run-actual-transporter-serialization-client" depends="compile-sample-classes" if="isJDK5">
+             <java classname="org.jboss.remoting.samples.transporter.serialization.client.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-actual-transporter-serialization-server" depends="compile-sample-classes" if="isJDK5">
+             <java classname="org.jboss.remoting.samples.transporter.serialization.server.Server" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-transporter-complex-client" depends="get-jvm,run-actual-transporter-complex-client,jdk-message"/>
+
+   <target name="run-transporter-complex-server" depends="get-jvm,run-actual-transporter-complex-server,jdk-message"/>
+
+   <target name="run-actual-transporter-complex-client" depends="compile-sample-classes" if="isJDK5">
+             <java classname="org.jboss.remoting.samples.transporter.complex.client.Client" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+   <target name="run-actual-transporter-complex-server" depends="compile-sample-classes" if="isJDK5">
+             <java classname="org.jboss.remoting.samples.transporter.complex.server.Server" fork="yes">
+         <classpath>
+           <pathelement location="${examples.root}"/>
+           <path refid="library.classpath"/>
+         </classpath>
+       </java>
+   </target>
+
+
+
+  <target name="run-multiplex-server" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.MultiplexInvokerServer" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <target name="run-Client2Server1" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.Client2Server1" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <target name="run-Client2Server2" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.Client2Server2" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <target name="run-Client3Server1" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.Client3Server1" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <target name="run-Server2Client1" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.Server2Client1" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <target name="run-Server2Client2" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.Server2Client2" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+   <target name="run-Server3Client1" depends="compile-sample-classes">
+      <java classname="org.jboss.remoting.samples.multiplex.invoker.Server3Client1" fork="yes">
+         <classpath>
+            <pathelement location="${examples.root}"/>
+            <path refid="library.classpath"/>
+         </classpath>
+      </java>
+   </target>
+	
+</project>
+

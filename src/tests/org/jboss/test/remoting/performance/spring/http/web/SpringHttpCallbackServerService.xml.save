@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+
+      "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- This file is no longer used.  Callback servers are now created programmatically. -->
+<beans>
+
+   <bean class="org.jboss.test.remoting.performance.spring.http.web.SpringHttpHandler">
+      <property name="springHttpCallbackServerService" ref="springHttpCallbackServerService"/>
+   </bean>
+
+   <bean id="springHttpCallbackServerService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+      <property name="serviceUrl" value="rmi://localhost:1299/SpringHttpCallbackServerService"/>
+      <property name="serviceInterface" value="org.jboss.test.remoting.performance.spring.http.client.SpringHttpCallbackServer"/>
+   </bean>
+
+
+</beans>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+
+           <mbean code="org.jboss.remoting.transport.Connector"
+                  name="jboss.remoting:service=Connector,transport=Servlet,target=tests,version=OK"
+                  display-name="Servlet transport Connector">
+
+              <attribute name="InvokerLocator">
+                 servlet://localhost:8080/servlet-invoker/ServerInvokerServlet/?version=OK
+              </attribute>
+
+              <attribute name="Configuration">
+                 <config>
+                    <handlers>
+                       <handler subsystem="test">org.jboss.test.remoting.transport.servlet.contenttype.TestInvocationHandlerOK</handler>
+                    </handlers>
+                 </config>
+              </attribute>
+           </mbean>
+           
+           <mbean code="org.jboss.remoting.transport.Connector"
+                  name="jboss.remoting:service=Connector,transport=Servlet,target=tests,version=CR"
+                  display-name="Servlet transport Connector">
+
+              <attribute name="InvokerLocator">
+                 servlet://localhost:8080/servlet-invoker/ServerInvokerServlet/?version=CR
+              </attribute>
+
+              <attribute name="Configuration">
+                 <config>
+                    <handlers>
+                       <handler subsystem="test">org.jboss.test.remoting.transport.servlet.contenttype.TestInvocationHandlerCR</handler>
+                    </handlers>
+                 </config>
+              </attribute>
+           </mbean>
+
+           <mbean code="org.jboss.remoting.transport.Connector"
+                  name="jboss.remoting:service=Connector,transport=Servlet,target=tests,version=LF"
+                  display-name="Servlet transport Connector">
+
+              <attribute name="InvokerLocator">
+                 servlet://localhost:8080/servlet-invoker/ServerInvokerServlet/?version=LF
+              </attribute>
+
+              <attribute name="Configuration">
+                 <config>
+                    <handlers>
+                       <handler subsystem="test">org.jboss.test.remoting.transport.servlet.contenttype.TestInvocationHandlerLF</handler>
+                    </handlers>
+                 </config>
+              </attribute>
+           </mbean>
+</server>

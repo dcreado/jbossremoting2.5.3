@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+
+              <mbean code="org.jboss.remoting.transport.Connector"
+                  name="jboss.remoting:service=Connector,transport=SSLServlet"
+                  display-name="Servlet transport Connector">
+
+              <attribute name="InvokerLocator">
+                 sslservlet://localhost:8443/servlet-invoker/ServerInvokerServlet
+              </attribute>
+
+              <attribute name="Configuration">
+                 <config>
+                    <handlers>
+                       <handler subsystem="test">org.jboss.test.remoting.transport.web.WebInvocationHandler</handler>
+                    </handlers>
+                 </config>
+              </attribute>
+           </mbean>
+
+
+</server>

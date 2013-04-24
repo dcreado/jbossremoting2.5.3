@@ -1,0 +1,6 @@
+log4j.client_properties
+log4j.properties
+log4j.server_properties
+experimental
+log4j_client.xml
+log4j_server.xml
