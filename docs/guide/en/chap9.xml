@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="chapter-connection-failure" xreflabel="Network Connection Monitoring">
+  <title>Network Connection Monitoring</title>
+  
+  <para>Remoting has two mechanisms for monitoring the health of estabilished
+  connections, which inform listeners on the client and server sides when a
+  possible connection failure has been detected.</para>
+  
+  <section>
+    <title>Client side monitoring</title>
+
+    <para>On the client side, an
+    <classname>org.jboss.remoting.ConnectionValidator</classname> periodically
+    sends a PING message to the server and reports a failure if the response
+    does not arrive within a specified timeout period. The PING is sent on one
+    thread, and another thread determines if the response arrives in time.
+    Separating these two activities allows Remoting to detect a failure
+    regardless of the cause of the failure.</para>
+    
+    <para>The creation of the <classname>ConnectionValidator</classname> is the
+    responsibility of the <classname>org.jboss.remoting.Client</classname>
+    class. All the application code needs to do is to register an implementation
+    of the <code>org.jboss.remoting.ConnectionListener</code> interface, which
+    has only one method:</para>
+  
+    <programlisting>public void handleConnectionException(Throwable throwable, Client client);</programlisting>
+  
+    <para>What actions the <classname>ConnectionListener</classname> chooses to
+    take are up to the application, but disconnecting the
+    <classname>Client</classname> might be a reasonable strategy.</para>
+    
+    <para>The <classname>Client</classname> class has three methods for
+    registering a <classname>ConnectionListener</classname>:</para>
+    
+    <programlisting>
+       public void addConnectionListener(ConnectionListener listener);
+       public void addConnectionListener(ConnectionListener listener, int pingPeriod);
+       public void addConnectionListener(ConnectionListener listener, Map metadata);
+    </programlisting>
+
+    <para>The second method supports configuring the frequency of PING messages,
+    and the third method supports more general configuration of the
+    <classname>ConnectionValidator</classname>. Note that a given
+    <classname>Client</classname> maintains a single
+    <classname>ConnectionValidator</classname>, so the parameters in the
+    metadata map are applied only on the first call to
+    <methodname>Client.addConnectionListener()</methodname>. The following
+    parameters are supported by <classname>ConnectionValidator</classname>,
+    which is where the parameter names are defined:</para>
+    
+    <para><emphasis role="bold">VALIDATOR_PING_PERIOD</emphasis> (actual value
+    "validatorPingPeriod") - specifies the time, in milliseconds, that elapses
+    between the sending of PING messages to the server. The default value is
+    2000.</para>
+    
+    <para><emphasis role="bold">VALIDATOR_PING_TIMEOUT</emphasis> (actual value
+    "validatorPingTimeout") - specifies the time, in milliseconds, allowed for
+    arrival of a response to a PING message. The default value is 1000.</para> 
+    
+    <para><emphasis role="bold">FAILURE_DISCONNECT_TIMEOUT</emphasis> (actual value
+    "failureDisconnectTimeout") - if the parameter "stopLeaseOnFailure" 
+    (see <xref linkend="section-interactions"/>) is set to
+    "true", then "failureDisconnectTimeout" determines the disconnect timeout value
+    to be used by <classname>org.jboss.remoting.LeasePinger</classname> in shutting
+    down.  In particular, if "failureDisconnectTimeout" is set to "0", then 
+    <classname>LeasePinger</classname> will avoid any network i/o.</para>
+    
+    <para> Normally, the values for these parameters are obtained either from
+    the <classname>Client</classname>'s configuration map or the metadata map
+    passed to <methodname>addConnectionListener()</methodname>, with values in
+    the metadata map taking precedence. However, another relevant parameter is
+    defined in <classname>org.jboss.remoting.Client</classname>:</para>
+    
+    <para><emphasis role="bold">USE_ALL_PARAMS</emphasis> (actual value
+    "useAllParams") - this parameter is searched for in the
+    <classname>InvokerLocator</classname>, in the configuration map passed to
+    the <classname>Client</classname>, and in the metadata map (in that order).
+    If the last occurrence found is set to "true", then parameter values are
+    first obtained from the <classname>InvokerLocator</classname>, followed by
+    the <classname>Client</classname>'s configuration map and the
+    metadata map.</para>
+    
+    <para>Note that <classname>ConnectionValidator</classname> creates a
+    client invoker to sends the PING messages, and it passes the metadata map to
+    configure the client invoker.</para>
+    
+    <para><emphasis role="bold">NOTE.</emphasis> The default values of VALIDATOR_PING_PERIOD
+    and VALIDATOR_PING_TIMEOUT have often been found in practice to be too small, increasing
+    the likelihood of spurious connection failures.</para>
+    
+    <para><emphasis role="bold">NOTE.</emphasis> It is important to set VALIDATOR_PING_PERIOD
+    to a value greater than the value of VALIDATOR_PING_TIMEOUT.  Doing so gives the
+    <classname>ConnectionValidator</classname> a chance to notify all
+    <classname>ConnectionListener</classname>s, which might result in shutting down the
+    connection, before the next PING is sent.</para>
+    
+    <para>For more configuration parameters, see <xref
+    linkend="section-interactions"/>.</para>
+    
+  </section>
+
+  <section id="section-server-side" xreflabel="Server side monitoring">
+    <title>Server side monitoring</title>
+  
+    <para>A remoting server also has the capability to detect when a client is
+    no longer available. This is done by estabilishing a lease with the remoting
+    clients that connect to a server. On the client side, an
+    <classname>org.jboss.remoting.LeasePinger</classname> periodically sends
+    PING messages to the server, and on the server side an
+    <classname>org.jboss.remoting.Lease</classname> informs registered listeners
+    if the PING doesn't arrive withing the specified timeout period.</para>
+  
+    <para><emphasis role="bold">Server side activation.</emphasis> To turn on
+    server side connection failure detection of remoting clients, it is
+    necessary to satisfy two criteria. The first is that the client lease period
+    is set and is a value greater than 0. The value is represented in
+    milliseconds. The client lease period can be set by either the
+    'clientLeasePeriod' attribute within the Connector configuration or by
+    calling the <classname>Connector</classname> method</para>
+    
+    <programlisting>public void setLeasePeriod(long leasePeriodValue);</programlisting>
+    
+    <para>The second
+    criterion is that an implementation of the
+    <code>org.jboss.remoting.ConnectionListener</code> interface is added as a
+    connection listener to the Connector, either via the method</para>
+    
+    <programlisting>public void addConnectionListener(ConnectionListener listener)</programlisting>
+    
+    <para>or through the use of the
+    <code>ServerInvoker.CONNECTION_LISTENER</code> parameter (actual value
+    "connectionListener") in the <classname>Connector</classname>'s
+    configuration map, XML configuration file, or
+    <classname>ServerConfiguration</classname> POJO. If the
+    <code>ServerInvoker.CONNECTION_LISTENER</code> parameter is used, the value
+    can be either a JMX object name or the fully qualified name of a class that
+    implements <classname>ConnectionListener</classname> and has a default
+    constructor. Once both criteria are met, the remoting server will turn on
+    client leasing.</para>
+    
+    <para>The ConnectionListener will be notified of both client failures and
+    client disconnects via the handleConnectionException() method. If the client
+    failed, meaning its lease was not renewed within configured time period, the
+    first parameter to the handleConnectionException() method will be null. If
+    the client disconnected in a regular manner, the first parameter to the
+    handleConnectionException() method will be of type
+    ClientDisconnectedException (which indicates a normal termination). Note,
+    the client's lease will be renewed on the server with any and every
+    invocation made on the server from the client, whether it be a normal
+    invocation or a ping from the client internally.</para>
+  
+    <para>The actual lease window established on the server side is dynamic
+    based the rate at which the client updates its lease. In particular, the
+    lease window will always be set to lease period * 2 for any lease that does
+    not have a lease update duration that is longer than 75% of the lease window
+    (meaning if set lease period to 10 seconds and always update that lease in
+    less then 7.5 seconds, the lease period will always remain 10 seconds). If
+    the update duration is greater than 75% of the lease window, the lease
+    window will be reset to the lease duration X 2 (meaning if set lease period
+    to 10 seconds and update that lease in 8 seconds, the new lease window will
+    be set to 16 seconds). Also, the lease will not immediately expire on the
+    first lease timeout (meaning did not get an update within the lease window).
+    It takes two consecutive timeouts before a lease will expire and a
+    notification for client connection failure is fired. This essentially means
+    that the time it will take before a connection listener is notified of a
+    client connection failure will be at least 4 X lease period (no
+    exceptions).</para>
+  
+    <para><emphasis role="bold">Client side activation.</emphasis> By default,
+    the client is not configured to do client leasing. To allow a client to do
+    leasing, either set the parameter "leasing" to "true" in the
+    <classname>InvokerLocator</classname> or set the parameter
+    <code>Client.ENABLE_LEASE</code> (actual value "enableLease") to true in the
+    <classname>InvokerLocator</classname> or in the
+    <classname>Client</classname> configuration map. [The use of
+    <code>Client.ENABLE_LEASE</code> is recommended.] This does not mean that
+    client will lease for sure, but will indicate the client should call on the
+    server to see if the server has activated leasing and get the leasing period
+    suggested by the server. It is possible to override the suggested lease
+    period by setting the parameter
+    <code>org.jboss.remoting.InvokerLocator.CLIENT_LEASE_PERIOD</code> (actual
+    value "lease_period") to a value greater than 0 and less than the value
+    suggested by the server. <emphasis role="bold">Note. </emphasis>If the
+    client and server are local, meaning running within the JVM, leasing (and
+    thus connection notification) will not be activated, even if is configured
+    to do so.</para>
+  
+    <para>If leasing is turned on within the client side, there is no API or
+    configuration changes needed, unless want to override as mentioned
+    previously. When the client initially connects to the server, it will check
+    to see if client leasing is turned on by the server. If it is, it will
+    internally start pinging periodically to the server to maintain the lease.
+    When the client disconnects, it will internally send message to the server
+    to stop monitoring lease for this client. Therefore, it is <emphasis
+    role="bold">IMPORTANT</emphasis> that disconnect is called on the client
+    when done using it. Otherwise, the client will continue to make its ping
+    call on the server to keep its lease current.</para>
+  
+    <para>The client can also provide extra metadata that will be communicated to
+    the connection listener in case of failure by supplying a metadata Map to
+    the Client constructor. This map will be included in the Client instance
+    passed to the connection listener (via the handleConnectionException()
+    method) via the Client's getConfiguration() method.</para>
+  
+    <para>From the server side, there are two ways in which to disable leasing
+    (i.e. turn leasing off). The first is to call:</para>
+  
+    <programlisting>public void removeConnectionListener(ConnectionListener listener)</programlisting>
+  
+    <para>and remove all the registered ConnectionListeners. Once the last one
+    has been removed, leasing will be disabled and all the current leasing
+    sessions will be terminated. The other way is to call:</para>
+  
+    <programlisting>public void setLeasePeriod(long leasePeriodValue)</programlisting>
+  
+    <para>and pass a value less than zero. This will disable leasing, preventing
+    any new leases to be established but will allow current leasing sessions to
+    continue.</para>
+  
+    <para>The following parameter is relevant to leasing configuration on the server side:</para>
+    
+    <para><emphasis
+    role="bold"><code>org.jboss.remoting.ServerInvoker.CLIENT_LEASE_PERIOD</code></emphasis>
+    (actual value "clientLeasePeriod") - specifies the timeout period used by
+    the server to determine if a PING is late. The default value is "5000",
+    which indicates that leasing will be activated if an
+    <classname>org.jboss.remoting.ConnectionListener</classname> is registered
+    with the server. This is also the suggested lease period returned by the
+    server when the client inquires if leasing is activated.</para>
+    
+    <para>The following parameters are relevant to leasing configuration on the client side:</para>
+        
+    <para><emphasis
+    role="bold"><code>org.jboss.remoting.Client.ENABLE_LEASE</code></emphasis>
+    (actual value "enableLease") - if set to "true", will lead
+    <classname>org.jboss.remoting.Client</classname> to attempt to set up a
+    lease with the server, if leasing is activated on the server.</para>
+    
+    <para><emphasis
+    role="bold"><code>org.jboss.remoting.InvokerLocator.CLIENT_LEASE</code></emphasis>
+    (actual value "leasing") - if set to "true" in the
+    <classname>InvokerLocator</classname>, will lead
+    <classname>org.jboss.remoting.Client</classname> to attempt to set up a
+    lease with the server, if leasing is activated on the server. It is
+    suggested that this parameter be avoided, in favor of
+    <code>Client.ENABLE_LEASE</code>.</para>
+    
+    <para><emphasis
+    role="bold"><code>org.jboss.remoting.InvokerLocator.CLIENT_LEASE_PERIOD</code></emphasis>
+    (actual value "lease_period") - if set to a value greater than 0 and less
+    than the suggested lease period returned by the server, will be used to
+    determine the time between PING messages sent by
+    <classname>LeasePinger</classname>.</para>
+    
+    <para><emphasis
+    role="bold"><code>org.jboss.remoting.LeasePinger.LEASE_PINGER_TIMEOUT</code></emphasis>
+    (actual value "leasePingerTimeout") - specifies the per invocation timeout
+    value use by <classname>LeasePinger</classname> when it sends PING messages.
+    In the absence of a configured value, the timeout value used by the
+    <classname>Client</classname> that created the
+    <classname>LeasePinger</classname> will be used.</para>
+    
+    <para>For examples of how to use server side connection listeners, reference
+    org.jboss.test.remoting.lease.LeaseTestServer and
+    org.jboss.test.remoting.lease.LeaseTestClient.</para>
+  
+  </section>
+  
+  <section id="section-interactions" xreflabel="Interactions between client side and server side connection monitoring">
+  
+    <title>Interactions between client side and server side connection monitoring</title>
+    
+    <para>As of Remoting version 2.4, the client side and server side connection
+    monitoring mechanisms can be, and by default are, more closely related, in
+    two ways.</para>
+    
+    <orderedlist>
+       <listitem> If the parameter
+       <code>org.jboss.remoting.ConnectionValidator.TIE_TO_LEASE</code> (actual
+       value "tieToLease") is set to true, then, when the server receives a PING
+       message from an
+       <classname>org.jboss.remoting.ConnectionValidator</classname>, it will
+       return a boolean value that indicates whether a lease currently exists
+       for the connection being monitored. If leasing is activated on the client
+       and server side, then a value of "false" indicates that the lease has
+       failed, and the <classname>ConnectionValidator</classname> will treat a
+       returned value of "false" the same as a timeout; that is, it will notifiy
+       listeners of a connection failure. The default value of this parameter is
+       "true". <emphasis role="bold">Note. </emphasis>If leasing is not
+       activated on the client side, then this parameter has no
+       effect.</listitem>
+       
+       <listitem><para>If the parameter
+       <code>org.jboss.remoting.ConnectionValidator.STOP_LEASE_ON_FAILURE</code>
+       (actual value "stopLeaseOnFailure") is set to true, then, upon detecting
+       a connection failure, <classname>ConnectionValidator</classname> will
+       stop the <classname>LeasePinger</classname>, if any, pinging a lease on
+       the same connection. The default value is "true".</para> </listitem>
+       
+    </orderedlist>
+    
+    <para><emphasis role="bold">Note.</emphasis> As of release 2.5.2, an important
+    concept related to connection monitoring, <emphasis>connection identity</emphasis>,
+	is available.  Suppose that leasing is enabled and that a client invoker
+	stops and is replaced by a new client invoker.  If the 
+	replacement occurs quickly, the server side <classname>Lease</classname> may never 
+	miss a ping, in which there is no evidence that anything changed on the client side.
+	That is, the connection is still alive, as far as the server is concerned. That
+	semantics might be perfectly acceptable for some applications, but other 
+	applications might interpret the same events as a connection failure followed by
+	a new connection.  Remoting can be configured to treat a connection as being 
+	defined by a client/server pair, which supports the second category of applications.
+	</para>
+	
+    <para>More specifically, when configured to do so by setting the parameter
+    <code>org.jboss.remoting.Remoting.USE_CLIENT_CONNECTION_IDENTITY</code> (actual value
+    "useClientConnectionIdentity") to "true", Remoting identifies a connection with a
+    <classname>LeasePinger</classname>/<classname>Lease</classname> pair.  A
+    <classname>Client</classname> participates in a connection when it is connected
+    by way of the new method</para>
+    
+    <programlisting>public void connect(ConnectionListener listener, Map metadata) throws Exception;</programlisting>
+    
+    <para>This method serves to connect the <classname>Client</classname> to the server
+    by way of a new or existing client invoker, and it also (1) registers the 
+    <classname>ConnectionListener</classname> with the <classname>Client</classname>'s
+    new or exiting <classname>ConnectionValidator</classname> and (2) registers
+    the <classname>ConnectionValidator</classname> with the client invoker's 
+    <classname>LeasePinger</classname>.  Subsequently, if any
+    <classname>ConnectionValidator</classname> registered with that
+    <classname>LeasePinger</classname> detects a connection failure, it will
+    (if "stopLeaseOnFailure" is "true") stop the <classname>LeasePinger</classname>,
+    and the <classname>LeasePinger</classname> will cause each registered
+    <classname>ConnectionValidator</classname>s to notify each of its
+    registered <classname>ConnectionListener</classname>s of the connection failure.
+    Once the <classname>LeasePinger</classname> has been shut down and all of the
+    notifications have been made, the connection anchored by the 
+    <classname>LeasePinger</classname> is defunct, and the 
+  	associated <classname>Client</classname>'s should be disconnected by a call
+  	to <methodname>Client.disconnect()</methodname>.  If such a <classname>Client</classname>
+  	is reconnected by a call to <methodname>Client.connect()</methodname>, it
+  	will be associated with a new <classname>LeasePinger</classname> and, therefore,
+  	a new connection.</para>
+  	
+    <para><emphasis role="bold">TIE_TO_LEASE</emphasis> (actual value
+    "tieToLease") - specifies whether <classname>ConnectionValidator</classname>
+    should treat the failure of a related lease on the server side as a
+    connection failure. The default value is "true".</para>
+    
+    <para><emphasis role="bold">STOP_LEASE_ON_FAILURE</emphasis> (actual value
+    "stopLeaseOnFailure") - specifies whether, when a
+    <classname>ConnectionValidator</classname> detects a connection failure, it
+    should stop the associated
+    <classname>org.jboss.remoting.LeasePinger</classname>, if any. The default
+    value is "true".</para>
+    
+    <para><emphasis role="bold">org.jboss.remoting.Remoting.USE_CLIENT_CONNECTION_IDENTITY</emphasis>
+    (actual value "useClientConnectionIdentity") - tells Remoting to adhere to the
+    new "connection identity" semantics.</para>
+  </section>
+</chapter>

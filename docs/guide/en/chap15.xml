@@ -1,0 +1,16 @@
+  <chapter>
+    <title>Known issues</title>
+
+    <para>All of the known issues and road map can be found on our bug
+    tracking system, Jira, at <!--<link linkend="???">http://jira.jboss.com/jira/secure/BrowseProject.jspa?id=10031</link>-->
+    <ulink
+    url="http://jira.jboss.com/jira/secure/BrowseProject.jspa?id=10031">
+    http://jira.jboss.com/jira/secure/BrowseProject.jspa?id=10031 </ulink>
+    (require member plus registration, which is free). If you find more,
+    please post them to Jira. If you have questions post them to the JBoss
+    Remoting users forum <!--<link linkend="???">http://www.jboss.com/index.html?module=bb&amp;op=viewforum&amp;f=222</link>-->
+    (<ulink
+    url="http://www.jboss.com/index.html?module=bb&amp;op=viewforum&amp;f=222">
+    http://www.jboss.com/index.html?module=bb&amp;op=viewforum&amp;f=222
+    </ulink>).</para>
+  </chapter>

@@ -1,0 +1,17 @@
+  <chapter>
+    <title>Compatibility and versioning</title>
+
+    <para>As of JBossRemoting 2.0.0 versioning has been added to guarantee
+    compatibility between different versions. This is accomplished by changing
+    serialization formats for certain classes and by using wire versioning. By
+    wire versioning, mean that the version used by a client and server will be
+    sent on the wire so that the other side will be able to adjust
+    accordingly. This will be automatic for JBossRemoting 2.0.0 and later
+    versions. However, since versioning was not introduced until the 2.0.0
+    release, if need to have a 1.4.x version of remoting communicate to a
+    later version, will need to set a system property on the 2.0.0 version so
+    that knows to use the older wire protocol version. The system property to
+    set is 'jboss.remoting.pre_2_0_compatible' and should be set to true.
+    There are a few minor features that will not be fully compatible between
+    1.4.x release and 2.0.0, which are listed in the release notes.</para>
+  </chapter>

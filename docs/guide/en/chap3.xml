@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+  <title>JBoss Remoting Components</title>
+
+  <para>This section covers a few of the main components exposed within the
+  Remoting API with a brief overview.</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.Client</emphasis> – is the
+  class the user will create and call on from the client side. This is the
+  main entry point for making all invocations and adding a callback listener.
+  The Client class requires only the InvokerLocator for the server you wish to
+  call upon and that you call connect before use and disconnect after use
+  (which is technically only required for stateful transports and when client
+  leasing is turned on, but good to call in either case).</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.InvokerLocator</emphasis> –
+  is a class, which can be described as a string URI, for identifying a
+  particular JBossRemoting server JVM and transport protocol. For example, the
+  InvokerLocator string socket://192.168.10.1:8080 describes a TCP/IP
+  Socket-based transport, which is listening on port 8080 of the IP address,
+  192.168.10.1. Using the string URI, or the InvokerLocator object,
+  JBossRemoting can make a client connection to the remote server. The
+  format of the locator string is the same as the URI type:
+  <code>[transport]://[host]:&lt;port&gt;/path/?&lt;parameter=value&gt;&amp;&lt;parameter=value&gt;</code></para>
+
+  <para>A few important points to note about the InvokerLocator. The string
+  representation used to construct the InvokerLocator may be modified after
+  creation. This can occur if the host supplied is 0.0.0.0, in which case the
+  InvokerLocator will attempt to replace it with the value of the local host
+  name. This can also occur if the port specified is less than zero or not
+  specified at all (in which case remoting will select a random port to
+  use).</para>
+
+  <para>The InvokerLocator will accept host name as is and will not
+  automatically convert to IP address (since 2.0.0 release). There are two
+  comparison operators for InvocatorLocators, <methodname>equals()</methodname>
+  and <methodname>isSameEndpoint()</methodname>, and neither resolve a hostname
+  to IP address or vice versa.  <methodname>equals()</methodname> compares all
+  components of the InvokerLocator, character by character, while
+  <methodname>isSameEndpoint()</methodname> uses only protocol, host, and port. 
+  The following examples are just some of the comparisons that can be seen in
+  <classname>org.jboss.test.remoting.locator.InvokerLocatorTestCase</classname>:
+  </para>
+
+  <para><literallayout><code>new InvokerLocator("http://localhost:1234/services/uri:Test").equals(
+        new InvokerLocator("http://localhost:1234"))</code> returns <constant>false</constant>
+
+<code>new InvokerLocator("http://localhost:1234/services/uri:Test").equals(
+        new InvokerLocator("http://127.0.0.1:1234"))</code> returns <constant>false</constant>
+
+<code>new InvokerLocator("http://localhost:1234/services/uri:Test").isSameEndpoint(
+        new InvokerLocator("http://localhost:1234"))</code> returns <constant>true</constant>
+
+<code>new InvokerLocator("http://localhost:1234/services/uri:Test").isSameEndpoint(
+        new InvokerLocator("http://127.0.0.1:1234"))</code> returns <constant>false</constant></literallayout></para>
+  <para><emphasis role="bold">N.B.</emphasis> As of version 2.4,
+  <classname>InvokerLocator</classname> uses the class
+  <classname>java.net.URI</classname>, rather than its original ad hoc parsing
+  code, to parse the String passed to its constructor. If, for some reason, the
+  new algorithm causes problems for legacy code, it is possible to configure
+  <classname>InvokerLocator</classname> to use the original parsing code by
+  calling the static method
+  <methodname>org.jboss.remoting.InvokerLocator.setUseLegacyParsing()</methodname>.
+  </para>
+  
+  <para><emphasis role="bold">N.B.</emphasis>The syntax of URIs is defined in 
+  <ulink url="http://www.ietf.org/rfc/rfc2396.txt">http://www.ietf.org/rfc/rfc2396.txt</ulink>.
+  A not unknown error is to give a hostname with the illegal underscore character "_", which
+  confuses the <classname>java.net.URI</classname> parsing algorithm, leading to the hostname
+  being set to null.  As of release 2.5.2.SP3, <classname>org.jboss.remoting.InvokerLocator</classname>
+  will log a warning if the hostname is set to null. This warning can be disabled by setting
+  the system property <code>InvokerLocator.SUPPRESS_HOST_WARNING</code> (actual value
+  "suppressHostWarning") to "true".
+  </para>
+  
+  <para><emphasis
+  role="bold">org.jboss.remoting.transport.Connector</emphasis> - is an MBean
+  that loads a particular ServerInvoker implementation for a given transport
+  subsystem and one or more ServerInvocationHandler implementations that
+  handle Subsystem invocations on the remote server JVM. The Connector is the
+  main user touch point for configuring and managing a remoting server.</para>
+
+  <para><emphasis
+  role="bold">org.jboss.remoting.ServerInvocationHandler</emphasis> – is the
+  interface that the remote server will call on with an invocation received
+  from the client. This interface must be implemented by the user. This
+  implementation will also be required to keep track of callback listeners
+  that have been registered by the client as well.</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.InvocationRequest </emphasis>
+  – is the actual remoting payload of an invocation. This class wraps the
+  caller’s request and provides extra information about the invocation, such
+  as the caller’s session id and its callback locator (if one exists). This
+  will be object passed to the ServerInvocationHandler.</para>
+
+  <para><emphasis
+  role="bold">org.jboss.remoting.stream.StreamInvocationHandler</emphasis> –
+  extends the ServerInvocationHandler interface and should be implemented if
+  expecting to receive invocations containing an input stream.</para>
+
+  <para><emphasis
+  role="bold">org.jboss.remoting.callback.InvokerCallbackHandler</emphasis> –
+  the interface for any callback listener to implement. Upon receiving
+  callbacks, the remoting client will call on this interface if registered as
+  a listener.</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.callback.Callback</emphasis>
+  – the callback object passed to the InvokerCallbackHandler. It contains the
+  callback payload supplied by the invocation handler, any handle object
+  specified when callback listener was registered, and the locator from which
+  the callback came.</para>
+
+  <para><emphasis
+  role="bold">org.jboss.remoting.network.NetworkRegistry</emphasis> – this is
+  a singleton class that will keep track of remoting servers as new ones are
+  detected and dead ones are detected. Upon a change in the registry, the
+  NetworkRegistry fires a NetworkNotification.</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.network.NetworkNotification
+  </emphasis> – a JMX Notification containing information about a remoting
+  server change on the network. The notification contains information in
+  regards to the server’s identity and all its locators.</para>
+
+  <para><emphasis
+  role="bold">org.jboss.remoting.detection.Detection</emphasis> – is the
+  detection message fired by the Detectors. Contains the locator and
+  subsystems for the server invokers of a remoting server as well as the
+  remoting server’s identity.</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.ident.Identity</emphasis> –
+  is one of the main components remoting uses during discovery to identify
+  remoting server instances (is actually the way it guarantees uniqueness). If
+  have two remoting servers running on the same server, they can be uniquely
+  identified. The reason the identity is persisted (currently only able to do
+  this to the file system) is so if a server crashes and then restarts, can
+  identify it when it restarts as the one that crashed (instead of being a
+  completely new instance that is being started). This may be important from a
+  monitoring point as would want to know that the crashed server is back
+  online.</para>
+
+  <para>When creating the identity to be presisted, remoting will first look
+  to see if a system property for 'jboss.identity' has been set already. If it
+  has, will use that one. If not, will get the value for the 'ServerDataDir'
+  attribute of the 'jboss.system:type=ServerConfig' mbean. If can retrieve
+  this value, will use this as the directory to write out the
+  'jboss.identity' file. If not, will look to see if a system property has
+  been set for 'jboss.identity.dir'. If it has, will use this as the directory
+  to write the 'jboss.identity' file to, otherwise, will default to '.'. If
+  for some reason the file can not be written to, will throw a
+  RuntimeException, which will cause the detector to error during startup. For
+  more details on how and where the identity is persisted, can refer to
+  org.jboss.remoting.ident.Identity.createId().</para>
+
+  <para><emphasis
+  role="bold">org.jboss.remoting.detection.multicast.MulticastDetector</emphasis>
+  – is the detector implementation that broadcasts its Detection message to
+  other detectors using multicast.</para>
+
+  <para><emphasis role="bold">org.jboss.remoting.detection.jndi.JNDIDetector
+  </emphasis> – is the detector implementation that registers its Detection
+  message to other detectors in a specified JNDI server.</para>
+
+  <para>There are a few other components that are not represented as a class,
+  but important to understand.</para>
+
+  <para><emphasis role="bold">Subsystem</emphasis> – a sub-system is an
+  identifier for what higher level system an invocation handler is associated
+  with. The sub-system is declared as any String value. The reason for
+  identifying sub-systems is that a remoting Connector’s server invoker may
+  handle invocations for multiple invocation handlers, which need to be routed
+  based on sub-system. For example, a particular socket based server invoker
+  may handle invocations for both customer processing and order processing.
+  The client making the invocation would then need to identify the intended
+  sub-system to handle the invocation based on this identifier. If only one
+  handler is added to a Connector, the client does not need to specify a
+  sub-system when making an invocation.</para>
+
+  <para><emphasis role="bold">Domain</emphasis> – a logical name for a group
+  to which a remoting server can belong. The detectors can discriminate as to
+  which detection messages they are interested based on their specified
+  domain. The domain to which a remoting server belongs is stored within the
+  Identity of that remoting server, which is included within the detection
+  messages. Detectors can be configured to accept detection messages from one,
+  many or all domains.</para>
+
+  <section>
+    <title>Discovery</title>
+
+    <para>One of the features of JBoss Remoting is to be able to dynamically
+    discover remoting servers. This is done through the use of what remoting
+    calls detectors. These detectors run in same instance as the servers and
+    the clients. The detectors that run within the server instance
+    automatically gets list of remoting servers running locally and emits a
+    detection message contain information about those servers, such as their
+    locator url and subsystems supported. The detector running within the
+    client instance will receive these detection messages and update a local
+    registry, called the network registry, with this information. The client
+    detector will also monitor the remoting servers it has discovered in case
+    one were to fail, in which case, will notify the network registry of the
+    failure The network registry will then fire events to registered listeners
+    (via JMX notifications), to include events such as new server added or
+    server failure.</para>
+
+    <para>There are currently two types of detector implementations; multicast
+    and JNDI. The multicast detectors use multicast channel to send and
+    receive detection messages. The JNDI detectors use a well known JNDI
+    server to bind and lookup detection messages.</para>
+
+    <para>The standard approach for detecting remoting servers happens in a
+    passive manner, in that as detection messages are received by the client
+    detector, they will cause an event to fire. In some cases, will need
+    ability to synchronously discover the remoting servers that exist upon
+    startup. This can be done by calling the forceDetection() method on the
+    detector. This will return an array of NetworkInstances which contains the
+    server information. Note, this method can take a few seconds to return (at
+    least in multicast implementation).</para>
+  </section>
+
+  <section>
+    <title>Transports</title>
+
+    <bridgehead>Service provider interface</bridgehead>
+
+    <para>The transport implementations within remoting, called invokers, are
+    responsible for handling the wire protocol to be used by remoting clients
+    and servers. Remoting will load client and server invoker (transport)
+    implementations (within the InvokerRegistry) using factories. The factory
+    class to be loaded will always be either TransportClientFactory (for
+    loading client invoker) or TransportServerFactory (for loading server
+    invoker). These classes must implement
+    <code>org.jboss.remoting.transport.ClientFactory</code> and
+    <code>org.jboss.remoting.transport.ServerFactory </code>interfaces
+    respectively. The package under which the TransportClientFactory and
+    TransportServerFactory will always start with
+    <code>org.jboss.test.remoting.transport</code>, then the transport
+    protocol type. For example, the 'socket' transport factories are
+    <code>org.jboss.remoting.transport.socket.TransportClientFactory</code>
+    and
+    <code>org.jboss.remoting.transport.socket.TransportServerFactory</code>.
+    The API for org.jboss.remoting.transport.ClientFactory is:</para>
+
+    <programlisting>public ClientInvoker createClientInvoker(InvokerLocator locator, Map config) throws IOException;
+public boolean supportsSSL();
+</programlisting>
+
+    <para>The API for org.jboss.remoting.transport.ServerFactory is:</para>
+
+    <programlisting>public ServerInvoker createServerInvoker(InvokerLocator locator, Map config) throws IOException;
+public boolean supportsSSL();
+</programlisting>
+
+    <para>An example of a transport client factory for the socket transport
+    (<code>org.jboss.remoting.transport.socket.TransportClientFactory</code>)
+    is:</para>
+
+    <programlisting>public class TransportClientFactory implements ClientFactory
+{
+   public ClientInvoker createClientInvoker(InvokerLocator locator, Map config)
+         throws IOException
+   {
+      return new SocketClientInvoker(locator, config);
+   }
+
+   public boolean supportsSSL()
+   {
+      return false;
+   }
+}
+</programlisting>
+
+    <para>The packages used within the factory does not matter as long as they
+    are on the classpath. Note that the transport factories are only loaded
+    upon request for that protocol. Also, the client and server factories have
+    been separated so that only the one requested is loaded (and thus the
+    corresponding classes needed for that invoker implementation). So if only
+    ask for a particular client transport invoker, only those classes are
+    loaded and the ones needed for the server are not required to be on the
+    classpath.</para>
+
+    <para>The biggest reason for taking this approach is allows users ability
+    to plugin custom transport implementation with zero config. Remoting comes
+    with the following transports: socket, sslsocket, bisocket, sslbisocket, http,
+    https, multiplex, sslmultiplex, servlet, sslservlet, rmi, sslrmi.</para>
+  </section>
+</chapter>

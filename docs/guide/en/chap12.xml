@@ -1,0 +1,23 @@
+  <chapter>
+    <title>Client programming model</title>
+
+    <para>The approach taken for the programming model on the client side is
+    one based on a session based model. This means that it is expected that
+    once a Client is created for a particular target server, it will be used
+    exclusively to make calls on that server. This expectation dictates some
+    of the behavior of the remoting client.</para>
+
+    <para>For example, if create a Client on the client side to make server
+    invocations, including adding callback listeners, will have to use that
+    same instance of Client to remove the callback listeners. This is because
+    the Client creates a unique session id that it passes within the calls to
+    the server. This id is used as part of the key for registering callback
+    listeners on the server. If create a new Client instance and attempt to
+    remove the callback listeners, a new session id will be passed to the
+    server invoker, who will not recognize the callback listener to be
+    removed.</para>
+
+    <para>See test case
+    <code>org.jboss.test.remoting.callback.push.MultipleCallbackServersTestCase</code>
+    .</para>
+  </chapter>

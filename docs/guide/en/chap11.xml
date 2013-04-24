@@ -1,0 +1,2559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+  <title>How to use it - sample code</title>
+
+  <para>Sample code demonstrating different remoting features can be found in
+  the examples directory. They can be compiled and run manually via your IDE
+  or via an ant build file found in the examples directory. There are many
+  sets of sample code, each with their own package. Within most of these
+  packages, there will be a server and a client class that will need to be
+  executed</para>
+
+  <section>
+    <title>Simple invocation</title>
+
+    <para>The simple invocation sample (found in the
+    org.jboss.remoting.samples.simple package), has two classes; SimpleClient
+    and SimpleServer. It demonstrates making a simple invocation from a
+    remoting client to a remoting server. The SimpleClient class will create
+    an InvokerLocator object from a simple url-like string that identifies the
+    remoting server to call upon (which will be socket://localhost:5400 by
+    default). Then the SimpleClient will create a remoting Client class,
+    passing the newly created InvokerLocator. Next the Client will be called
+    to make an invocation on the remoting server, passing the request payload
+    object (which is a String with the value of "Do something"). The server
+    will return a response from this call which is printed to standard
+    output.</para>
+
+    <para>Within the SimpleServer, a remoting server is created and started.
+    This is done by first creating an InvokerLocator, just like was done in
+    the SimpleClient. Then constructing a Connector, passing the
+    InvokerLocator. Next, need to call create() on the Connector to initialize
+    all the resources, such as the remoting server invoker. Once created, need
+    to create the invocation handler. The invocation handler is the class that
+    the remoting server will pass client requests on to. The invocation
+    handler in this sample simply returns the simple String "This is the
+    return to SampleInvocationHandler invocation". Once created, the handler
+    is added to the Connector. Finally, the Connector is started and will
+    start listening for incoming client requests.</para>
+
+    <para>To run this example, can compile both the SimpleClient and
+    SimpleServer class, then first run the SimpleServer and then the
+    SimpleClient. Or can go to the examples directory and run the ant target
+    'run-simple-server' and then in another console window run the ant target
+    'run-simple-client'. For example:</para>
+
+    <para><programlisting>ant run-simple-server</programlisting>ant
+    then:</para>
+
+    <para><programlisting>ant run-simple-client</programlisting>The output
+    when running the SimpleClient should look like:</para>
+
+    <programlisting>Calling remoting server with locator uri of: socket://localhost:5400
+Invoking server with request of 'Do something'
+Invocation response: This is the return to SampleInvocationHandler invocation</programlisting>
+
+    <para>The output when running the SimpleServer should look like:</para>
+
+    <programlisting>Starting remoting server with locator uri of: socket://localhost:5400
+Invocation request is: Do something
+Returning response of: This is the return to SampleInvocationHandler invocation</programlisting>
+
+    <para>Note: will have to manually shut down the SimpleServer once
+    started.</para>
+  </section>
+
+  <section>
+    <title>HTTP invocation</title>
+
+    <para>This http invocation sample (found in the
+    org.jboss.remoting.samples.http package), demonstrates how the http
+    invoker can be used for a variety of http based invocations. This time,
+    will start with the server side. The SimpleServer class is much like the
+    one from the previous simple invocation example, except that instead of
+    using the 'socket' transport, will be using the 'http' transport. Also,
+    instead of using the SampleInvocationHandler class as the handler, will be
+    using the WebInvocationHandler (code shown below).</para>
+
+    <programlisting>public class <emphasis role="bold">WebInvocationHandler</emphasis> implements <emphasis
+        role="bold">ServerInvocationHandler</emphasis>
+{
+   // Pre-defined returns to be sent back to client based on type of request.
+   public static final String RESPONSE_VALUE = "This is the return to simple text based http invocation.";
+   public static final ComplexObject OBJECT_RESPONSE_VALUE = new ComplexObject(5, "dub", false);
+   public static final String HTML_PAGE_RESPONSE = "&lt;html&gt;&lt;head&gt;&lt;title&gt;Test HTML page&lt;/title&gt;&lt;/head&gt;&lt;body&gt;" +
+                                                   "&lt;h1&gt;HTTP/Servlet Test HTML page&lt;/h1&gt;&lt;p&gt;This is a simple page served for test." +
+                                                   "&lt;p&gt;Should show up in browser or via invoker client&lt;/body&gt;&lt;/html&gt;";
+
+   // Different request types that client may make
+   public static final String NULL_RETURN_PARAM = "return_null";
+   public static final String OBJECT_RETURN_PARAM = "return_object";
+   public static final String STRING_RETURN_PARAM = "return_string";
+
+
+   /**
+    * called to handle a specific invocation
+    *
+    * @param invocation
+    * @return
+    * @throws Throwable
+    */
+   <emphasis role="bold">public Object invoke(InvocationRequest invocation) throws Throwable
+   {
+      // Print out the invocation request
+      System.out.println("Invocation request from client is: " + invocation.getParameter());
+      if(NULL_RETURN_PARAM.equals(invocation.getParameter()))
+      {
+         return null;
+      }
+      else if(invocation.getParameter() instanceof ComplexObject)
+      {
+            return OBJECT_RESPONSE_VALUE;
+      }
+      else if(STRING_RETURN_PARAM.equals(invocation.getParameter()))
+      {
+         Map responseMetadata = invocation.getReturnPayload();
+         responseMetadata.put(HTTPMetadataConstants.RESPONSE_CODE,  new Integer(207));
+         responseMetadata.put(HTTPMetadataConstants.RESPONSE_CODE_MESSAGE, "Custom response code and message from remoting server");
+         // Just going to return static string as this is just simple example code.
+         return RESPONSE_VALUE;
+      }
+      else
+      {
+         return HTML_PAGE_RESPONSE;
+      }</emphasis>
+   }
+</programlisting>
+
+    <para>The most interesting part of the WebInvocationHandler is its
+    invoke() method implementation. First it will check to see what the
+    request parameter was from the InvocationRequest and based on what the
+    value is, will return different responses. The first check is to see if
+    the client passed a request to return a null value. The second will check
+    to see if the request parameter from the client was of type ComplexObject.
+    If so, return the pre-built ComplexObject that was created as a static
+    variable.</para>
+
+    <para>After that, will check to see if the request parameter was for
+    returning a simple String. Notice in this block, will set the desired
+    response code and message to be returned to the client. In this case, are
+    setting the response code to be returned to 207 and the response message
+    to "Custom response code and message from remoting server". These are
+    non-standard code and message, but can be anything desired.</para>
+
+    <para>Last, if have not found a matching invocation request parameter,
+    will just return some simple html.</para>
+
+    <para>Now onto the client side for making the calls to this handler, which
+    can be found in SimpleClient (code shown below).</para>
+
+    <programlisting>public class <emphasis role="bold">SimpleClient</emphasis>
+{
+   // Default locator values
+   private static String transport = "<emphasis role="bold">http</emphasis>";
+   private static String host = "localhost";
+   private static int port = 5400;
+
+   public void makeInvocation(String locatorURI) throws Throwable
+   {
+      // create InvokerLocator with the url type string
+      // indicating the target remoting server to call upon.
+      InvokerLocator locator = new InvokerLocator(locatorURI);
+      System.out.println("Calling remoting server with locator uri of: " + locatorURI);
+
+      Client remotingClient = new Client(locator);
+
+      // make invocation on remoting server and send complex data object
+      // by default, the remoting http client invoker will use method type of POST,
+      // which is needed when ever sending objects to the server.  So no metadata map needs
+      // to be passed to the invoke() method.
+      <emphasis role="bold">Object response = remotingClient.invoke(new ComplexObject(2, "foo", true), null);</emphasis>
+
+      System.out.println("\nResponse from remoting http server when making http POST request and sending a complex data object:\n" + response);
+
+
+      <emphasis role="bold">Map metadata = new HashMap();</emphasis>
+      // set the metadata so remoting client knows to use http GET method type
+      <emphasis role="bold">metadata.put("TYPE", "GET");</emphasis>
+      // not actually sending any data to the remoting server, just want to get its response
+      <emphasis role="bold">response = remotingClient.invoke((Object) null, metadata);</emphasis>
+
+      System.out.println("\nResponse from remoting http server when making GET request:\n" + response);
+
+      // now set type back to POST and send a plain text based request
+      <emphasis role="bold">metadata.put("TYPE", "POST");</emphasis>
+      <emphasis role="bold">response = remotingClient.invoke(WebInvocationHandler.STRING_RETURN_PARAM, metadata);</emphasis>
+
+      System.out.println("\nResponse from remoting http server when making http POST request and sending a text based request:\n" + response);
+
+      // notice are getting custom response code and message set by web invocation handler
+      <emphasis role="bold">Integer responseCode = (Integer) metadata.get(HTTPMetadataConstants.RESPONSE_CODE);
+      String responseMessage = (String) metadata.get(HTTPMetadataConstants.RESPONSE_CODE_MESSAGE);</emphasis>
+      System.out.println("Response code from server: " + responseCode);
+      System.out.println("Response message from server: " + responseMessage);
+
+   }
+</programlisting>
+
+    <para>This SimpleClient, like the one before in the simple invocation
+    example, starts off by creating an InvokerLocator and remoting Client
+    instance, except is using http transport instead of socket. The first
+    invocation made is to send a newly constructed ComplexObject. If remember
+    from the WebInvocationHandler above, will expect this invocation to return
+    a different ComplexObject, which can be seen in the following system
+    output line.</para>
+
+    <para>The next invocation to be made is a simple http GET request. To do
+    this, must first let the remoting client know that the method type needs
+    to be changed from the default, which is POST, to be GET. Then make the
+    invocation with a null payload (since not wanting to send any data, just
+    get data in response) and the metadata map just populated with the GET
+    type. This invocation request will return a response of html.</para>
+
+    <para>Then, will change back to being a POST type request and will pass a
+    simple String as the payload to the invocation request. This will return a
+    simple String as the response from the WebInvocationHandler. Afterward,
+    will see the specific response code and message printed to standard
+    output, as well as the exception itself.</para>
+
+    <para>To run this example, can compile all the classes in the package,
+    then first run the SimpleServer and then the SimpleClient. Or can go to
+    the examples directory and run the ant target 'run-http-server' and then
+    in another console window run the ant target 'run-http-client'. For
+    example:</para>
+
+    <programlisting>ant run-http-server</programlisting>
+
+    <para>and then:</para>
+
+    <programlisting>ant run-http-client</programlisting>
+
+    <para>The output when running the SimpleClient should look like:</para>
+
+    <programlisting>Response from remoting http server when making http POST request and sending a complex data object:
+ComplexObject (i = 5, s = dub, b = false, bytes.length = 0)
+
+Response from remoting http server when making GET request:
+&lt;html&gt;&lt;head&gt;&lt;title&gt;Test HTML page&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1&gt;HTTP/Servlet Test HTML page&lt;/h1&gt;&lt;p&gt;This is a simple page served for test.&lt;p&gt;Should show up in browser or via invoker client&lt;/body&gt;&lt;/html&gt;
+
+Response from remoting http server when making http POST request and sending a text based request:
+This is the return to simple text based http invocation.
+Response code from server: 207
+Response message from server: Custom response code and message from remoting server</programlisting>
+
+    <para>Notice that the first response is the ComplexObject from the static
+    variable returned within WebInvocationHandler. The next response is html
+    and then simple text from the WebInvocationHandler. Can see the specific
+    response code and message set in the WebInvocationHandler.</para>
+
+    <para>The output from the SimpleServer should look like:</para>
+
+    <programlisting>Starting remoting server with locator uri of: http://localhost:5400
+Jan 26, 2006 11:39:53 PM org.apache.coyote.http11.Http11BaseProtocol init
+INFO: Initializing Coyote HTTP/1.1 on http-127.0.0.1-5400
+Jan 26, 2006 11:39:53 PM org.apache.coyote.http11.Http11BaseProtocol start
+INFO: Starting Coyote HTTP/1.1 on http-127.0.0.1-5400
+Invocation request from client is: ComplexObject (i = 2, s = foo, b = true, bytes.length = 0)
+Invocation request from client is: null
+Invocation request from client is: return_string</programlisting>
+
+    <para>First the information for the http server invoker is written, which
+    includes the locator uri used to start the server and the output from
+    starting the Tomcat connector. Then will see the invocation parameter
+    passed for each client request.</para>
+
+    <para>Since the SimpleServer should still be running, can open a web
+    browser and enter the locator uri, http://localhost:5400. This should
+    cause the browser to render the html returned from the
+    WebInvocationHandler.</para>
+  </section>
+
+  <section>
+    <title>Oneway invocation</title>
+
+    <para>The oneway invocation sample (found in the
+    org.jboss.remoting.samples.oneway package) is very similar to the simple
+    invocation example, except in this sample, the client will make
+    asynchronous invocations on the server.</para>
+
+    <para>The OnewayClient class sets up the remoting client as in the simple
+    invocation sample, but instead of using the invoke() method, it uses the
+    invokeOneway() method on the Client class. There are two basic modes when
+    making a oneway invocation in remoting. The first is to have the calling
+    thread to be the one that makes the actual call to the server. This allows
+    the caller to ensure that the invocation request at least made it to the
+    server. Once the server receives the invocation request, the call will
+    return (and the request will be processed by a separate worker thread on
+    the server). The other mode, which is demonstrated in the second call to
+    invokeOneway, allows for the calling thread to return immediately and a
+    worker thread on the client side will make the actual invocation on the
+    server. This is faster of the two modes, but if there is a problem making
+    the request on the server, the original caller will be unaware.</para>
+
+    <para><emphasis role="bold">NOTE.</emphasis> In the interest of performance,
+    the behavior of the various transports is not required to conform to the
+    preceding description of the first, "server side", mode, in which the invocation
+    is made on the calling thread.  In particular, the socket and bisocket transports
+    return immediately after writing the invocation, without waiting for a 
+    response from the server.</para>
+    
+    <para>The OnewayServer is exactly the same as the SimpleServer from the
+    previous example, with the exception that invocation handler returns null
+    (since even if did return a response, would not be delivered to the
+    original caller).</para>
+
+    <para>To run this example, can compile both the OnewayClient and
+    OnewayServer class, then run the OnewayServer and then the OnewayClient.
+    Or can go to the examples directory and run the ant target
+    'run-oneway-server' and then in another console window run the ant target
+    'run-oneway-client'. For example:</para>
+
+    <programlisting>ant run-oneway-server</programlisting>
+
+    <para>and then:</para>
+
+    <programlisting>ant run-oneway-client</programlisting>
+
+    <para>The output when running the OnewayClient should look like:</para>
+
+    <programlisting>Calling remoting server with locator uri of: socket://localhost:5400
+Making oneway invocation with payload of 'Oneway call 1.'
+Making oneway invocation with payload of 'Oneway call 2.'</programlisting>
+
+    <para>The output when running the OnewayServer should look like:</para>
+
+    <programlisting>Starting remoting server with locator uri of: socket://localhost:5400
+Invocation request is: Oneway call 1.
+Invocation request is: Oneway call 2.</programlisting>
+
+    <para>Note: will have to manually shut down the OnewayServer once
+    started.</para>
+
+    <para>Although this example only demonstrates making one way invocations,
+    could include this with callbacks (see further down) to have asynchronous
+    invocations with callbacks to verify was processed.</para>
+  </section>
+
+  <section>
+    <title>Discovery and invocation</title>
+
+    <para>The discovery sample (found in the
+    org.jboss.remoting.samples.detection package) is similar to the simple
+    invocation example in that it makes a simple invocation from the client to
+    the server. However, in this example, instead of explicitly specifying the
+    invoker locator to use for the target remoting server, it is discovered
+    dynamically during runtime. This example is composed of two classes;
+    SimpleDetectorClient and SimpleDetectorServer.</para>
+
+    <para>The SimpleDetectorClient starts off by setting up the remoting
+    detector. Detection on the client side requires a few components; a JMX
+    MBeanServer, one or more Detectors, and a NetworkRegistry. The Detectors
+    will listen for detection messages from remoting servers and then add the
+    information for the detected servers to the NetworkRegistry. They use JMX
+    to lookup and call on the NetworkRegistry. The NetworkRegistry uses JMX
+    Notifications to emit changes in network topology (remoting servers being
+    added or removed).</para>
+
+    <para>In this particular example, the SimpleDetectorClient is registered
+    with the NetworkRegistry as a notification listener. When it receives
+    notifications from the NetworkRegistry (via the handleNotification()
+    method), it will check to see if the notification is for adding or
+    removing a remoting server. If it is for adding a remoting server, the
+    SimpleDetectorClient will get the array of InvokerLocators from the
+    NetworkNotification and make a remote call for each. If the notification
+    is for removing a remoting server, the SimpleDetectorClient will simply
+    print out a message saying which server has been removed.</para>
+
+    <para>The biggest change between the SimpleDetectorServer and the
+    SimpleServer from the first sample is that have added a method,
+    setupDetector(), to create and start a remoting Detector. On the server
+    side, only two components are needed for detection; the Detector and a JMX
+    MBeanServer. As for the setup of the Connector, it is exactly the same as
+    before. Notice that even though we have added a Detector on the server
+    side, the Connector is not directly aware of either Detector or the
+    MBeanServer, so no code changes for the Connector setup is
+    required.</para>
+
+    <para>To run this example, can compile both the SimpleDetectorClient and
+    SimpleDetectorServer class, then run the SimpleDetectorServer and then the
+    SimpleDetectorClient. Or can go to the examples directory and run the ant
+    target 'run-detector-server' and then in another window run the ant target
+    'run-detector-client'. For example:</para>
+
+    <programlisting>ant run-detector-server</programlisting>
+
+    <para>and then:</para>
+
+    <programlisting>ant run-detector-client</programlisting>
+
+    <para>The initial output when running the SimpleDetectorClient should look
+    like:</para>
+
+    <programlisting>ri Jan 13 09:36:50 EST 2006: [CLIENT]: Starting JBoss/Remoting client... to stop this client, kill it manually via Control-C
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: NetworkRegistry has been created
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: NetworkRegistry has added the client as a listener
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: MulticastDetector has been created and is listening for new NetworkRegistries to come online
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: GOT A NETWORK-REGISTRY NOTIFICATION: jboss.network.server.added
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: New server(s) have been detected - getting locators and sending welcome messages
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: Sending welcome message to remoting server with locator uri of: socket://127.0.0.1:5400/
+Fri Jan 13 09:36:50 EST 2006: [CLIENT]: The newly discovered server sent this response to our welcome message: Received your welcome message.  Thank you!</programlisting>
+
+    <para>The output when running the SimpleDetectorServer should look
+    like:</para>
+
+    <programlisting>Fri Jan 13 09:36:46 EST 2006: [SERVER]: Starting JBoss/Remoting server... to stop this server, kill it manually via Control-C
+Fri Jan 13 09:36:46 EST 2006: [SERVER]: This server's endpoint will be: socket://localhost:5400
+Fri Jan 13 09:36:46 EST 2006: [SERVER]: MulticastDetector has been created and is listening for new NetworkRegistries to come online
+Fri Jan 13 09:36:46 EST 2006: [SERVER]: Starting remoting server with locator uri of: socket://localhost:5400
+Fri Jan 13 09:36:46 EST 2006: [SERVER]: Added our invocation handler; we are now ready to begin accepting messages from clients
+Fri Jan 13 09:36:50 EST 2006: [SERVER]: RECEIVED A CLIENT MESSAGE: Welcome Aboard!
+Fri Jan 13 09:36:50 EST 2006: [SERVER]: Returning the following message back to the client: Received your welcome message.  Thank you!</programlisting>
+
+    <para>At this point, try stopping the SimpleDetectorServer (notice that
+    the SimpleDetectorClient should still be running). After a few seconds,
+    the client detector should detect that the server is no longer available
+    and will see something like the following appended in the
+    SimpleDetectorClient console window:</para>
+
+    <programlisting>Fri Jan 13 09:37:04 EST 2006: [CLIENT]: GOT A NETWORK-REGISTRY NOTIFICATION: jboss.network.server.removed
+Fri Jan 13 09:37:04 EST 2006: [CLIENT]: It has been detected that a server has gone down with a locator of: InvokerLocator [socket://127.0.0.1:5400/]</programlisting>
+  </section>
+
+  <section>
+    <title>Callbacks</title>
+
+    <para>The callback sample (found in the
+    org.jboss.remoting.samples.callback package) illustrates how to perform
+    callbacks from a remoting server to a remoting client. This example is
+    composed of two classes; CallbackClient and CallbackServer.</para>
+
+    <para>Within remoting, there are two approaches in which a callback can be
+    received. The first is to actively ask for callback messages from the
+    remoting server, which is called a pull callback (since are pulling the
+    callbacks from the server). The second is to have the server send the
+    callbacks to the client as they are generated, which is called a push
+    callback. This sample demonstrates how to do both pull and push
+    callbacks.</para>
+
+    <para>Looking at the CallbackClient class, will see that the first thing
+    done is to create a remoting Client, which is done in the same manner as
+    previous examples. Next, we'll perform a pull callback, which requires the
+    creation of a CallbackHandler. The CallbackHandler, which implements the
+    InvokerCallbackHandler interface, is what is called upon with a Callback
+    object when a callback is received. The Callback object contains
+    information such as the callback message (in Object form), the server
+    locator from where the callback originally came from, and a handle object
+    which can help to identify callback context (similar to the handle object
+    within a JMX Notification). Once created, the CallbackHandler is then
+    registered as a listener within the Client. This will cause the client to
+    make a call to the server to notify the server it has a callback listener
+    (more on this below in the server section). Although the CallbackHandler
+    is not called upon directly when doing pull callbacks, it is needed as an
+    identifier for the callbacks.</para>
+
+    <para>Then the client will wait a few seconds, make a simple invocation on
+    the server, and then call on the remoting Client instance to get any
+    callbacks that may be available for our CallbackHandler. This will return
+    a list of callbacks, if any exist. The list will be iterated and each
+    callback will be printed to standard output. Finally, the callback handler
+    will be removed as a listener from the remoting Client (which in turns
+    removes it from the remoting server).</para>
+
+    <para>After performing a pull callback, will perform a push callback. This
+    is a little more involved as requires creating a callback server to which
+    the remoting target server can callback on when it generates a callback
+    message. To do this, will need to create a remoting Connector, just as
+    have seen in previous examples. For this particular example, we use the
+    same locator url as our target remoting server, but increment the port to
+    listen on by one. Will also notice that use the SampleInvocationHandler
+    hander from the CallbackServer (more in this in a minute). After creating
+    our callback server, a CallbackHandler and callback handle object is
+    created. Next, remoting Client is called to add our callback listener.
+    Here we pass not only the CallbackHandler, but the InvokerLocator for the
+    callback server (so the target server will know where to deliver callback
+    messages to), and the callback handle object (which will be included in
+    all the callback messages delivered for this particular callback
+    listener).</para>
+
+    <para>Then the client will wait a few seconds, to allow the target server
+    time to generate and deliver callback messages. After that, we remove the
+    callback listener and clean up our callback server.</para>
+
+    <para>The CallbackServer is pretty much the same as the previous samples
+    in setting up the remoting server, via the Connector. The biggest change
+    resides in the ServerInvocationHandler implementation,
+    SampleInvocationHandler (which is an inner class to CallbackServer). The
+    first thing to notice is now have a variable called listeners, which is a
+    List to hold any callback listeners that get registered. Also, in the
+    constructor of the SampleInvocationHandler, we set up a new thread to run
+    in the background. This thread, executing the run() method in
+    SampleInvocationHandler, will continually loop looking to see if the
+    shouldGenerateCallbacks has been set. If it has been, will create a
+    Callback object and loop through its list of listeners and tell each
+    listener to handle the newly created callback. Have also added
+    implementation to the addListener() and removeListener() methods where
+    will either add or remove specified callback listener from the internal
+    callback listener list and set the shouldGenerateCallbacks flag
+    accordingly. The invoke() method remains the same as in previous
+    samples.</para>
+
+    <para>To run this example, can compile both the CallbackClient and
+    CallbackServer class, then run the CallbackServer and then the
+    CallbackClient. Or can go to the examples directory and run the ant target
+    'run-callback-server' and then in another window run the ant target
+    'run-callback-client. For example:</para>
+
+    <programlisting>ant run-callback-server</programlisting>
+
+    <para>and then:</para>
+
+    <programlisting>ant run-callback-client</programlisting>
+
+    <para>The output in the CallbackClient console window should look
+    like:</para>
+
+    <programlisting>Calling remoting server with locator uri of: socket://localhost:5400
+Invocation response: This is the return to SampleInvocationHandler invocation
+Pull Callback value = Callback 1: This is the payload of callback invocation.
+Pull Callback value = Callback 2: This is the payload of callback invocation.
+Starting remoting server with locator uri of: InvokerLocator [socket://127.0.0.1:5401/]
+Received push callback.
+Received callback value of: Callback 3: This is the payload of callback invocation.
+Received callback handle object of: myCallbackHandleObject
+Received callback server invoker of: InvokerLocator [socket://127.0.0.1:5400/]
+Received push callback.
+Received callback value of: Callback 4: This is the payload of callback invocation.
+Received callback handle object of: myCallbackHandleObject
+Received callback server invoker of: InvokerLocator [socket://127.0.0.1:5400/]</programlisting>
+
+    <para>This output shows that client first pulled two callbacks generated
+    from the server. Then, after creating and registering our second callback
+    handler and a callback server, two callbacks were received from the target
+    server.</para>
+
+    <para>The output in the CallbackServer console window should look
+    like:</para>
+
+    <programlisting>Starting remoting server with locator uri of: socket://localhost:5400
+Adding callback listener.
+Invocation request is: Do something
+Removing callback listener.
+Adding callback listener.
+Removing callback listener. </programlisting>
+
+    <para>This output shows two distinct callback handlers being added and
+    removed (with an invocation request being received after the first was
+    added).</para>
+
+    <para>There are a few important points to mention about this example.
+    First, notice that in the client, the same callback handle object in the
+    push callbacks was received as was registered with the callback listener.
+    However, there was no special code required to facilitate this within the
+    SampleInvocationHandler. This is handled within remoting automatically.
+    Also notice when the callback server was created within the client, no
+    special coding was required to register the callback handler with it, both
+    were simply passed to the remoting Client instance when registering the
+    callback listener and was handled internally.</para>
+  </section>
+
+  <section>
+    <title>Bisocket transport</title>
+    
+    <para>The bisocket example shows how to set up push callbacks with the bisocket transport, using its facility for avoiding the use of a <classname>ServerSocket</classname> and TCP port on the client. The key section is</para>
+    
+    <programlisting>
+      HashMap metadata = new HashMap();
+      metadata.put(Bisocket.IS_CALLBACK_SERVER, "true");
+      TestCallbackHandler callbackHandler = new TestCallbackHandler();
+      client.addListener(callbackHandler, metadata);
+    </programlisting>
+    
+    <para>which configures the callback <classname>Connector</classname> appropriately.</para>
+    
+    <para>To run the example, type</para>
+    
+    <programlisting>ant run-bisocket-server</programlisting>
+    
+    <para>in one window, and type</para>
+    
+    <programlisting>ant run-bisocket-client</programlisting>
+    
+    <para>in another window.</para>
+    
+  </section>
+  <section>
+    <title>Streaming</title>
+
+    <para>The streaning sample (found in the org.jboss.remoting.samples.stream
+    package) illustrates how a java.io.InputStream can be sent from a client
+    and read on demand from a server. This example is composed of two classes:
+    StreamingClient and StreamingServer.</para>
+
+    <para>Unlike the previous examples that sent plain old java objects as the
+    payload, this example will be sending a java.io.FileInputStream as the
+    payload to the server. This is a special case because streams can not be
+    serialized. One approach to this might be to write out the contents of a
+    stream to a byte buffer and send the whole data content to the server.
+    However, this approach can be dangerous because if the data content of the
+    stream is large, such as an 800MB file, would run the risk of causing an
+    out of memory error (since are loading all 800MB into memory). Another
+    approach, which is used by JBossRemoting, is to create a proxy to the
+    original stream. This proxy can then be called upon for reading, same as
+    the original stream. When this happens, the proxy will call back the
+    original stream for the requested data.</para>
+
+    <para>Looking at the StreamingClient, the remoting Client is created as in
+    previous samples. Next, will create a java.io.FileInputStream to the
+    sample.txt file on disk (which is in the same directory as the test
+    classes). Finally, will call the remoting Client to do its invocation,
+    passing the new FileInputStream and the name of the file. The second
+    parameter could be of any Object type and is meant to supply some
+    meaningful context to the server in regards to the stream being passed,
+    such as the file name to use when writing to disk on the server side. The
+    response from the server, in this example, is the size of the file it
+    wrote to disk.</para>
+
+    <para>The StreamingServer sets up the remoting server as was done in
+    previous examples. However, instead of using an implementation of the
+    ServerInvocationHandler class as the server handler, an implementation of
+    the StreamInvocationHandler (which extends the ServerInvocationHandler) is
+    used. The StreamInvocationHandler includes an extra method called
+    handleStream() especially for processing requests with a stream as the
+    payload. In this example, the class implementing the
+    StreamInvocationHandler is the TestStreamInvocationHandler class, which is
+    an inner class to the StreamingServer. The handleStream() method within
+    the TestStreamInvocationHandler will use the stream passed to it to write
+    out its contents to a file on disk, as specified by the second parameter
+    passed to the handleStream() method. Upon writing out the file to disk,
+    the handleStream() method will return to the client caller the size of the
+    file.</para>
+
+    <para>To run this example, can compile both the StreamingClient and
+    StreamingServer class, then run the StreamingServer and then the
+    StreamingClient. Or can go to the examples directory and run the ant
+    target 'run-stream-server' and then in another window run the ant target
+    'run-stream-client'. For example:</para>
+
+    <programlisting>ant run-stream-server</programlisting>
+
+    <para>and then:</para>
+
+    <programlisting>ant run-stream-client</programlisting>
+
+    <para>The output in the StreamingClient console window should look
+    like:</para>
+
+    <programlisting>Calling on remoting server with locator uri of: socket://localhost:5400
+Sending input stream for file sample.txt to server.
+Size of file sample.txt is 987
+Server returned 987 as the size of the file read.</programlisting>
+
+    <para>The output in the StreamingServer console window should look
+    like:</para>
+
+    <programlisting>Starting remoting server with locator uri of: socket://localhost:5400
+Received input stream from client to write out to file server_sample.txt
+Read stream of size 987.  Now writing to server_sample.txt
+New file server_sample.txt has been written out to C:\tmp\JBossRemoting_1_4_0_final\examples\server_sample.txt</programlisting>
+
+    <para>After running this example, there should be a newly created
+    server_sample.txt file in the root examples directory. The contents of the
+    file should look exactly like the contents of the sample.txt file located
+    in the examples\org\jboss\remoting\samples\stream directory.</para>
+  </section>
+
+  <section>
+    <title>JBoss Serialization</title>
+
+    <para>The serialization sample (found in the
+    org.jboss.remoting.samples.serialization package) illustrates how JBoss
+    Serialization can be used in place of the standard java serialization to
+    allow for sending of invocation payload objects that do not implement the
+    java.io.Serializable interface. This example is composed of three classes:
+    SerializationClient, SerializationServer, and
+    NonSerializablePayload.</para>
+
+    <para>This example is exactly like the one from the simple example with
+    two differences. The first difference is the use of JBoss Serialization to
+    convert object instances to binary data format for wire transfer. This is
+    accomplished by adding an extra parameter (serializationtype) to the
+    locator url with a value of 'jboss'. Is important to note that use of
+    JBoss Serialization requires JDK 1.5, so this example will need to be run
+    using JDK 1.5. The second difference is instead of sending and receiving a
+    simple String type for the remote invocation payload, will be sending and
+    receiving an instance of the NonSerializablePayload class.</para>
+
+    <para>There are a few important points to notice with the
+    NonSerializablePayload class. The first is that it does NOT implement the
+    java.io.Serializable interface. The second is that it has a void parameter
+    constructor. This is a requirement of JBoss Serialization for object
+    instances that do not implement the Serializable interface. However, this
+    void parameter constructor can be private, as in the case of
+    NonSerializablePayload, as to not change the external API of the
+    class.</para>
+
+    <para>To run this example, can compile both the SerializationClient and
+    SerializationServer class, then run the SerializationServer and then the
+    SerializationClient. Or can go to the examples directory and run the ant
+    target 'run-serialization-server' and then in another window run the ant
+    target 'run-serialization-client'. For example:</para>
+
+    <programlisting>ant run-serialization-server</programlisting>
+
+    <para>and then:</para>
+
+    <programlisting>ant run-serialization-client</programlisting>
+
+    <para>The output in the SerializationClient console window should look
+    like:</para>
+
+    <programlisting>Calling remoting server with locator uri of: socket://localhost:5400/?serializationtype=jboss
+Invoking server with request of 'NonSerializablePayload - name: foo, id: 1'
+Invocation response: NonSerializablePayload - name: bar, id: 2</programlisting>
+
+    <para>The output in the SerializationServer console window should look
+    like:</para>
+
+    <programlisting>Starting remoting server with locator uri of: socket://localhost:5400/?serializationtype=jboss
+Invocation request is: NonSerializablePayload - name: foo, id: 1
+Returning response of: NonSerializablePayload - name: bar, id: 2</programlisting>
+
+    <para>Note: will have to manually shut down the SerializationServer once
+    started.</para>
+  </section>
+
+  <section>
+    <title>Transporters</title>
+
+    <section>
+      <title>Transporters - beaming POJOs</title>
+
+      <para>There are many ways in which to expose a remote interface to a
+      java object. Some require a complex framework API based on a standard
+      specification and some require new technologies like annotations and
+      AOP. Each of these have their own benefits. JBoss Remoting transporters
+      provide the same behavior via a simple API without the need for any of
+      the newer technologies.</para>
+
+      <para>When boiled down, transporters take a plain old java object (POJO)
+      and expose a remote proxy to it via JBoss Remoting. Dynamic proxies and
+      reflection are used to make the typed method calls on that target POJO.
+      Since JBoss Remoting is used, can select from a number of different
+      network transports (i.e. rmi, http, socket, etc.), including
+      support for SSL. Even clustering features can be included.</para>
+
+      <bridgehead>How it works</bridgehead>
+
+      <para>In this section will discuss how remoting transporters can be
+      used, some requirments for usage, and a little detail on the
+      implementation. For greater breath on usage, please review the
+      transporter samples as most use cases are covered there.</para>
+
+      <para>To start, will need to have a plain old java object that
+      implements one or more interfaces that want to expose for remote method
+      invocation. Then will need to create a
+      <code>org.jboss.remoting.transporter.TransporterServer</code> to wrap
+      around it, so that can be exposed remotely. This can be done in one of
+      two basic ways. The first is to use a static
+      <code>createTransporterServer()</code> method of the TransporterServer
+      class. There are many of these create methods, but all basically do that
+      same thing in that they take a remoting locator and target pojo and will
+      return a TransporterServer instance that has been started and ready to
+      receive remote invocations (see javadoc for TransporterServer for all
+      the different static createTransporterServer() methods). The other way
+      to create a TransporterServer for the target pojo is to construct an
+      instance of it. This provides a little more flexibility as are able to
+      control more aspects of the TransporterServer, such as when it will be
+      started.</para>
+
+      <para>When a TransporterServer is created, it will create a remoting
+      Connector using the locator provided. It will generate a server
+      invocation handler that wraps the target pojo provided and use
+      reflection to make the calls on it based on the invocations it receives
+      from clients. By default, the subsystem underwhich the server invocation
+      handler is registered is the interface class name for which the target
+      pojo is exposing. If the target implements multiple interfaces, and a
+      specific one to use is not specified, all the interfaces will be
+      registered as subsystems for the same server invocation handler.
+      Whenever no long want the target pojo to receive remote method
+      invocations, will need to call the <code>stop()</code> method on the
+      TransporterServer for the target pojo (this is very important, as
+      otherwise will never be released from memory and will continue to
+      consume network and memory resources).</para>
+
+      <para>On the client side, in order to be able to call on the target pojo
+      remotely, will need to use the
+      <code>org.jboss.remoting.transporter.TransporterClient</code>. Unlike
+      the TransporterServer, can only use the static create methods of the
+      TransporterClient (this is because the return to the static create
+      method is a typed dynamic proxy). The static method to call on the
+      TransportClient is <code>createTransporterClient()</code>, where will
+      pass the locator to find the target pojo (same as one used when creating
+      the TransporterServer) and the interface for the target pojo that want
+      to make remote method invocations on. The return from this create call
+      will be a dynamic proxy which you can cast to to same interface type
+      supplied. At that point, can make typed method invocations on the
+      returned object, which will then make the remote invocations under the
+      covers. Note that can have multiple transporter clients to the same
+      target pojo, each using different interface types for making
+      calls.</para>
+
+      <para>When no longer need to make invocations on the target pojo, the
+      resources associated with the remoting client will need to be cleaned
+      up. This is done by calling the <code>destroyTransporterClient()</code>
+      method of the TransporterClient. This is important to remember to do, as
+      will otherwise leave network resources active even though not in
+      use.</para>
+
+      <para>One of the features of using remoting transporters is location
+      transparency. By this mean that client proxies returned by the
+      TransporterClient can be passed over the network. For example, can have
+      a target pojo that returns from a method call a client proxy (that it
+      created using the TransporterClient) in which the client can call on
+      directly as well. See the transporter proxy sample code to see how this
+      can be done.</para>
+
+      <para>Another nice feature when using transporters is the ability to
+      cluster. To be more specific, can create multiple target pojos using the
+      TransporterServer in clustered mode and then use the TransporterClient
+      in clustered mode to create a client proxy that will discover the
+      location of the target pojos are wanting to call on. Will also provide
+      automatic, seemless failover of remote method invocations in the case
+      that a particular target pojo instance fails. However, note that only
+      provide invocation failover and does not take into account state
+      transfer between target pojos (would need addition of JBoss Cache or
+      some other state synchronization tool).</para>
+    </section>
+
+    <para>The transporter sample spans several examples showing different ways
+    to use the transporter. Each specific example is within its own package
+    under the org.jboss.remoting.samples.transporter package. Since each of
+    the transporter examples includes common objects, as well as client and
+    server classes, the common objects will be found under the main
+    transporter sub-package and the client and server classes in their
+    respective sub-packages (named client and server).</para>
+
+    <section>
+      <title>Transporters sample - simple</title>
+
+      <para>The simple transporter example (found in
+      org.jboss.remoting.samples.transporter.simple package) demonstrates a
+      very simple example of how to use the transporters to expose a plain old
+      java object for remote method invocations.</para>
+
+      <para>In this simple transporter example, will be taking a class that
+      formats a java.util.Date into a simple String representation and
+      exposing it so can call on the remotely. The target object in this case,
+      org.jboss.remoting.samples.transporter.simple.DateProcessorImpl,
+      implements the
+      org.jboss.remoting.samples.transporter.simple.DateProcessor interfaces
+      (as shown below):</para>
+
+      <programlisting>public interface DateProcessor
+{
+   public String formatDate(Date dateToConvert);
+}
+
+
+public class DateProcessorImpl implements DateProcessor
+{
+   public String formatDate(Date dateToConvert)
+   {
+      DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+      return dateFormat.format(dateToConvert);
+   }
+}</programlisting>
+
+      <para>This is then exposed using the TransporterServer by the
+      org.jboss.remoting.samples.transporter.simple.Server class.</para>
+
+      <programlisting>public class Server
+{
+   public static void main(String[] args) throws Exception
+   {
+      TransporterServer server = TransporterServer.createTransporterServer("socket://localhost:5400", new DateProcessorImpl(), DateProcessor.class.getName());
+      Thread.sleep(10000);
+      server.stop();
+   }
+}</programlisting>
+
+      <para>The Server class simply creates a TransporterServer by indicating
+      the locator url would like to use for the remoting server, a newly
+      created instance of DataProcessorImpl, and the interface type would like
+      to expose remotely. The TransporterServer returned from the
+      createTransporterServer call is live and ready to receive incoming
+      method invocation requests. Will then wait 10 seconds for a request,
+      then stop the server.</para>
+
+      <para>Next need to have client to make the remote invocation. This can
+      be found within
+      org.jboss.remoting.samples.transporter.simple.Client.</para>
+
+      <programlisting>public class Client
+{
+   public static void main(String[] args) throws Exception
+   {
+      DateProcessor dateProcessor = (DateProcessor) TransporterClient.createTransporterClient("socket://localhost:5400", DateProcessor.class);
+      String formattedDate = dateProcessor.formatDate(new Date());
+      System.out.println("Current date: " + formattedDate);
+   }
+}</programlisting>
+
+      <para>In the Client class, create a TransporterClient which can be cast
+      to the desired type, which is DataProcessor in this case. In calling the
+      createTransporterClient, need to specify the locator ulr (same as was
+      used for the TransporterServer), and the interface type will be calling
+      on for the target pojo. Once have the DateProcessor variable, will make
+      the call to formatDate() and pass a newly created Date object. The
+      return will be a formated String of the date passed.</para>
+
+      <para>To run this example, can run the Server and then the Client. Or
+      can go to the examples directory and run the ant target
+      'run-transporter-simple-server' and then in another window run the ant
+      target 'run-transporter-simple-client'. For example:</para>
+
+      <programlisting>ant run-transporter-simple-server</programlisting>
+
+      <para>and then:</para>
+
+      <programlisting>ant run-transporter-simple-client</programlisting>
+
+      <para>The output from the client window should look similar to:</para>
+
+      <programlisting>Current date: Jul 31, 2006</programlisting>
+    </section>
+
+    <section>
+      <title>Transporter sample - basic</title>
+
+      <para>The basic transporter example (found in
+      org.jboss.remoting.samples.transporter.basic package) illustrates how to
+      build a simple transporter for making remote invocations on plain old
+      java objects.</para>
+
+      <para>In this basic transporter example, will be using a few domain
+      objects; <code>Customer</code> and Address, which are just data
+      objects.</para>
+
+      <programlisting>public class <emphasis role="bold">Customer</emphasis> implements Serializable
+{
+   private String firstName = null;
+   private String lastName = null;
+   private Address addr = null;
+   private int customerId = -1;
+
+   public String getFirstName()
+   {
+      return firstName;
+   }
+
+   public void setFirstName(String firstName)
+   {
+      this.firstName = firstName;
+   }
+
+   public String getLastName()
+   {
+      return lastName;
+   }
+
+   public void setLastName(String lastName)
+   {
+      this.lastName = lastName;
+   }
+
+   public Address getAddr()
+   {
+      return addr;
+   }
+
+   public void setAddr(Address addr)
+   {
+      this.addr = addr;
+   }
+
+   public int getCustomerId()
+   {
+      return customerId;
+   }
+
+   public void setCustomerId(int customerId)
+   {
+      this.customerId = customerId;
+   }
+
+   public String toString()
+   {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("\nCustomer:\n");
+      buffer.append("customer id: " + customerId + "\n");
+      buffer.append("first name: " + firstName + "\n");
+      buffer.append("last name: " + lastName + "\n");
+      buffer.append("street: " + addr.getStreet() + "\n");
+      buffer.append("city: " + addr.getCity() + "\n");
+      buffer.append("state: " + addr.getState() + "\n");
+      buffer.append("zip: " + addr.getZip() + "\n");
+
+      return buffer.toString();
+   }
+}</programlisting>
+
+      <programlisting>public class <emphasis role="bold">Address</emphasis> implements Serializable
+{
+   private String street = null;
+   private String city = null;
+   private String state = null;
+   private int zip = -1;
+
+   public String getStreet()
+   {
+      return street;
+   }
+
+   public void setStreet(String street)
+   {
+      this.street = street;
+   }
+
+   public String getCity()
+   {
+      return city;
+   }
+
+   public void setCity(String city)
+   {
+      this.city = city;
+   }
+
+   public String getState()
+   {
+      return state;
+   }
+
+   public void setState(String state)
+   {
+      this.state = state;
+   }
+
+   public int getZip()
+   {
+      return zip;
+   }
+
+   public void setZip(int zip)
+   {
+      this.zip = zip;
+   }
+}</programlisting>
+
+      <para>Next comes the POJO that we want to expose a remote proxy for,
+      which is <code>CustomerProcessorImpl</code> class. This implementation
+      has one method to process a <code>Customer</code> object. It also
+      implements the <code>CustomerProcessor</code> interface.</para>
+
+      <programlisting>public class <emphasis role="bold">CustomerProcessorImpl</emphasis> implements <emphasis
+          role="bold">CustomerProcessor</emphasis>
+{
+   /**
+    * Takes the customer passed, and if not null and customer id
+    * is less than 0, will create a new random id and set it.
+    * The customer object returned will be the modified customer
+    * object passed.
+    *
+    * @param customer
+    * @return
+    */
+   public Customer processCustomer(Customer customer)
+   {
+      if(customer != null &amp;&amp; customer.getCustomerId() &lt; 0)
+      {
+         customer.setCustomerId(new Random().nextInt(1000));
+      }
+      System.out.println("processed customer with new id of " + customer.getCustomerId());
+      return customer;
+   }
+}</programlisting>
+
+      <programlisting>public interface <emphasis role="bold">CustomerProcessor</emphasis>
+{
+   /**
+    * Process a customer object.  Implementors
+    * should ensure that the customer object
+    * passed as parameter should have its internal
+    * state changed somehow and returned.
+    *
+    * @param customer
+    * @return
+    */
+   public Customer processCustomer(Customer customer);
+}</programlisting>
+
+      <para>So far, nothing special, just plain old java objects. Next need to
+      create the server component that will listen for remote request to
+      invoke on the target POJO. This is where the transporter comes
+      in.</para>
+
+      <programlisting>public class <emphasis role="bold">Server</emphasis>
+{
+   private String locatorURI = "socket://localhost:5400";
+   private TransporterServer server = null;
+
+   public void start() throws Exception
+   {
+      server = <emphasis role="bold">TransporterServer.createTransporterServer(locatorURI, new CustomerProcessorImpl())</emphasis>;
+   }
+
+   public void stop()
+   {
+      if(server != null)
+      {
+         server.stop();
+      }
+   }
+
+   public static void main(String[] args)
+   {
+      Server server = new Server();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>The <code>Server</code> class is a pretty simple one. It calls the
+      <code>TransporterServer</code> factory method to create the server
+      component for the <code>CustomerProcessorImpl</code> instance using the
+      specified remoting locator information.</para>
+
+      <para>The <code>TransporterServer</code> returned from the
+      <code>createTransporterServer() </code>call will be a running instance
+      of a remoting server using the <literal>socket</literal> transport that
+      is bound to <literal>localhost</literal> and listening for remote
+      requests on port <literal>5400</literal>. The requests that come in will
+      be forwarded to the remoting handler which will convert them into direct
+      method calls on the target POJO, <code>CustomerProcessorImpl</code> in
+      this case, using reflection.</para>
+
+      <para>The <code>TransporterServer</code> has a <code>start()</code> and
+      <code>stop()</code> method exposed to control when to start and stop the
+      running of the remoting server. The <code>start()</code> method is
+      called automatically within the <code>createTransporterServer()</code>
+      method, so is ready to receive requests upon the return of this method.
+      The <code>stop()</code> method, however, needs to be called explicitly
+      when no longer wish to receive remote calls on the target POJO.</para>
+
+      <para>Next up is the client side. This is represented by the
+      <code>Client</code> class.</para>
+
+      <programlisting>public class <emphasis role="bold">Client</emphasis>
+{
+   private String locatorURI = "socket://localhost:5400";
+
+   public void makeClientCall() throws Exception
+   {
+      Customer customer = createCustomer();
+
+      <emphasis role="bold">CustomerProcessor customerProcessor = (CustomerProcessor) TransporterClient.createTransporterClient(locatorURI, CustomerProcessor.class);</emphasis>
+
+      System.out.println("Customer to be processed: " + customer);
+      <emphasis role="bold">Customer processedCustomer = customerProcessor.processCustomer(customer);</emphasis>
+      System.out.println("Customer is now: " + processedCustomer);
+
+      <emphasis role="bold">TransporterClient.destroyTransporterClient(customerProcessor);</emphasis>
+   }
+
+   private Customer createCustomer()
+   {
+      Customer cust = new Customer();
+      cust.setFirstName("Bob");
+      cust.setLastName("Smith");
+      Address addr = new Address();
+      addr.setStreet("101 Oak Street");
+      addr.setCity("Atlanata");
+      addr.setState("GA");
+      addr.setZip(30249);
+      cust.setAddr(addr);
+
+      return cust;
+   }
+
+   public static void main(String[] args)
+   {
+      Client client = new Client();
+      try
+      {
+         client.makeClientCall();
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+}</programlisting>
+
+      <para>The <code>Client</code> class is also pretty simple. It creates a
+      new <code>Customer</code> object instance, creates the remote proxy to
+      the <code>CustomerProcessor</code>, and then calls on the
+      <code>CustomerProcessor</code> to process its new <code>Customer</code>
+      instance.</para>
+
+      <para>To get the remote proxy for the <code>CustomerProcessor</code>,
+      all that is required is to call the <code>TransporterClient</code>'s
+      method <code>createTransporterClient()</code> method and pass the
+      locator uri and the type of the remote proxy (and explicitly cast the
+      return to that type). This will create a dynamic proxy for the specified
+      type, <code>CustomerProcessor</code> in this case, which is backed by a
+      remoting client which in turn makes the calls to the remote POJO's
+      remoting server. Once the call to <code>createTransportClient()</code>
+      has returned, the remoting client has already made its connection to the
+      remoting server and is ready to make calls (will throw an exception if
+      it could not connect to the specified remoting server).</para>
+
+      <para>When finished making calls on the remote POJO proxy, will need to
+      explicitly destroy the client by calling
+      <code>destroyTransporterClient()</code> and pass the remote proxy
+      instance. This allows the remoting client to disconnect from the POJO's
+      remoting server and clean up any network resources previously
+      used.</para>
+
+      <para>To run this example, can run the Server and then the Client. Or
+      can go to the examples directory and run the ant target
+      'run-transporter-basic-server' and then in another window run the ant
+      target 'run-transporter-basic-client'. For example:</para>
+
+      <programlisting>ant run-transporter-basic-server</programlisting>
+
+      <para>and then:</para>
+
+      <programlisting>ant run-transporter-basic-client</programlisting>
+
+      <para>The output from the Client console should be similar to:</para>
+
+      <programlisting>Customer to be processed:
+Customer:
+customer id: -1
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanata
+state: GA
+zip: 30249
+
+Customer is now:
+Customer:
+customer id: 204
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanata
+state: GA
+zip: 30249
+
+</programlisting>
+
+      <para>and the output from the Server class should be similar to:</para>
+
+      <programlisting>processed customer with new id of 204</programlisting>
+
+      <para>The output shows that the <code>Customer</code> instance created
+      on the client was sent to the server where it was processed (by setting
+      the customer id to 204) and returned to the client (and printed out
+      showing that the customer id was set to 204).</para>
+    </section>
+
+    <section>
+      <title>Transporter sample - JBoss serialization</title>
+
+      <para>The transporter serialization example (found in
+      org.jboss.remoting.samples.transporter.serialization package) is very
+      similar to the previous basic example, except in this one, the domain
+      objects being sent over the wire will NOT be Serializable. This is
+      accomplished via the use of JBoss Serialization. This can be useful when
+      don't know which domain objects you may be using in remote calls or if
+      adding ability for remote calls on legacy code.</para>
+
+      <para>To start, there are a few more domain objects: <code>Order</code>,
+      <code>OrderProcessor</code>, and <code>OrderProcessorImpl</code>. These
+      will use some of the domain objects from the previous example as well,
+      such as <code>Customer</code>.</para>
+
+      <programlisting>public class <emphasis role="bold">Order</emphasis>
+{
+   private int orderId = -1;
+   private boolean isProcessed = false;
+   private Customer customer = null;
+   private List items = null;
+
+
+   public int getOrderId()
+   {
+      return orderId;
+   }
+
+   public void setOrderId(int orderId)
+   {
+      this.orderId = orderId;
+   }
+
+   public boolean isProcessed()
+   {
+      return isProcessed;
+   }
+
+   public void setProcessed(boolean processed)
+   {
+      isProcessed = processed;
+   }
+
+   public Customer getCustomer()
+   {
+      return customer;
+   }
+
+   public void setCustomer(Customer customer)
+   {
+      this.customer = customer;
+   }
+
+   public List getItems()
+   {
+      return items;
+   }
+
+   public void setItems(List items)
+   {
+      this.items = items;
+   }
+
+   public String toString()
+   {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("\nOrder:\n");
+      buffer.append("\nIs processed: " + isProcessed);
+      buffer.append("\nOrder id: " + orderId);
+      buffer.append(customer.toString());
+
+      buffer.append("\nItems ordered:");
+      Iterator itr = items.iterator();
+      while(itr.hasNext())
+      {
+         buffer.append("\n" + itr.next().toString());
+      }
+
+      return buffer.toString();
+   }
+}</programlisting>
+
+      <programlisting>public class <emphasis role="bold">OrderProcessorImpl</emphasis> implements <emphasis
+          role="bold">OrderProcessor</emphasis>
+{
+   private CustomerProcessor customerProcessor = null;
+
+   public OrderProcessorImpl()
+   {
+      customerProcessor = new CustomerProcessorImpl();
+   }
+
+   public Order processOrder(Order order)
+   {
+      System.out.println("Incoming order to process from customer.\n" + order.getCustomer());
+
+      // has this customer been processed?
+      if(order.getCustomer().getCustomerId() &lt; 0)
+      {
+         order.setCustomer(customerProcessor.processCustomer(order.getCustomer()));
+      }
+
+      List items = order.getItems();
+      System.out.println("Items ordered:");
+      Iterator itr = items.iterator();
+      while(itr.hasNext())
+      {
+         System.out.println(itr.next());
+      }
+
+      order.setOrderId(new Random().nextInt(1000));
+      order.setProcessed(true);
+
+      System.out.println("Order processed.  Order id now: " + order.getOrderId());
+      return order;
+   }
+}</programlisting>
+
+      <programlisting>public interface OrderProcessor
+{
+   public Order processOrder(Order order);
+}</programlisting>
+
+      <para>The <code>OrderProcessorImpl</code> will take orders, via the
+      <code>processOrder() </code>method, check that the customer for the
+      order has been processed, and if not have the customer processor process
+      the new customer. Then will place the order, which means will just set
+      the order id and processed attribute to true.</para>
+
+      <para>The most important point to this example is that the
+      <code>Order</code> class does NOT implement
+      <code>java.io.Serializable</code>.</para>
+
+      <para>Now onto the <code>Server</code> class. This is just like the
+      previous <code>Server</code> class in the basic example with one main
+      difference: the <code>locatorURI</code> value.</para>
+
+      <programlisting>public class <emphasis role="bold">Server</emphasis>
+{
+   private String locatorURI = "socket://localhost:5400/?<emphasis role="bold">serializationtype=jboss</emphasis>";
+   private TransporterServer server = null;
+
+   public void start() throws Exception
+   {
+      server = TransporterServer.createTransporterServer(locatorURI, new OrderProcessorImpl());
+   }
+
+   public void stop()
+   {
+      if(server != null)
+      {
+         server.stop();
+      }
+   }
+
+   public static void main(String[] args)
+   {
+      Server server = new Server();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>The addition of <literal>serializationtype=jboss</literal> tells
+      the remoting framework to use JBoss Serialization in place of the
+      standard java serialization.</para>
+
+      <para>On the client side, there is the <code>Client</code> class, just
+      as in the previous basic example.</para>
+
+      <programlisting>public class <emphasis role="bold">Client</emphasis>
+{
+   private String locatorURI = "socket://localhost:5400/?<emphasis role="bold">serializationtype=jboss</emphasis>";
+
+   public void makeClientCall() throws Exception
+   {
+      Order order = createOrder();
+
+      OrderProcessor orderProcessor = (OrderProcessor) TransporterClient.createTransporterClient(locatorURI, OrderProcessor.class);
+
+      System.out.println("Order to be processed: " + order);
+      Order changedOrder = orderProcessor.processOrder(order);
+      System.out.println("Order now processed " + changedOrder);
+
+      TransporterClient.destroyTransporterClient(orderProcessor);
+
+   }
+
+   private Order createOrder()
+   {
+      Order order = new Order();
+      Customer customer = createCustomer();
+      order.setCustomer(customer);
+
+      List items = new ArrayList();
+      items.add("Xbox 360");
+      items.add("Wireless controller");
+      items.add("Ghost Recon 3");
+
+      order.setItems(items);
+
+      return order;
+   }
+
+   private Customer createCustomer()
+   {
+      Customer cust = new Customer();
+      cust.setFirstName("Bob");
+      cust.setLastName("Smith");
+      Address addr = new Address();
+      addr.setStreet("101 Oak Street");
+      addr.setCity("Atlanata");
+      addr.setState("GA");
+      addr.setZip(30249);
+      cust.setAddr(addr);
+
+      return cust;
+   }
+
+   public static void main(String[] args)
+   {
+      Client client = new Client();
+      try
+      {
+         client.makeClientCall();
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+}</programlisting>
+
+      <para>Again, the biggest difference to note is that have added
+      <literal>serializationtype=jboss</literal> to the locator uri.</para>
+
+      <para>Note: Running this example requires JDK 1.5.</para>
+
+      <para>To run this example, can run the Server and then the Client. Or
+      can go to the examples directory and run the ant target 'ant
+      run-transporter-serialization-server' and then in another window run the
+      ant target 'ant run-transporter-serialization-client'. For
+      example:</para>
+
+      <programlisting>ant run-transporter-serialization-server</programlisting>
+
+      <para>and then:</para>
+
+      <programlisting>ant run-transporter-serialization-client</programlisting>
+
+      <para>When the server and client are run the output for the
+      <code>Client</code> class is:</para>
+
+      <programlisting>Order to be processed:
+Order:
+
+Is processed: false
+Order id: -1
+Customer:
+customer id: -1
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanata
+state: GA
+zip: 30249
+
+Items ordered:
+Xbox 360
+Wireless controller
+Ghost Recon 3
+Order now processed
+Order:
+
+Is processed: true
+Order id: 221
+Customer:
+customer id: 861
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanata
+state: GA
+zip: 30249
+
+Items ordered:
+Xbox 360
+Wireless controller
+Ghost Recon 3
+</programlisting>
+
+      <para>The client output shows the printout of the newly created order
+      before calling the <code>OrderProcessor</code> and then the processed
+      order afterwards. Noticed that the processed order has its customer's id
+      set, its order id set and the processed attribute is set to true.</para>
+
+      <para>And the output from the <code>Server</code> is:</para>
+
+      <programlisting>Incoming order to process from customer.
+
+Customer:
+customer id: -1
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanata
+state: GA
+zip: 30249
+
+processed customer with new id of 861
+Items ordered:
+Xbox 360
+Wireless controller
+Ghost Recon 3
+Order processed.  Order id now: 221
+</programlisting>
+
+      <para>The server output shows the printout of the customer before being
+      processed and then the order while being processed.</para>
+    </section>
+
+    <section>
+      <title>Transporter sample - clustered</title>
+
+      <para>In the previous examples, there has been one and only one target
+      POJO to make calls upon. If that target POJO was not available, the
+      client call would fail. In the transporter clustered example (found in
+      org.jboss.remoting.samples.transporter.clustered package), will show how
+      to use the transporter in clustered mode so that if one target POJO
+      becomes unavailable, the client call can be seamlessly failed over to
+      another available target POJO on the network, regardless of network
+      transport type.</para>
+
+      <para>This example uses the domain objects from the first, basic
+      example, so only need to cover the client and server code. For this
+      example, there are three different server classes. The first class is
+      the <code>SocketServer</code> class, which is the exact same as the
+      <code>Server</code> class in the basic example, except for the call to
+      the <code>TransportServer</code>'s <code>createTransportServer()
+      </code>method.</para>
+
+      <programlisting>public class <emphasis role="bold">SocketServer</emphasis>
+{
+   public static String locatorURI = "socket://localhost:5400";
+   private TransporterServer server = null;
+
+   public void start() throws Exception
+   {
+      server = <emphasis role="bold">TransporterServer.createTransporterServer(getLocatorURI(), new CustomerProcessorImpl(),
+                                                         CustomerProcessor.class.getName(), true)</emphasis>;
+   }
+
+   protected String getLocatorURI()
+   {
+      return locatorURI;
+   }
+
+   public void stop()
+   {
+      if(server != null)
+      {
+         server.stop();
+      }
+   }
+
+   public static void main(String[] args)
+   {
+      SocketServer server = new SocketServer();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>Notice that are now calling on the <code>TransportServer</code> to
+      create a server with the locator uri and target POJO
+      (<code>CustomerProcessorImpl</code>) as before, but have also added the
+      interface type of the target POJO (<code>CustomerProcessor</code>) and
+      that want clustering turned on (via the last <literal>true</literal>
+      parameter).</para>
+
+      <para>The interface type of the target POJO is needed because this will
+      be used as the subsystem within the remoting server for the target POJO.
+      The subsystem value will be what the client uses to determine if
+      discovered remoting server is for the target POJO they are looking
+      for.</para>
+
+      <sidebar>
+        <para>The transporter uses the MulticastDetector from JBoss Remoting
+        for automatic discovery when in clustered mode. The actual detection
+        of remote servers that come online can take up to a few seconds once
+        started. There is a JNDI based detector provided within JBoss
+        Remoting, but has not been integrated within the transporters
+        yet.</para>
+      </sidebar>
+
+      <para>The second server class is the <code>RMIServer</code> class. The
+      <code>RMIServer</code> class extends the <code>SocketServer</code> class
+      and uses a different locator uri to specify <literal>rmi</literal> as the
+      transport protocol and a different port
+      (<literal>5500</literal>).</para>
+
+      <programlisting>public class <emphasis role="bold">RMIServer</emphasis> extends <emphasis
+          role="bold">SocketServer</emphasis>
+{
+   private String localLocatorURI = "<emphasis role="bold">rmi://localhost:5500</emphasis>";
+
+   protected String getLocatorURI()
+   {
+      return localLocatorURI;
+   }
+
+   public static void main(String[] args)
+   {
+      SocketServer server = new RMIServer();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>The last server class is the <code>HTTPServer</code> class. The
+      <code>HTTPServer</code> class also extends the <code>SocketServer</code>
+      class and specifies <literal>http</literal> as the transport protocol
+      and <literal>5600</literal> as the port to listen for requests
+      on.</para>
+
+      <programlisting>public class <emphasis role="bold">HTTPServer</emphasis> extends <emphasis
+          role="bold">SocketServer</emphasis>
+{
+   private String localLocatorURI = "<emphasis role="bold">http://localhost:5600</emphasis>";
+
+   protected String getLocatorURI()
+   {
+      return localLocatorURI;
+   }
+
+   public static void main(String[] args)
+   {
+      SocketServer server = new HTTPServer();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>On the client side, there is only the <code>Client</code> class.
+      This class is very similar to the one from the basic example. The main
+      exceptions are (1) the addition of a <code>TransporterClient</code> call
+      to create a transporter client and (2) the fact that it continually
+      loops, making calls on its <code>customerProcessor</code> variable to
+      process customers. This is done so that when we run the client, we can
+      kill the different servers and see that the client continues to loop
+      making its calls without any exceptions or errors.</para>
+
+      <programlisting>public class <emphasis role="bold">Client</emphasis>
+{
+   <emphasis role="bold">private String locatorURI = SocketServer.locatorURI;</emphasis>
+
+   private CustomerProcessor customerProcessor = null;
+
+   public void makeClientCall() throws Exception
+   {
+      Customer customer = createCustomer();
+
+      System.out.println("Customer to be processed: " + customer);
+      <emphasis role="bold">Customer processedCustomer = customerProcessor.processCustomer(customer);</emphasis>
+      System.out.println("Customer is now: " + processedCustomer);
+
+      //TransporterClient.destroyTransporterClient(customerProcessor);
+   }
+
+   public void getCustomerProcessor() throws Exception
+   {
+      customerProcessor = (CustomerProcessor) <emphasis role="bold">TransporterClient.createTransporterClient(locatorURI, CustomerProcessor.class, true)</emphasis>;
+   }
+
+   private Customer createCustomer()
+   {
+      Customer cust = new Customer();
+      cust.setFirstName("Bob");
+      cust.setLastName("Smith");
+      Address addr = new Address();
+      addr.setStreet("101 Oak Street");
+      addr.setCity("Atlanata");
+      addr.setState("GA");
+      addr.setZip(30249);
+      cust.setAddr(addr);
+
+      return cust;
+   }
+
+   public static void main(String[] args)
+   {
+      Client client = new Client();
+      try
+      {
+<emphasis role="bold">         client.getCustomerProcessor();
+         while(true)
+         {
+            try
+            {
+               client.makeClientCall();
+               Thread.currentThread().sleep(5000);
+            }
+            catch(Exception e)
+            {
+               e.printStackTrace();
+            }
+         }
+</emphasis>      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+}</programlisting>
+
+      <para>The first item of note is that the locator uri from the
+      <code>SocketServer</code> class is being used. Technically, this is not
+      required as once the clustered <code>TransporterClient</code> is
+      started, it will start to discover the remoting servers that exist on
+      the network. However, this process can take several seconds to occur, so
+      unless it is known that no calls will be made on the remote proxy right
+      away, it is best to bootstrap with a known target server.</para>
+
+      <para>Can also see that in the <code>main()</code> method, the first
+      call on the Client instance is to <code>getCustomerProcessor()</code>.
+      This method will call the <code>TransporterClient</code>'s
+      <code>createTransporterClient()</code> method and passes the locator uri
+      for the target POJO server, the type of POJO's remote proxy, and that
+      clustering should be enabled.</para>
+
+      <para>After getting the customer processor remote proxy, will
+      continually loop making calls using the remote proxy (via the
+      <code>processCustomer()</code> method on the
+      <code>customerProcessor</code> variable).</para>
+
+      <para>To run this example, all the servers need to be started (by
+      running the <code>SocketServer</code>, <code>RMIServer</code>, and
+      <code>HTTPServer</code> classes). Then run the Client class. This can be
+      done via ant targets as well. So for example, could open four console
+      windows and enter the ant targets as follows:</para>
+
+      <programlisting>ant run-transporter-clustered-socket-server</programlisting>
+
+      <programlisting>ant run-transporter-clustered-http-server</programlisting>
+
+      <programlisting>ant run-transporter-clustered-rmi-server</programlisting>
+
+      <programlisting>ant run-transporter-clustered-client</programlisting>
+
+      <para>Once the client starts running, should start to see output logged
+      to the <code>SocketServer</code>, since this is the one used to
+      bootstrap. This output would look like:</para>
+
+      <programlisting>processed customer with new id of 378
+processed customer with new id of 487
+processed customer with new id of 980</programlisting>
+
+      <para>Once the <code>SocketServer</code> instance has received a few
+      calls, kill this instance. The next time the client makes a call on its
+      remote proxy, which happens every five seconds, it should fail over to
+      another one of the servers (and will see similar output on that server
+      instance). After that server has received a few calls, kill it and
+      should see it fail over once again to the last server instance that is
+      still running. Then, if kill that server instance, will see a
+      CannotConnectException and stack trace similar to the following:</para>
+
+      <programlisting><emphasis role="bold">...
+org.jboss.remoting.CannotConnectException</emphasis>: Can not connect http client invoker.
+ at org.jboss.remoting.transport.http.HTTPClientInvoker.useHttpURLConnection(HTTPClientInvoker.java:147)
+ at org.jboss.remoting.transport.http.HTTPClientInvoker.transport(HTTPClientInvoker.java:56)
+ at org.jboss.remoting.RemoteClientInvoker.invoke(RemoteClientInvoker.java:112)
+ at org.jboss.remoting.Client.invoke(Client.java:226)
+ at org.jboss.remoting.Client.invoke(Client.java:189)
+ at org.jboss.remoting.Client.invoke(Client.java:174)
+ at org.jboss.remoting.transporter.TransporterClient.invoke(TransporterClient.java:219)
+ at $Proxy0.processCustomer(Unknown Source)
+ at org.jboss.remoting.samples.transporter3.client.Client.makeClientCall(Client.java:29)
+ at org.jboss.remoting.samples.transporter3.client.Client.main(Client.java:64)
+ at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+ at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+ at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+ at java.lang.reflect.Method.invoke(Method.java:585)
+ at com.intellij.rt.execution.application.AppMain.main(AppMain.java:86)
+Caused by: java.net.ConnectException: Connection refused: connect
+ at java.net.PlainSocketImpl.socketConnect(Native Method)
+ at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+ at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)
+ at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)
+ at java.net.Socket.connect(Socket.java:507)
+ at java.net.Socket.connect(Socket.java:457)
+ at sun.net.NetworkClient.doConnect(NetworkClient.java:157)
+ at sun.net.www.http.HttpClient.openServer(HttpClient.java:365)
+ at sun.net.www.http.HttpClient.openServer(HttpClient.java:477)
+ at sun.net.www.http.HttpClient.&lt;init&gt;(HttpClient.java:214)
+ at sun.net.www.http.HttpClient.New(HttpClient.java:287)
+ at sun.net.www.http.HttpClient.New(HttpClient.java:299)
+ at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:792)
+ at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:744)
+ at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:669)
+ at sun.net.www.protocol.http.HttpURLConnection.getOutputStream(HttpURLConnection.java:836)
+ at org.jboss.remoting.transport.http.HTTPClientInvoker.useHttpURLConnection(HTTPClientInvoker.java:117)
+ ... 14 more</programlisting>
+
+      <para>since there are no target servers left to make calls on. Notice
+      that earlier in the client output there were no errors while was failing
+      over to the different servers as they were being killed.</para>
+
+      <para>Because the CannotConnectException is being caught within the
+      while loop, the client will continue to try calling the remote proxy and
+      getting this exception. Now re-run any of the previously killed servers
+      and will see that the client will discover that server instance and
+      begin to successfully call on that server. The output should look
+      something like:</para>
+
+      <programlisting>...
+ at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:669)
+ at sun.net.www.protocol.http.HttpURLConnection.getOutputStream(HttpURLConnection.java:836)
+ at org.jboss.remoting.transport.http.HTTPClientInvoker.useHttpURLConnection(HTTPClientInvoker.java:117)
+ ... 14 more
+
+Customer to be processed:
+Customer:
+customer id: -1
+first name: Bob
+last name: Smith
+street: 101 Oak Stree
+city: Atlanata
+state: null
+zip: 30249
+
+Customer is now:
+Customer:
+customer id: 633
+first name: Bob
+last name: Smith
+street: 101 Oak Stree
+city: Atlanata
+state: null
+zip: 30249
+
+...</programlisting>
+
+      <sidebar>
+        <para>As demonstrated in this example, fail over can occur across any
+        of the JBoss Remoting transports. Clustered transporters is also
+        supported using JBoss Serialization, which was introduced in the
+        previous example.</para>
+
+        <para>It is important to understand that in the context of
+        transporters, clustering means invocation fail over. The JBoss
+        Remoting transporters themselves do not handle any form of state
+        replication. If this feature were needed, could use JBoss Cache to
+        store the target POJO instances so that when their state changed, that
+        change would be replicated to the other target POJO instances running
+        in other processes.</para>
+      </sidebar>
+    </section>
+
+    <section>
+      <title>Transporters sample - multiple</title>
+
+      <para>The multiple transporter example (found in
+      org.jboss.remoting.samples.transporter.multiple package) shows how can
+      have a multiple target pojos exposed via the same TransporterServer. In
+      this example, will be two pojos being exposed, CustomerProcessorImpl and
+      AccountProcessorImpl. Since the domain objects for this example is
+      similar to the others discussed in previous examples, will just focus on
+      the server and client code. On the server side, need to create the
+      TransporterServer so that will included both of the target pojos.</para>
+
+      <programlisting>public class Server
+{
+   private String locatorURI = "socket://localhost:5400";
+   private TransporterServer server = null;
+
+   public void start() throws Exception
+   {
+      server = TransporterServer.createTransporterServer(locatorURI, new CustomerProcessorImpl(), CustomerProcessor.class.getName());
+      server.addHandler(new AccountProcessorImpl(), AccountProcessor.class.getName());
+   }
+
+   public void stop()
+   {
+      if(server != null)
+      {
+         server.stop();
+      }
+   }
+
+   public static void main(String[] args)
+   {
+      Server server = new Server();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>The TransporterServer is created with the CustomerProcessorImpl as
+      the inital target pojo. Now that have a live TransporterServer, can add
+      other pojos as targets. This is done using the addHandler() method where
+      the target pojo instance is passed and then the interface type to be
+      exposed as.</para>
+
+      <para>Next have the Client that makes the call to both pojos.</para>
+
+      <programlisting>public class Client
+{
+   private String locatorURI = "socket://localhost:5400";
+
+   public void makeClientCall() throws Exception
+   {
+      Customer customer = createCustomer();
+
+      CustomerProcessor customerProcessor = (CustomerProcessor) TransporterClient.createTransporterClient(locatorURI, CustomerProcessor.class);
+
+      System.out.println("Customer to be processed: " + customer);
+      Customer processedCustomer = customerProcessor.processCustomer(customer);
+      System.out.println("Customer is now: " + processedCustomer);
+
+      AccountProcessor accountProcessor = (AccountProcessor) TransporterClient.createTransporterClient(locatorURI, AccountProcessor.class);
+
+      System.out.println("Asking for a new account to be created for customer.");
+      Account account = accountProcessor.createAccount(processedCustomer);
+      System.out.println("New account: " + account);
+
+      TransporterClient.destroyTransporterClient(customerProcessor);
+      TransporterClient.destroyTransporterClient(accountProcessor);
+
+   }
+
+   private Customer createCustomer()
+   {
+      Customer cust = new Customer();
+      cust.setFirstName("Bob");
+      cust.setLastName("Smith");
+      Address addr = new Address();
+      addr.setStreet("101 Oak Street");
+      addr.setCity("Atlanta");
+      addr.setState("GA");
+      addr.setZip(30249);
+      cust.setAddr(addr);
+
+      return cust;
+   }
+
+   public static void main(String[] args)
+   {
+      org.jboss.remoting.samples.transporter.multiple.client.Client client = new org.jboss.remoting.samples.transporter.multiple.client.Client();
+      try
+      {
+         client.makeClientCall();
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+
+
+}</programlisting>
+
+      <para>Notice that TransporterClients are created for each target pojo
+      want to call upon, they just happen to share the same locator uri. These
+      are independant instances so need to both be destroyed on their own when
+      finished with them.</para>
+
+      <para>To run this example, run the Server class and then the Client
+      class. This can be done via ant targets
+      'run-transporter-multiple-server' and then
+      'run-transporter-multiple-client'. For example:</para>
+
+      <programlisting>ant run-transporter-multiple-server</programlisting>
+
+      <para>and then:</para>
+
+      <programlisting>ant run-transporter-multiple-client</programlisting>
+
+      <para>The output for the server should look similar to:</para>
+
+      <programlisting>processed customer with new id of 980
+Created new account with account number: 1 and for customer:
+
+Customer:
+customer id: 980
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanta
+state: GA
+zip: 30249</programlisting>
+
+      <para>and the output from the client should look similar to:</para>
+
+      <programlisting>Customer to be processed: 
+Customer:
+customer id: -1
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanta
+state: GA
+zip: 30249
+
+Customer is now: 
+Customer:
+customer id: 980
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanta
+state: GA
+zip: 30249
+
+Asking for a new account to be created for customer.
+New account: Account - account number: 1
+Customer: 
+Customer:
+customer id: 980
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanta
+state: GA
+zip: 30249
+</programlisting>
+    </section>
+
+    <section>
+      <title>Transporters sample - proxy</title>
+
+      <para>The proxy transporter example (found in
+      org.jboss.remoting.samples.transporter.proxy package) shows how can have
+      a TransporterClient sent over the network and called upon. In this
+      example, will have a target pojo, CustomerProcessorImpl which itself
+      creates a TransporterClient to another target pojo, Customer, and return
+      it as response to a method invocation.</para>
+
+      <para>To start, will look at the initial target pojo,
+      CustomerProcessorImpl.</para>
+
+      <programlisting>public class CustomerProcessorImpl implements CustomerProcessor
+{
+   private String locatorURI = "socket://localhost:5401";
+
+   /**
+    * Takes the customer passed, and if not null and customer id
+    * is less than 0, will create a new random id and set it.
+    * The customer object returned will be the modified customer
+    * object passed.
+    *
+    * @param customer
+    * @return
+    */
+   public ICustomer processCustomer(Customer customer)
+   {
+      if (customer != null &amp;&amp; customer.getCustomerId() &lt; 0)
+      {
+         customer.setCustomerId(new Random().nextInt(1000));
+      }
+
+      ICustomer customerProxy = null;
+      try
+      {
+         TransporterServer server = TransporterServer.createTransporterServer(locatorURI, customer, ICustomer.class.getName());
+         customerProxy = (ICustomer) TransporterClient.createTransporterClient(locatorURI, ICustomer.class);
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+
+      System.out.println("processed customer with new id of " + customerProxy.getCustomerId());
+      return customerProxy;
+   }
+
+}</programlisting>
+
+      <para>Notice that the processCustomer() method will take a Customer
+      object and set customer id on it. Then it will create a
+      TransporterServer for that customer instance and also create a
+      TransporterClient for the same instance and return that
+      TransporterClient proxy as the return to the processCustomer()
+      method.</para>
+
+      <para>Next will look at the Customer class. It is a basic data object in
+      that is really just stores the customer data.</para>
+
+      <programlisting>public class Customer implements Serializable, ICustomer
+{
+   private String firstName = null;
+   private String lastName = null;
+   private Address addr = null;
+   private int customerId = -1;
+
+   public String getFirstName()
+   {
+      return firstName;
+   }
+
+   public void setFirstName(String firstName)
+   {
+      this.firstName = firstName;
+   }
+
+   public String getLastName()
+   {
+      return lastName;
+   }
+
+   public void setLastName(String lastName)
+   {
+      this.lastName = lastName;
+   }
+
+   public Address getAddr()
+   {
+      return addr;
+   }
+
+   public void setAddr(Address addr)
+   {
+      this.addr = addr;
+   }
+
+   public int getCustomerId()
+   {
+      return customerId;
+   }
+
+   public void setCustomerId(int customerId)
+   {
+      this.customerId = customerId;
+   }
+
+   public String toString()
+   {
+      System.out.println("Customer.toString() being called.");
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("\nCustomer:\n");
+      buffer.append("customer id: " + customerId + "\n");
+      buffer.append("first name: " + firstName + "\n");
+      buffer.append("last name: " + lastName + "\n");
+      buffer.append("street: " + addr.getStreet() + "\n");
+      buffer.append("city: " + addr.getCity() + "\n");
+      buffer.append("state: " + addr.getState() + "\n");
+      buffer.append("zip: " + addr.getZip() + "\n");
+
+      return buffer.toString();
+   }
+
+
+}
+</programlisting>
+
+      <para>Notice the toString() method and how it prints out to the standard
+      out when being called. This will be important when the sample is run
+      later.</para>
+
+      <para>Now if look at the Server class, will see is a standard setup like
+      have seen in previous samples.</para>
+
+      <programlisting>public class Server
+{
+   private String locatorURI = "socket://localhost:5400";
+   private TransporterServer server = null;
+
+   public void start() throws Exception
+   {
+      server = TransporterServer.createTransporterServer(locatorURI, new CustomerProcessorImpl(), CustomerProcessor.class.getName());
+   }
+
+   public void stop()
+   {
+      if (server != null)
+      {
+         server.stop();
+      }
+   }
+
+   public static void main(String[] args)
+   {
+      Server server = new Server();
+      try
+      {
+         server.start();
+
+         Thread.currentThread().sleep(60000);
+
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         server.stop();
+      }
+   }
+}</programlisting>
+
+      <para>It is creating a TransporterServer for the CustomerProcessImpl
+      upon being started and will wait 60 seconds for invocations.</para>
+
+      <para>Next is the Client class. </para>
+
+      <programlisting>public class Client
+{
+   private String locatorURI = "socket://localhost:5400";
+
+   public void makeClientCall() throws Exception
+   {
+      Customer customer = createCustomer();
+
+      CustomerProcessor customerProcessor = (CustomerProcessor) TransporterClient.createTransporterClient(locatorURI, CustomerProcessor.class);
+
+      System.out.println("Customer to be processed: " + customer);
+      ICustomer processedCustomer = customerProcessor.processCustomer(customer);
+      // processedCustomer returned is actually a proxy to the Customer instnace
+      // that lives on the server.  So when print it out below, will actually
+      // be calling back to the server to get the string (vi toString() call).
+      // Notice the output of 'Customer.toString() being called.' on the server side.
+      System.out.println("Customer is now: " + processedCustomer);
+
+      TransporterClient.destroyTransporterClient(customerProcessor);
+
+
+   }
+
+   private Customer createCustomer()
+   {
+      Customer cust = new Customer();
+      cust.setFirstName("Bob");
+      cust.setLastName("Smith");
+      Address addr = new Address();
+      addr.setStreet("101 Oak Street");
+      addr.setCity("Atlanta");
+      addr.setState("GA");
+      addr.setZip(30249);
+      cust.setAddr(addr);
+
+      return cust;
+   }
+
+   public static void main(String[] args)
+   {
+      Client client = new Client();
+      try
+      {
+         client.makeClientCall();
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+
+
+}</programlisting>
+
+      <para>The client class looks similar to the other example seen in that
+      it creates a TransporterClient for the CustomerProcessor and calls on it
+      to process the customer. Will then call on the ICustomer instance
+      returned from the processCustomer() method call and call toString() on
+      it (in the system out call). </para>
+
+      <para>To run this example, run the Server class and then the Client
+      class. This can be done via ant targets 'run-transporter-proxy-server'
+      and then 'run-transporter-proxy-client'. For example:</para>
+
+      <programlisting>ant run-transporter-proxy-server</programlisting>
+
+      <para>ant then:</para>
+
+      <programlisting>ant run-transporter-proxy-client</programlisting>
+
+      <para>The output for the client should look similar to:</para>
+
+      <programlisting>Customer.toString() being called.
+Customer to be processed: 
+Customer:
+customer id: -1
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanta
+state: GA
+zip: 30249
+
+Customer is now: 
+Customer:
+customer id: 418
+first name: Bob
+last name: Smith
+street: 101 Oak Street
+city: Atlanta
+state: GA
+zip: 30249
+</programlisting>
+
+      <para>The first line
+      is the print out from calling the Customer's toString() method that was
+      created to be passed to the CustomerProcessor's processCustomer()
+      method. Then the contents of the Customer object before being processed.
+      Then have the print out of the customer after has been processed. Notice
+      that when the ICustomer object instance is printed out the second time,
+      do not see the 'Customer.toString() being called'. This is because that
+      code is no longer being executed in the client vm, but instead is a
+      remote call to the customer instance living on the server (remember, the
+      processCustomer() method returned a TransporterClient proxy to the
+      customer living on the server side).</para>
+
+      <para>Now, if look at output from the server will look similar
+      to:</para>
+
+      <programlisting>processed customer with new id of 418
+Customer.toString() being called.</programlisting>
+
+      <para>Notice that the 'Customer.toString() being called.' printed out at
+      the end. This is the result of the client's call to print out the
+      contents of the customer object returned from the processCustomer()
+      method, which actually lives within the server vm.</para>
+
+      <para>This example has shown how can pass around TransporterClient
+      proxies to target pojos. However, when doing this, is important to
+      understand where the code is actually being executed as there are
+      consequences to being remote verse local, which need to be
+      understood.</para>
+    </section>
+
+    <section>
+      <title>Transporter sample -complex</title>
+
+      <para>The complex transporter example (found in
+      org.jboss.remoting.samples.transporter.complex package) is based off a
+      test case a user, Milt Grinberg, provided (thanks Milt). The example is
+      similar to the previous examples, except in this case involves matching
+      Doctors and Patients using the ProviderInterface and provides a more
+      complex sample in which to demonstrate how to use transporters.</para>
+
+      <para>This example requires JDK 1.5 to run, since is using JBoss
+      Serialization (and non-serialized data objects). To run this example,
+      run the Server class and then the Client class. This can be done via ant
+      targets 'run-transporter-complex-server' and then
+      'run-transporter-complex-client' as well. For example:</para>
+
+      <programlisting>ant run-transporter-complex-server</programlisting>
+
+      <para>and then:</para>
+
+      <programlisting>ant run-transporter-complex-client</programlisting>
+
+      <para>The output for the client should look similar to:</para>
+
+      <programlisting>*** Have a new patient that needs a doctor.  The patient is:
+
+Patient:
+   Name: Bill Gates
+   Ailment - Type: financial, Description: Money coming out the wazoo.
+
+*** Looking for doctor that can help our patient...
+
+*** Found doctor for our patient.  Doctor found is:
+Doctor:
+   Name: Andy Jones
+   Specialty: financial
+   Patients:
+
+Patient:
+   Name: Larry Ellison
+   Ailment - Type: null, Description: null
+   Doctor - Name: Andy Jones
+
+Patient:
+   Name: Steve Jobs
+   Ailment - Type: null, Description: null
+   Doctor - Name: Andy Jones
+
+Patient:
+   Name: Bill Gates
+   Ailment - Type: financial, Description: Money coming out the wazoo.
+
+*** Set doctor as patient's doctor.  Patient info is now:
+
+Patient:
+   Name: Bill Gates
+   Ailment - Type: financial, Description: Money coming out the wazoo.
+   Doctor - Name: Andy Jones
+
+*** Have a new patient that we need to find a doctor for (remember, the previous one retired and there are no others)
+*** Could not find doctor for patient.  This is an expected exception when there are not doctors available.
+org.jboss.remoting.samples.transporter.complex.NoDoctorAvailableException: No doctor available for ailment 'financial'
+ at org.jboss.remoting.RemoteClientInvoker.invoke(RemoteClientInvoker.java:183)
+ at org.jboss.remoting.Client.invoke(Client.java:325)
+ at org.jboss.remoting.Client.invoke(Client.java:288)
+ at org.jboss.remoting.Client.invoke(Client.java:273)
+ at org.jboss.remoting.transporter.TransporterClient.invoke(TransporterClient.java:237)
+ at $Proxy0.findDoctor(Unknown Source)
+ at org.jboss.remoting.samples.transporter.complex.client.Client.makeClientCall(Client.java:72)
+ at org.jboss.remoting.samples.transporter.complex.client.Client.main(Client.java:90)
+ at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+ at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+ at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+ at java.lang.reflect.Method.invoke(Method.java:585)
+ at com.intellij.rt.execution.application.AppMain.main(AppMain.java:86)
+</programlisting>
+
+      <para>From the output see the creation of a new patient, Bill Gates, and
+      the attempt to find a doctor that specializes in his ailment. For Mr.
+      Gates, we were able to find a doctor, Andy Jones, and can see that he
+      has been added to the list of Dr. Jones' patients. Then we have Dr.
+      Jones retire. Then we create a new patient and try to find an available
+      doctor for the same ailment. Since Dr. Jones has retired, and there are
+      no other doctors that specialize in that particular ailment, an
+      exception is thrown. This is as expected.</para>
+    </section>
+  </section>
+
+</chapter>

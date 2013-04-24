@@ -1,0 +1,2340 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<article>
+
+     <articleinfo>
+
+       <mediaobject>
+         <imageobject>
+            <imagedata fileref="images/JBoss_POSC_CMYK.gif"/>
+         </imageobject>
+      </mediaobject> 
+    
+      <title>The Multiplex Subsystem of the JBoss Remoting Project</title>
+
+      <author><personname><firstname>Ron</firstname> <surname>Sigal</surname></personname></author>
+
+      <releaseinfo>July 4, 2006</releaseinfo>
+    
+       <copyright><year>2005</year><holder>Ron Sigal</holder></copyright>
+   </articleinfo>
+      
+  <section>
+    <title>Introduction.</title>
+
+    <para>The Multiplex subsystem of the JBoss Remoting Project 
+    (referred to herein on occasion simply as “Muliplex”) supports the 
+    multiplexing of multiple data streams over a single network 
+    connection, based on a reimplementation of the following classes from 
+    <code>java.net</code>:</para>
+    
+    <orderedlist>
+      <listitem>
+         <para><classname>Socket</classname></para>
+      </listitem>
+      <listitem>
+         <para><classname>ServerSocket</classname></para>
+      </listitem>
+      <listitem>
+         <para><classname>SocketInputStream</classname></para>
+      </listitem>
+      <listitem>
+         <para><classname>SocketOutputStream</classname></para>
+      </listitem>
+    </orderedlist>
+   
+    <para>and the following classes from <code>javax.net:</code></para>
+      
+    <orderedlist>
+      <listitem>
+         <para><classname>SocketFactory</classname></para>
+      </listitem>
+      <listitem>
+         <para><classname>ServerSocketFactory</classname></para>
+      </listitem>
+    </orderedlist>
+    
+    <para>It is motivated by circumstances in which the number of 
+    available ports on a system is restricted by a firewall or other 
+    considerations. Since the Remoting project is the principal client 
+    of Multiplex, we illustrate multiplexing primarily in the context 
+    of a Remoting application. Remoting supports two modes of 
+    client-server communication: (1) method calls from client to 
+    server, with a synchronous response, and (2) client requests for an 
+    asynchronous callback from the server. The usual need for separate 
+    ports to support both synchronous and asynchronous modes is 
+    obviated by the Multiplexing subsystem.</para>
+
+  </section>
+
+  <section>
+    <title>The Prime Scenario.</title>
+
+    <para>The typical application of multiplexing in the Remoting 
+    context is illustrated by the <emphasis role="bold">Prime 
+    Scenario</emphasis>, in which a client requiring both synchronous 
+    and asynchronous responses from a server is behind a firewall and 
+    has only a single port at its disposal. Without the restriction to 
+    a single port, we would have the situation in <xref linkend="figure:1"></xref>, which 
+    requires no multiplexing. With the restriction, we have the Prime 
+    Scenario, as in <xref linkend="figure:2"></xref>.</para>
+
+    <informalfigure id="figure:1" xreflabel="Figure 1">
+      <mediaobject>
+         <imageobject>
+            <imagedata fileref="images/figure_1.jpg"/>
+         </imageobject>
+         <caption>
+            <para>
+               <emphasis role="bold">
+                  Figure 1.
+               </emphasis>
+               Method calls and callbacks with no port restrictions.</para>
+         </caption>
+      </mediaobject>
+    </informalfigure>
+
+    <informalfigure id="figure:2" xreflabel="Figure 2">
+      <mediaobject>
+         <imageobject>
+            <imagedata fileref="images/figure_2.jpg"/>
+         </imageobject>
+         <caption>
+            <para>
+               <emphasis role="bold">
+                  Figure 2.
+               </emphasis>
+               Method calls and callbacks in the Prime Scenario.
+            </para>
+         </caption>
+      </mediaobject>
+    </informalfigure>
+    
+    <para>Multiplexing is supported primarily by the concept of the 
+    <emphasis role="bold">virtual socket</emphasis>, implemented by the 
+    <classname>VirtualSocket</classname> class. 
+    <classname>VirtualSocket</classname> is a subclass of 
+    <classname>java.io.Socket</classname>, and supports the full socket 
+    API. As is the case with actual sockets, virtual sockets are 
+    created in one of two ways:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>a constructor (or factory) call on a client, or</para>
+      </listitem>
+
+      <listitem>
+        <para>a call to the <methodname>accept()</methodname> method of a server 
+        socket on a server.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>Accordingly, the other principal Multiplex concept is the 
+    <emphasis role="bold">virtual server socket</emphasis>, implemented 
+    by two classes:</para>
+
+    <orderedlist>
+      <listitem>
+        <para><classname>MasterServerSocket</classname>, 
+        and</para>
+      </listitem>
+
+      <listitem>
+        <para><classname>VirtualServerSocket</classname>.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>These are both subclasses of 
+    <classname>java.io.ServerSocket</classname>, and both implement the 
+    full server socket API. Since virtual sockets are implemented on 
+    the foundation of actual sockets, and the creation of actual 
+    sockets requires a server socket, we need the support of actual 
+    server sockets in the creation of virtual sockets. It is the role 
+    of <classname>MasterServerSocket</classname> to provide 
+    that support. The <methodname>accept()</methodname> method of 
+    <classname>MasterServerSocket</classname> calls 
+    <methodname>super.accept()</methodname> to create an actual socket which is 
+    then wrapped in a mechanism which supports one or more virtual 
+    sockets. Every Muliplex application requires at least one 
+    <classname>MasterServerSocket</classname>, and the Prime 
+    Scenario requires exactly one. <xref linkend="figure:3"></xref> illustrates the process in 
+    which a virtual socket <emphasis>v1</emphasis> connects to a 
+    <classname>MasterServerSocket</classname>, which creates 
+    and returns a reference to a new virtual socket 
+    <emphasis>v2</emphasis>.</para>
+
+   <informalfigure id="figure:3" xreflabel="Figure 3">
+      <mediaobject>
+         <imageobject>
+            <imagedata fileref="images/figure_3.jpg"/>
+         </imageobject>
+         <caption>
+            <para>
+               <emphasis role="bold">
+                  Figure 3.
+               </emphasis>
+               Setting up a synchronous connection.
+            </para>
+         </caption>
+      </mediaobject>
+    </informalfigure>
+
+    <para>In <xref linkend="figure:3"></xref> we have a connection between <emphasis>v1</emphasis> and 
+    <emphasis>v2</emphasis>, which can support synchronous communication but 
+    which offers nothing not provided by actual sockets. The support of 
+    multiplexed callbacks, however, requires the use 
+    of the other virtual server socket class, 
+    <classname>VirtualServerSocket</classname>. Unlike 
+    <classname>MasterServerSocket</classname>, 
+    <classname>VirtualServerSocket</classname> does not 
+    depend on superclass facilities, but rather it uses an ordinary client socket,
+    with which implements its own 
+    version of the <methodname>accept()</methodname> method, able to create any 
+    number of virtual sockets, all of which share a single port with 
+    the <classname>VirtualServerSocket</classname>. It is important to understand
+    how its use of an actual socket determines the nature of a 
+    <classname>VirtualServerSocket</classname>.  Unlike a server socket, a client
+    socket must be connected to another socket to function, and a
+    <classname>VirtualServerSocket</classname> has the same property.  It follows
+    that a <classname>VirtualServerSocket</classname> can process requests
+    from just one host, the host to which its actual socket is connected.</para>
+    
+    <para>The role of the <classname>VirtualServerSocket</classname> is 
+    illustrated in <xref linkend="figure:4"></xref>. A constructor (or factory method, which 
+    calls a constructor) is called on the server to create virtual socket 
+    <emphasis>v3</emphasis> to support callbacks. The constructor sends a 
+    connection request to the 
+    <classname>VirtualServerSocket</classname> on the client, 
+    which creates new virtual socket <emphasis>v4</emphasis> and sends back to 
+    <emphasis>v3</emphasis> a reference to <emphasis>v4</emphasis>. At this point the 
+    Prime Scenario is set up.</para>
+
+   <informalfigure id="figure:4" xreflabel="Figure 4">
+      <mediaobject>
+         <imageobject>
+            <imagedata fileref="images/figure_4.jpg"/>
+         </imageobject>
+         <caption>
+            <para>
+               <emphasis role="bold">
+                  Figure 4.
+               </emphasis>
+               Adding an asynchronous connection to <xref linkend="figure:3"></xref>.
+            </para>
+         </caption>
+      </mediaobject>
+    </informalfigure>
+
+  </section>
+
+  <section>
+    <title>Virtual socket groups.</title>
+
+    <para>In order to understand the creation of structures like the 
+       Prime Scenario and others described below, it is important to 
+       understand the concept of a <emphasis role="bold">virtual socket 
+       group</emphasis>. A virtual socket group is a set of virtual 
+       sockets, and zero or one 
+       <classname>VirtualServerSocket</classname>s, sharing a 
+       single actual socket. We say that the socket group is <emphasis>based 
+       on</emphasis> its actual socket. Depending on the state of its 
+       underlying actual socket and the nature of its peer socket group, if any,
+       a socket group may be in one of three states. 
+       Let <emphasis>G</emphasis> be a socket group based on actual socket 
+       <emphasis>S</emphasis>. Then <emphasis>G</emphasis> may be</para>
+   
+       <orderedlist>
+      <listitem>
+        <para><emphasis role="bold">bound</emphasis>: <emphasis>S</emphasis> is bound but 
+        not connected, or</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">connected</emphasis>: <emphasis>S</emphasis> is 
+        connected to socket <emphasis>S'</emphasis> and the socket group based on
+        <emphasis>S'</emphasis> does not contain a <classname>VirtualServerSocket</classname>, or</para>
+      </listitem>
+      
+      <listitem>
+        <para><emphasis role="bold">joinable</emphasis>: <emphasis>S</emphasis> is 
+        connected to socket <emphasis>S'</emphasis> and the socket group based on
+        <emphasis>S'</emphasis> does contain a <classname>VirtualServerSocket</classname>.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>Although it is possible for a socket to be neither bound nor 
+       connected, we do not consider a socket group to exist until its 
+       underlying socket is at least bound to a local address. A connected or joinable
+       socket group is said to be <emphasis role="bold">visible</emphasis>, and a bound
+       socket group is <emphasis role="bold">invisible</emphasis>.  A socket group 
+       is characterized by the pair of addresses</para>
+
+    <blockquote>
+      <para>(<emphasis>localAddress</emphasis>, 
+      <emphasis>remoteAddress</emphasis>)</para>
+    </blockquote>
+
+    <para>where these are the local and remote addresses of the actual 
+       socket underlying the socket group. <emphasis>localAddress</emphasis> 
+       may take the special form (*, <emphasis>port</emphasis>), where the 
+       wildcard value “*” denotes any hostname by which the local host is 
+       known. Depending on the state of the socket group, 
+       <emphasis>remoteAddress</emphasis> may have the special value 
+       <emphasis>undefined</emphasis>, indicating that a connection has not 
+       yet been established.</para>
+
+<!--
+    <para>We define the state of a virtual socket or virtual server 
+    socket based on the state of the socket group to which it belongs, or upon the 
+    absence of such a group. A virtual socket or a virtual server 
+    socket <emphasis>V</emphasis> may be in one of three states:</para>
+
+    <orderedlist>
+      <listitem>
+        <para><emphasis role="bold">new</emphasis>: <emphasis>V</emphasis> does not belong 
+        to a socket group</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">bound</emphasis>: <emphasis>V</emphasis> belongs to a 
+        bound socket group</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">connected</emphasis>: <emphasis>V</emphasis> belongs to 
+        a connected or a joinable socket group</para>
+      </listitem>
+
+    </orderedlist>
+-->
+
+    <para>There are two ways of creating a new virtual socket group 
+       or of joining an existing socket group: through a <emphasis role="bold">
+       binding action</emphasis> or a <emphasis role="bold">connecting 
+       action</emphasis>. A binding action is either</para>
+
+    <orderedlist>
+      <listitem>
+        <para>a call to any of the 
+        <classname>VirtualServerSocket</classname> 
+        constructors other than the default constructor (i.e., those with a
+        port parameter), or</para>
+      </listitem>
+
+      <listitem>
+        <para>a call to a <methodname>bind()</methodname> method in 
+         <classname>VirtualSocket</classname> or
+         <classname>VirtualServerSocket</classname>.</para>
+      </listitem>
+    </orderedlist>
+    
+    <para>A connecting action belongs to one of five categories:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>a call to any <classname>VirtualSocket</classname> or
+         <classname>VirtualServerSocket</classname>
+         constructor that requires a remote address (note that
+         unlike <classname>java.net.ServerSocket</classname>,
+         <classname>VirtualServerSocket</classname> has a
+         such a constructor),</para>
+      </listitem>
+
+      <listitem>
+        <para>a call to a <methodname>connect()</methodname> method (again,
+         <classname>VirtualServerSocket</classname> has a nonstandard
+         <methodname>connect()</methodname> method),</para>
+      </listitem>
+
+      <listitem>
+        <para>a call to 
+        <methodname>VirtualServerSocket.accept()</methodname>,</para>
+      </listitem>
+
+      <listitem>
+        <para>a call to 
+        <methodname>MasterServerSocket.accept()</methodname>, or</para>
+      </listitem>
+
+      <listitem>
+        <para>a call to 
+        <methodname>MasterServerSocket.acceptServerSocketConnection()</methodname>.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>Each binding action has an associated local address, and each 
+       connecting action has an associated remote address and an optional 
+       local address. For binding actions, and connecting actions in the 
+       first two categories, the addresses are given explicitly in the 
+       method call. For a call to 
+       <methodname>VirtualServerSocket.accept()</methodname>, the addresses 
+       are those of the socket group to which the server socket belongs, and 
+       for the two <classname>MasterServerSocket</classname> 
+       methods, the addresses are those of the actual socket they 
+       create.</para>
+
+    <para>Depending on their associated local and remote addresses and 
+       on the socket groups that exist at the time of the action, a binding or 
+       connecting action may have the effect of creating a new socket group or 
+       adding a new member to an existing socket group. The rules are straightforward, 
+       but there is one source of possible confusion, the 
+       <link linkend="accident">accidental connection problem</link> discussed below, 
+       that must be guarded against. Let <emphasis>V</emphasis> be a virtual 
+       socket or virtual server socket undergoing either a binding or 
+       connecting action.</para>
+
+    <orderedlist>
+      <listitem>
+        <para><emphasis role="bold">binding action rule</emphasis>: If 
+           there are visible socket groups whose local address matches the 
+           action&apos;s local address, then <emphasis>V</emphasis> joins one of 
+           them chosen at random. Otherwise, a new bound socket group is created and 
+           <emphasis>V</emphasis> joins it.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">connecting action rule</emphasis>:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>For actions in the first two categories, where <emphasis>V</emphasis>
+               is a <classname>VirtualSocket</classname> (respectively, a
+               <classname>VirtualServerSocket</classname>):</para>
+
+            <orderedlist>
+              <listitem>
+                 <para>If the action has a remote address but no local address:</para>
+                 <orderedlist>
+                    <listitem>
+                       <para>If there are any joinable (resp., connected) socket groups with a matching 
+                         remote address, then <emphasis>V</emphasis> joins one of them 
+                         chosen at random.</para>
+                    </listitem>
+                    <listitem>
+                       <para>If there are no such socket groups, an attempt
+                         is made to connect to a <classname>MasterServerSocket</classname>
+                         at the remote address, and if the attempt succeeds, a 
+                         new socket group is created and <emphasis>V</emphasis> joins it.</para>
+                    </listitem>
+                 </orderedlist>
+              </listitem>
+
+              <listitem>
+                 <orderedlist>
+                    <para>If the action has both a local address and a remote address:</para>
+                    <listitem>
+                       <para>If there is a joinable (resp., connected) socket group with matching 
+                         addresses, then <emphasis>V</emphasis> joins it</para>
+                    </listitem>
+                    <listitem>
+                        <para>Otherwise, if the local address (in particular, its port) is currently 
+                           in use, the action results in a <classname>IOException</classname>.</para>
+                    </listitem>
+                    <listitem>
+                        <para>Otherwise, a new socket group <emphasis>G</emphasis> is created and bound
+                           to the local address.  Then an attempt
+                            is made to connect to a <classname>MasterServerSocket</classname>
+                            at the remote address, and if the attempt succeeds, <emphasis>V</emphasis>
+                           joins <emphasis>G</emphasis>.</para>
+                    </listitem>
+                 </orderedlist>
+              </listitem>
+            </orderedlist>
+          </listitem>
+
+          <listitem>
+            <para>For <methodname>VirtualServerSocket.accept()</methodname> calls, 
+               the new virtual socket joins the socket group to which the 
+               server socket belongs.</para>
+          </listitem>
+
+          <listitem>
+            <para>For <methodname>MasterServerSocket.accept()</methodname> calls, a 
+               new socket group is created with the new virtual socket as its 
+               first member.</para>
+          </listitem>
+
+          <listitem>
+            <para>For 
+            <methodname>MasterServerSocket.acceptServerSocketConnection()</methodname> 
+            calls, a new socket group with zero members is created.</para>
+          </listitem>
+        </orderedlist>
+      
+      </listitem>
+    </orderedlist>
+
+    <para><emphasis role="bold">NOTES:</emphasis></para>
+    <orderedlist>
+      <listitem>
+         <para>A bound socket group is inaccessible to the connect action rules (which is why
+            it is called "invisible").  The reason is to avoid a situation in which
+            one virtual socket "highjacks" another virtual
+            socket's group.  Suppose that virtual socket <emphasis>v1</emphasis> binds itself to
+            ("localhost", 5555), but before it gets a chance to connect to ("www.jboss.com", 6666),
+            virtual socket <emphasis>v2</emphasis> binds to ("localhost", 5555) and then connects to
+            ("www.ibm.com", 7777).  Then when <emphasis>v1</emphasis> tries to connect to
+            ("www.jboss.com", 6666), the attempt fails.  This situation cannot occur because
+            at the moment when <emphasis>v2</emphasis> does its bind, <emphasis>v1</emphasis>'s
+            socket group is invisible and <emphasis>v2</emphasis> is forced to create it own
+            socket group.</para>
+      </listitem>
+      
+      <listitem>
+         <para>
+            The connecting action rules are different for <classname>VirtualSocket</classname> and
+            <classname>VirtualServerSocket</classname> (specifically, the former can join
+            only joinable socket groups, while the later can join connected socket groups) because
+            <classname>VirtualSocket</classname> needs a <classname>VirtualServerSocket</classname>
+            to create a peer virtual socket for it to connect to, and a 
+            <classname>VirtualServerSocket</classname> does not need such a peer.
+         </para>
+      </listitem>
+      
+      <listitem id="accident">
+         <para><emphasis role="bold">N.B.</emphasis> It is important to understand a 
+          possible side effect of a binding action. When <emphasis>V</emphasis> joins a 
+          socket group through a binding action, it is possible that the group is already 
+          connected. In this  case, a subsequent connecting action (in particular, a call to 
+          <methodname>connect()</methodname>) to any address other than the 
+          socket group&apos;s remote address is invalid, leading to an 
+          <classname>IOException</classname> with the message &quot;socket is already 
+          connected.&quot;. This is called the <emphasis role="bold">accidental connection
+          problem</emphasis>, and it is avoidable.  Both <classname>VirtualSocket</classname>
+          and <classname>VirtualServerSocket</classname> have constructors and
+          nonstandard versions of the <methodname>connect()</methodname> which accept both
+          local and remote addresses.  These treat binding and connecting as a single
+          atomic process.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>The socket group rules are illustrated in the following two sections.</para>
+
+  </section>
+
+  <section>
+    <title>Coding the Prime Scenario.</title>
+
+    <para>In order to set up the Prime Scenario, the following steps 
+    are necessary (the socket names conform to <xref linkend="figure:4"></xref>):</para>
+
+    <orderedlist>
+      <listitem>
+        <para>On the server, create a 
+        <classname>MasterServerSocket</classname> and bind it 
+        to port <emphasis>P</emphasis>.</para>
+      </listitem>
+
+      <listitem>
+        <para>On the client, create a virtual socket <emphasis>v1</emphasis> 
+        and connect it to port <emphasis>P</emphasis>.</para>
+      </listitem>
+
+      <listitem>
+        <para>Let <emphasis>Q</emphasis> be the port on the client to which 
+        <emphasis>v1</emphasis> is bound. Create a 
+        <classname>VirtualServerSocket</classname> on the 
+        client, bind it to <emphasis>Q</emphasis>, and connect it to 
+        <emphasis>P</emphasis>.</para>
+      </listitem>
+
+      <listitem>
+        <para>On the server, create a virtual socket <emphasis>v3</emphasis> 
+        and connect it to port <emphasis>Q</emphasis>.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>The Prime Scenario provides an example of creating socket groups. 
+    In step 2, a socket group <emphasis>G1</emphasis> is created on the client 
+    through the construction of <emphasis>v1</emphasis>. It enters the 
+    connected state, bound to an arbitrary port <emphasis>Q</emphasis> on the 
+    client and connected to port <emphasis>P</emphasis> on the server. In step 
+    3 a <classname>VirtualServerSocket</classname> joins 
+    <emphasis>G1</emphasis> by way of binding to <emphasis>Q</emphasis> on the client 
+    and connecting to <emphasis>P</emphasis> on the server. In fact, the 
+    socket group rules imply that it is enough to bind the server socket to 
+    port <emphasis>Q</emphasis>. Connecting it to <emphasis>P</emphasis> on the server 
+    occurs as a side effect of the binding action. Finally, step 4 adds 
+    virtual socket <emphasis>v4</emphasis> to <emphasis>G1</emphasis>. While 
+    <emphasis>G1</emphasis> is being built on the client, a socket group 
+    <emphasis>G2</emphasis> is being built on the server. Step 2 results in the 
+    creation of <emphasis>G2</emphasis>, along with its first member, a new 
+    virtual socket, <emphasis>v2</emphasis>, returned by the 
+    <methodname>accept()</methodname> method of the 
+    <classname>MasterServerSocket</classname>. Step 4 adds a 
+    second member, <emphasis>v3</emphasis>, to <emphasis>G2</emphasis>.</para>
+
+    <para>See <xref linkend="listing:1"></xref> and <xref linkend="listing:2"></xref>
+    for a simple example of coding these 
+    steps. Variants of these samples may be found in the directory 
+    /org/jboss/remoting/samples/multiplex.</para>
+
+   </section>
+
+   <section>
+       <title>More general scenarios.</title>
+
+       <para>Although Multiplex was motivated by the Prime Scenario, it 
+       can also support other connection structures. We describe two 
+       alternatives in this section.</para>
+   
+      <section>
+         <title>The <emphasis>N</emphasis>-socket scenario.</title>
+   
+         <para>The <emphasis role="bold"><emphasis>N</emphasis>-socket 
+         scenario</emphasis> demonstrates that a socket group is not restricted 
+         to just two virtual sockets. It also demonstrates that a 
+         <classname>VirtualServerSocket</classname> does not 
+         depend on the prior existence of a connected virtual socket. As 
+         long as it has access to a 
+         <classname>MasterServerSocket</classname> ready to 
+         accept a connection, it can get started. In fact, the 
+         <methodname>MasterServerSocket.accept()</methodname> method will 
+         silently accept a connection from a 
+         <classname>VirtualServerSocket</classname> while it is 
+         waiting for a connection request from a virtual socket, but the 
+         <methodname>acceptServerSocketConnection()</methodname> method is designed 
+         specifically to accept a connection request from a 
+         <classname>VirtualServerSocket</classname>.</para>
+   
+         <para>The connection structure of the 
+         <emphasis>N</emphasis>-socket scenario is depicted in <xref linkend="figure:5"></xref> 
+         (for <emphasis>N</emphasis> = 3), and the code for a simple 
+         client and server is given in <xref linkend="listing:3"></xref> and
+         <xref linkend="listing:4"></xref>. In the example a 
+         socket group with 3 elements is constructed on the server. It is 
+         created with the call</para>
+   
+         <blockquote>
+              <programlisting>
+                  serverSocket.acceptServerSocketConnection()
+              </programlisting>
+         </blockquote>
+   
+         <para>which creates an actual socket and a socket group which, though 
+         it has no members, is connected to a 
+         <classname>VirtualServerSocket</classname> on the 
+         client. The next three lines,</para>
+   
+         <blockquote>
+              <programlisting>
+                  Socket socket1 = new VirtualSocket(“localhost”, 5555);
+                  Socket socket2 = new VirtualSocket(“localhost”, 5555);
+                  Socket socket3 = new VirtualSocket(“localhost”, 5555);
+              </programlisting>
+         </blockquote>
+   
+         <para>populate the socket group with three virtual sockets. On the 
+         client there is a socket group with four members, first created with 
+         the call</para>
+   
+         <blockquote>
+              <programlisting>
+                  serverSocket.connect(connectAddress);
+            </programlisting>
+         </blockquote>
+   
+         <para>and then further populated by the three subsequent 
+         lines</para>
+   
+         <blockquote>
+              <programlisting>
+                  Socket socket1 = serverSocket.accept();
+                  Socket socket2 = serverSocket.accept();
+                  Socket socket3 = serverSocket.accept();
+            </programlisting>
+         </blockquote>
+   
+         <para>Variants of the <emphasis>N</emphasis>-Socket Scenario 
+         client and server may be found in the directory 
+         /org/jboss/remoting/samples/multiplex.</para>
+      
+         <informalfigure id="figure:5" xreflabel="Figure 5">
+            <mediaobject>
+               <imageobject>
+                  <imagedata fileref="images/figure_5.jpg"/>
+               </imageobject>
+               <caption>
+                  <para>
+                     <emphasis role="bold">
+                        Figure 5.
+                     </emphasis>
+                     The connection structure in the <emphasis>N</emphasis>-Socket Scenario.
+                  </para>
+               </caption>
+            </mediaobject>
+          </informalfigure>
+   
+      </section>
+      
+         <section>
+         <title>The Symmetric Scenario.</title>
+   
+         <para>The connection structure in the <emphasis role="bold">
+         Symmetric Scenario</emphasis> consists of socket groups on two hosts, 
+         each of which contains a 
+         <classname>VirtualServerSocket</classname> and some 
+         number of virtual sockets. The scenario is not truly symmetric, 
+         since each connection structure has to begin with a connection 
+         request to a <classname>MasterServerSocket</classname>, 
+         but once that happens the “client” and “server” are identical, as 
+         depicted in <xref linkend="figure:6d"></xref>. Once the line</para>
+   
+         <blockquote>
+              <programlisting>
+                  serverSocket.connect(address);
+            </programlisting>
+         </blockquote>
+   
+         <para>on the client (see <xref linkend="listing:5"></xref>) and the line</para>
+   
+         <blockquote>
+              <programlisting>
+                  int port = mss.acceptServerSocketConnection();
+            </programlisting>
+         </blockquote>
+   
+         <para>on the server (see <xref linkend="listing:6"></xref>)
+            are executed, the client has a socket group 
+            characterized by the address pair</para>
+   
+         <blockquote>
+                 <para>((*, 5555), (“localhost“, 7777))</para>
+         </blockquote>
+   
+         <para>and consisting of a 
+         <classname>VirtualServerSocket</classname>, and the 
+         server has a socket group with zero members characterized by the 
+         address pair</para>
+   
+         <blockquote>
+                 <para>((“localhost“, 7777), (“localhost”, 5555)).</para>
+         </blockquote>
+   
+         <para>(See <xref linkend="figure:6a"></xref>.) And once the line</para>
+   
+         <blockquote>
+            <programlisting>
+                  vss.connect(address);
+            </programlisting>
+         </blockquote>
+   
+         <para>is executed on the server, the new 
+         <classname>VirtualServerSocket</classname> joins the 
+         server&apos;s socket group, as shown in <xref linkend="figure:6b"></xref>. After the 
+         lines</para>
+   
+         <blockquote>
+            <programlisting>
+                  Socket virtualSocket1 = new VirtualSocket(“localhost”, port);
+            </programlisting>
+         </blockquote>
+   
+         <para>and</para>
+   
+         <blockquote>
+            <programlisting>
+                  Socket virtualSocket1 = vss.accept();
+            </programlisting>
+         </blockquote>
+   
+         <para>are executed on the client and server, respectively, each 
+         socket group has a new virtual socket (see <xref linkend="figure:6c"></xref>), and finally, 
+         after the lines</para>
+   
+         <blockquote>
+            <programlisting>
+                  Socket virtualSocket2 = new VirtualSocket(“localhost”, 5555);
+            </programlisting>
+         </blockquote>
+   
+         <para>and</para>
+   
+         <blockquote>
+            <programlisting>
+                  Socket virtualSocket2 = serverSocket.accept();
+            </programlisting>
+         </blockquote>
+   
+         <para>are executed on the server and client, respectively, each 
+         socket group has a second virtual socket (see <xref linkend="figure:6d"></xref>).</para>
+   
+         <informalfigure id="figure:6a" xreflabel="Figure 6a">
+            <mediaobject>
+               <imageobject>
+                  <imagedata fileref="images/figure_6a.jpg"/>
+               </imageobject>
+               <caption>
+                  <para>
+                     <emphasis role="bold">
+                        Figure 6a.
+                     </emphasis>
+                     The connection structure in the Symmetric Scenario: stage 1.
+                  </para>
+               </caption>
+            </mediaobject>
+         </informalfigure>
+   
+         <informalfigure id="figure:6b" xreflabel="Figure 6b">
+            <mediaobject>
+               <imageobject>
+                  <imagedata fileref="images/figure_6b.jpg"/>
+               </imageobject>
+               <caption>
+                  <para>
+                     <emphasis role="bold">
+                        Figure 6b.
+                     </emphasis>
+                     The connection structure in the Symmetric Scenario: stage 2.
+                  </para>
+               </caption>
+            </mediaobject>
+         </informalfigure>
+   
+         <informalfigure id="figure:6c" xreflabel="Figure 6c">
+            <mediaobject>
+               <imageobject>
+                  <imagedata fileref="images/figure_6c.jpg"/>
+               </imageobject>
+               <caption>
+                  <para>
+                     <emphasis role="bold">
+                        Figure 6c.
+                     </emphasis>
+                     The connection structure in the Symmetric Scenario: stage 3.
+                  </para>
+               </caption>
+            </mediaobject>
+         </informalfigure>
+         
+         <informalfigure id="figure:6d" xreflabel="Figure 6d">
+            <mediaobject>
+               <imageobject>
+                  <imagedata fileref="images/figure_6d.jpg"/>
+               </imageobject>
+               <caption>
+                  <para>
+                     <emphasis role="bold">
+                        Figure 6d.
+                     </emphasis>
+                     The connection structure in the Symmetric Scenario: stage 4.
+                  </para>
+               </caption>
+            </mediaobject>
+         </informalfigure>
+   
+      </section>
+   </section>
+
+   <section>
+       <title>Factories.</title>
+
+      <para>In addition to virtual sockets and virtual server sockets, 
+      Multiplex also implements the two factories associated with 
+      sockets: the socket factory and the server socket factory. 
+      <classname>VirtualSocketFactory</classname> extends 
+      <classname>javax.net.SocketFactory</classname> and reimplements all 
+      of its methods. <classname>VirtualServerSocketFactory</classname> 
+      extends <classname>javax.net.ServerSocketFactory</classname> and 
+      reimplements all of its methods (though the backlog parameter
+      is ignored). These two classes make it possible for a 
+      section of code to be completely unaware that it is using virtual 
+      sockets instead of actual sockets. The only configuration involved 
+      in the use of these factories is the need to tell 
+      <classname>VirtualServerSocketFactory</classname> whether it is 
+      running on a client or a server, which tells it whether to create 
+      <classname>VirtualServerSocket</classname>s or 
+      <classname>MasterServerSocket</classname>s, respectively. 
+      That notification is performed by the methods 
+      <methodname>setOnClient()</methodname> and <methodname>setOnServer()</methodname>. See 
+      <xref linkend="listing:7"></xref> for an illustration of the idiomatic use of these 
+      classes, where the method <methodname>useFactories()</methodname> refers only 
+      to the parent classes <classname>SocketFactory</classname> and 
+      <classname>ServerSocketFactory</classname>.</para>
+   </section>
+
+   <section>
+      <title>Configuration.</title>
+      
+      <para>The Multiplex system may be used without any external configuration, but it
+      exposes several parameters which may be set to adjust its behavior, and possibly
+      performance.  They affect the following classes:</para>
+      
+      <informaltable frame="all">
+         <tgroup cols="2">
+            <tbody>
+               <row>
+                  <entry>
+                     <para><emphasis role="bold">MultiplexingManager: </emphasis></para>
+                  </entry>
+                  <entry>
+                     <para>The central Multiplex class, <classname>MultiplexingManager</classname>
+                     wraps a real socket.  It is responsible for creating an environment, 
+                     including multiple threads, which allow a single socket to be shared by
+                     multiple streams of communication.  Note that the
+                      <classname>MultiplexingManager</classname> is the implementation of
+                      the concept of "virtual socket group."  A virtual socket group is
+                      supported by exactly one <classname>MultiplexingManager</classname>,
+                      and each <classname>MultiplexingManager</classname> supports exactly
+                      one virtual socket group.
+                     </para>
+                  </entry>
+               </row>
+      
+               <row>
+                  <entry>
+                     <para><emphasis role="bold">OutputMultiplexor: </emphasis></para>
+                  </entry>
+                  <entry>
+                     <para><classname>OutputMultiplexor</classname> has two roles.  (1) It 
+                     is called by <classname>MultiplexingOutputStream</classname> to queue an
+                     array of bytes to be sent to a virtual socket at the other end of a 
+                     connection.  (2) It contains the inner class <classname>OutputThread,
+                     </classname> which takes byte arrays from the queue and writes them,
+                     along with appropriate header information, to the actual socket.</para>
+                  </entry>
+               </row>
+      
+               <row>
+                  <entry>
+                     <para><emphasis role="bold">InputMultiplexor: </emphasis></para>
+                  </entry>
+                  <entry>
+                     <para><classname>InputMultiplexor</classname> contains two inner 
+                     classes, <classname>MultiGroupInputThread</classname> and <classname>
+                     SingleGroupInputThread</classname>, which are responsible for 
+                     demultiplexing the virtual streams on the actual connection and
+                     directing the bytes to the appropriate
+                     <classname>MultiplexingInputStream</classname>s.
+                     <classname>MultiGroupInputThread</classname> can 
+                     process all NIO sockets in its JVM.  Since some socket factories, 
+                     notably SSL socket factories, do not create NIO sockets, 
+                     <classname>SingleGroupInputThread</classname> exists to process a single
+                     non-NIO socket.</para>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </informaltable>
+      
+      <para>These parameters may be passed to the appropriate classes by putting them in a
+      configuration <classname>HashMap</classname>, using the keys given in
+      <classname>org.jboss.remoting.transport.multiplex.Multiplex</classname>,
+      and passing the map to a
+      <classname>VirtualSocket</classname>, a <classname>MasterServerSocket</classname>,
+      or a <classname>VirtualServerSocket</classname>. 
+      It may be passed either through a constructor or a call to 
+      <methodname>setConfiguration()</methodname>.
+      <emphasis role="bold">Note</emphasis>, however, that the parameters
+      have an effect <emphasis role="bold">only</emphasis> when a 
+      <classname>MultiplexingManager</classname> is first created, or to say the
+      same thing differently, when a binding or connecting action leads to the
+      creation of a virtual socket group. When a socket or server socket joins an
+      existing socket group, or if <methodname>setConfiguration()</methodname> is called
+      after a binding or connection action creates a new
+      <classname>MultiplexingManager</classname>, the configuration
+      map will have no effect.</para>
+      
+      <section>
+         <title>Configuring MultiplexingManager.</title>
+	      
+	      <para>Two aspects of the behavior of <classname>MultiplexingManager</classname> may be
+	      configured.</para>
+		      
+		   <orderedlist>
+		      <listitem>
+		         <para>When a <classname>MultiplexingManager</classname> is created and it finds
+		         no other <classname>MultiplexingManager</classname>s in the JVM,
+		         it starts up several static threads.  One of these threads periodically
+	            wakes up and monitors the existence of <classname>MultiplexingManager</classname>s
+	            in the JVM.  If it wakes up two times in a row and finds no
+	            <classname>MultiplexingManager</classname>s in the JVM, it shuts down the other
+	            static threads.</para>
+		      </listitem>
+		
+		      <listitem>
+		         <para>When the last virtual socket supported by a particular 
+		         <classname>MultiplexingManager</classname> closes, the 
+		         <classname>MultiplexingManager</classname> will negotiate with its
+		         peer at the other end of the connection for permission to shut down, which
+		         will be withheld only if a virtual socket is being opened at the other
+		         end.</para>
+		      </listitem>
+		   </orderedlist>
+		   
+		   <para>The following parameters affect the behavior of <classname>MultiplexingManager</classname>:
+		   </para>
+		   
+		   <informaltable frame="all">
+	         <tgroup cols="3">
+	            <tbody>
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">Name</emphasis>
+	                     (in org.jboss.remoting.transport.multiplex.Multiplex)</para>
+	                  </entry>
+	                  <entry>
+	                     <para><emphasis role="bold">Default value</emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     <para><emphasis role="bold">Description</emphasis></para>
+	                  </entry>
+	               </row>
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">STATIC_THREADS_MONITOR_PERIOD: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     5000 msec
+	                  </entry>
+	                  <entry>
+	                     <para>Determines how often the monitor thread wakes up to look for
+	                     the existence of <classname>MultiplexingManager</classname>s in the
+	                     JVM.</para>
+	                  </entry>
+	               </row>
+	      
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">SHUTDOWN_REQUEST_TIMEOUT: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     5000 msec
+	                  </entry>
+	                  <entry>
+	                     <para>When a <classname>MultiplexingManager</classname> requests 
+	                     permission from its remote peer to shut down, it will time out if it 
+	                     does not receive a reply within this period of time.</para>
+	                  </entry>
+	               </row>
+	               
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">SHUTDOWN_REFUSALS_MAXIMUM: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     5
+	                  </entry>
+	                  <entry>
+	                     <para>When a <classname>MultiplexingManager</classname> requests 
+	                     permission from its remote peer to shut down, it will take "no" for
+	                     an answer this many times before it assumes something is wrong and
+	                     goes ahead and shuts down.</para>
+	                  </entry>
+	               </row>
+	                          
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">SHUTDOWN_MONITOR_PERIOD: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     1000 msec
+	                  </entry>
+	                  <entry>
+	                     <para>When a <classname>MultiplexingManager</classname> requests 
+	                     permission from its remote peer to shut down, it creates a
+	                     <classname>TimerTask</classname> which periodically wakes up
+	                     to see if and how the remote peer has responded.  This parameter
+	                     determines the period.</para>
+	                  </entry>
+	               </row>
+	               
+	            </tbody>
+	         </tgroup>
+	      </informaltable>
+	   </section>
+ 
+      <section>
+         <title>Configuring OutputMultiplexor</title>
+         
+		   <para>When <classname>OutputMultiplexor</classname> is passed some bytes by
+		   a <classname>MultiplexingOutputStream</classname>, it stores them in a 
+		   <classname>Message</classname> data structure drawn from a pool of 
+		   unused <classname>Message</classname>s and puts the <classname>Message</classname> on
+		   a queue.  When the <classname>OutputThread</classname> gets the
+		   <classname>Message</classname> from the queue, it transmits some or all of its
+		   content, according to a set of fairness constraints. If the entire contents are
+		   not exhausted, the <classname>Message</classname> is returned to the queue.</para>
+		   
+		   <para>The following parameters affect the behavior of
+		   <classname>OutputMultiplexor</classname>: </para>
+		   
+		   <informaltable frame="all">
+	         <tgroup cols="3">
+	            <tbody>
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">Name</emphasis>
+	                     (in org.jboss.remoting.transport.multiplex.Multiplex)</para>
+	                  </entry>
+	                  <entry>
+	                     <para><emphasis role="bold">Default value</emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     <para><emphasis role="bold">Description</emphasis></para>
+	                  </entry>
+	               </row>
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">OUTPUT_MESSAGE_POOL_SIZE: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     1024
+	                  </entry>
+	                  <entry>
+	                     <para>This determines the maximum size of the pool of
+	                     <classname>Message</classname>s.  If the pool is empty when
+	                     a transmission request is received, a new <classname>Message</classname>
+	                     will be created, but when a <classname>Message</classname> has been
+	                     emptied, it will be returned to the pool only if the pool has fewer than
+	                     the maximum number of elements.  Otherwise, the <classname>Message</classname>
+	                     will be discarded.</para>
+	                  </entry>
+	               </row>
+	      
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">OUTPUT_MESSAGE_SIZE: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     256 bytes
+	                  </entry>
+	                  <entry>
+	                     <para>This is the initial capacity of the
+	                     <classname>ByteArrayOutputStream</classname> that holds the contents
+	                     of a <classname>Message</classname>.</para>
+	                  </entry>
+	               </row>
+	               
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">OUTPUT_MAX_CHUNK_SIZE: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     2048 bytes
+	                  </entry>
+	                  <entry>
+	                     <para>This determines the number of bytes transmitted by the
+	                     <classname>OutputThread</classname> with a single
+	                     <methodname>write()</methodname> call.</para>
+	                  </entry>
+	               </row>
+	                              
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">OUTPUT_MAX_TIME_SLICE: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     500 msec
+	                  </entry>
+	                  <entry>
+	                     <para><classname>OutputThread</classname> will process a single virtual
+	                     stream for this long before moving on to another stream.</para>
+	                  </entry>
+	               </row>
+	               
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">OUTPUT_MAX_DATA_SLICE: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     2048 * 8 bytes
+	                  </entry>
+	                  <entry>
+	                     <para><classname>OutputThread</classname> will transmit this many bytes
+	                     for  a single virtual stream before moving on to another stream.</para>
+	                  </entry>
+	               </row>
+	            </tbody>
+	         </tgroup>
+	      </informaltable>
+      </section>
+
+     <section>
+         <title>Configuring InputMultiplexor.</title>
+	      
+		   <para>The following parameters affect the behavior of <classname>InputMultiplexor</classname>:
+		   </para>
+		   
+		   <informaltable frame="all">
+	         <tgroup cols="3">
+	            <tbody>
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">Name</emphasis>
+	                     (in org.jboss.remoting.transport.multiplex.Multiplex)</para>
+	                  </entry>
+	                  <entry>
+	                     <para><emphasis role="bold">Default value</emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     <para><emphasis role="bold">Description</emphasis></para>
+	                  </entry>
+	               </row>
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">INPUT_BUFFER_SIZE: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     4096 bytes
+	                  </entry>
+	                  <entry>
+	                     <para>Determines the size of the structure that holds bytes read
+	                     from the real socket.  The structure is a <classname>ByteBuffer</classname>
+	                     for NIO sockets and a byte array for non-NIO sockets.</para>
+	                  </entry>
+	               </row>
+	      
+	               <row>
+	                  <entry>
+	                     <para><emphasis role="bold">INPUT_MAX_ERRORS: </emphasis></para>
+	                  </entry>
+	                  <entry>
+	                     3
+	                  </entry>
+	                  <entry>
+	                     <para>Both <classname>MultiGroupInputThread</classname> and
+	                     <classname>SingleGroupInputThread</classname> count the number of
+	                     non-fatal errors experienced on the socket(s) they manage.  When
+	                     this limit has been exceeded for a given socket, they will close
+	                     the socket and throw an exception.</para>
+	                  </entry>
+	               </row>
+	               
+	            </tbody>
+	         </tgroup>
+	      </informaltable>
+	   </section>
+ 
+   </section>
+   
+   
+   <section>
+      <title>Performance.</title>
+   
+      <para>It should come as no surprise that the classes in Muliplex 
+      perform more slowly than their non-virtual counterparts, since the 
+      multiplexing of data streams requires extra work. Multiplex uses 
+      two classes to perform input and output multiplexing: 
+      <classname>MultiplexingInputStream</classname> and 
+      <classname>MultiplexingOutputStream</classname>, which are returned 
+      by the <classname>VirtualSocket</classname> methods 
+      <methodname>getInputStream()</methodname> and <methodname>getOutputStream()</methodname>, 
+      respectively. These classes subclass 
+      <classname>java.io.InputStream</classname> and 
+      <classname>java.io.OutputStream</classname> and reimplement all of 
+      their methods. Tests show that input/output by these classes is 
+      roughly four to five times slower than input/output by their 
+      counterpart classes used by actual sockets, 
+      <classname>java.net.SocketInputStream</classname> and 
+      <classname>java.net.SocketOutputStream</classname>. This 
+      information is gathered from multiple runs of three tests:</para>
+
+      <informaltable frame="all">
+         <tgroup cols="2">
+            <tbody>
+               <row>
+                  <entry>
+                     <para><emphasis role="bold">bare  input</emphasis>:</para>
+                  </entry>
+                  <entry>
+                     <para>compares the transmission of bytes from a 
+                         <classname>SocketOutputStream</classname> to a 
+                         <classname>MultiplexingInputStream</classname> with the 
+                         transmission of bytes from a 
+                         <classname>SocketOutputStream</classname> to a 
+                         <classname>SocketInputStream</classname></para>
+                  </entry>
+               </row>
+      
+               <row>
+                  <entry>
+                     <para><emphasis role="bold">bare 
+                         output</emphasis>:</para></entry><entry><para>compares the 
+                         transmission of bytes from a 
+                         <classname>MultiplexingOutputStream</classname> to a 
+                         <classname>SocketInputStream</classname> with the 
+                         transmission of bytes from a 
+                         <classname>SocketOutputStream</classname> to a 
+                         <classname>SocketInputStream</classname></para>
+                  </entry>
+               </row>
+      
+               <row>
+                  <entry>
+                     <para><emphasis role="bold">socket 
+                         input/output</emphasis>:</para></entry><entry><para>compares 
+                         the transmission of bytes from a 
+                        <classname>MultiplexingOutputStream</classname> to a 
+                        <classname>MultiplexingInputStream</classname> with the 
+                         transmission of bytes from a 
+                         <classname>SocketOutputStream</classname> to a 
+                         <classname>SocketInputStream</classname></para>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </informaltable>
+
+      <para>Each of these tests was run 10 times, transmitting 100,000 
+      bytes each time. <xref linkend="table:1"></xref> gives the factor by which the virtual 
+      socket version of each test was slower than the actual socket 
+      version.</para>
+
+      <table frame="all" id="table:1" xreflabel="Table 1">
+
+         <title>Factors by which virtual socket input/output is slower 
+            than actual socket input/output.</title>
+
+         <tgroup cols="4">
+   
+            <colspec colname="c1" colnum="1"/>
+            <colspec colname="c2" colnum="2"/>
+            <colspec colname="c3" colnum="3"/>
+            <colspec colname="c4" colnum="4"/>
+            
+            <thead>
+               <row>
+                  <entry>
+                     <para/>
+                  </entry>
+                  <entry>
+                     <para>bare input</para>
+                  </entry>
+                  <entry>
+                     <para>bare output</para>
+                  </entry>
+                  <entry>
+                     <para>socket input/output</para>
+                  </entry>
+               </row>
+            </thead>
+   
+            <tbody>
+               <row>
+                  <entry>
+                     <para>minimum:</para>
+                  </entry>
+                  <entry>2.25</entry>
+                  <entry>1.63</entry>
+                  <entry>3.19</entry>
+               </row>
+   
+               <row>
+                  <entry>
+                     <para>mean:</para>
+                  </entry>
+                  <entry>3.50</entry>
+                  <entry>2.80</entry>
+                  <entry>4.77</entry>
+               </row>
+   
+               <row>
+                  <entry>
+                     <para>maximum:</para>
+                  </entry>
+                  <entry>4.42</entry>
+                  <entry>4.67</entry>
+                  <entry>8.58</entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+   </section>
+ 
+   <section>
+      <title>APIs</title>
+   
+      <para>One of the design goals of Multiplex is to make virtual sockets and their related classes as
+         indistinguishable as possible from their real counterparts. There are two areas in which
+         Multiplex is detectibly different.</para>
+         
+      <orderedlist>
+         <listitem>
+            <para>The use of the two types of virtual server sockets entails an extra degree of complexity in
+               setting up a multiplexed connection.</para>
+         </listitem>
+         
+         <listitem>
+            <para>There are performance differences.</para>
+         </listitem>
+      </orderedlist>
+      
+      <para>On the other hand, the virtual classes implement complete APIs, so that once a connection is
+         established, a <classname>VirtualSocket</classname>, for example, can be passed to a method in place of a
+         <classname>Socket</classname> and will demonstrate the same behavior.  Similarly, 
+         <classname>MultiplexingInputStream</classname>s and <classname>MultiplexingOutputStream</classname>s
+         are functionally indistinguishable from <classname>SocketInputStream</classname>s and
+         <classname>SocketOutputStream</classname>s.</para>
+         
+      <para>It may be useful, however, to be aware of some implementational differences between the two sets
+         of classes.  The public methods in the virtual classes can be placed in five categories.</para>
+         
+      <orderedlist>
+         <listitem>
+            <para>methods implemented directly by the class</para>
+         </listitem>
+         <listitem>
+            <para>methods inherited from the real superclass</para>
+         </listitem>
+         <listitem>
+            <para>methods implemented by delegation to the underlying real socket</para>
+         </listitem>
+         <listitem>
+            <para>methods whose behavior is essentially null (though they may throw an
+               <classname>IOException</classname> if called on a closed virtual socket)</para>
+         </listitem>
+         <listitem>
+            <para>methods which have no counterpart in the real class</para>
+         </listitem>
+      </orderedlist>
+      
+      <para>Categories 3, 4, and 5 are particularly informative.  Methods in category 3 can be used to
+         fine tune a multiplexed connection by, for example, adjusting buffer sizes.  Note that a method
+         such as <methodname>setReceiveBufferSize()</methodname> may be called on any virtual socket
+         in a socket group with the same effect as calling it on any other virtual socket in the same group.
+         Methods in category 4
+         represent behavior that is not relevant to virtual sockets, and methods in category 5 represent
+         behavior that is specific to the special nature of multiplexed connections.  The category 5
+         version of <methodname>VirtualSocket.connect()</methodname>,</para>
+             
+      <blockquote>
+         <programlisting>
+               connect(SocketAddress remoteAddress, SocketAddress localAddress, int timeout)
+         </programlisting>
+      </blockquote>
+         
+      <para>exists to effect an atomic binding/connecting action to avoid the 
+         <link linkend="accident">accidental connection problem</link>
+         discussed in the section on virtual socket groups. The notion of connection is irrelevant to ordinary
+         server sockets, but <classname>VirtualServerSocket</classname> has methods</para>
+   
+      <blockquote>
+         <para>
+            <programlisting>
+               connect(SocketAddress remoteAddress, SocketAddress localAddress, int timeout)
+            </programlisting>
+         </para>
+      </blockquote>
+            
+      <para>and <methodname>isConnected()</methodname> because a 
+         connection must be established before <methodname>accept()</methodname> can function.</para>
+         
+      <para>We also include in category 5 one of <classname>VirtualServerSocket</classname>'s
+         nonstandard constructors, with the signature</para>
+
+      <blockquote>
+         <para>
+            <programlisting>
+               VirtualServerSocket(InetSocketAddress remoteAddress, InetSocketAddress localAddress, int timeout)
+            </programlisting>
+         </para>
+      </blockquote>
+      
+      <para>
+         which calls the two-address form of <methodname>connect()</methodname>.</para>
+      
+      <para>The public methods of the main Multiplex classes are categorized in <xref linkend="table:2"></xref>
+         and <xref linkend="table:3"></xref>. The only inherited methods among the
+         classes listed in <xref linkend="table:2"></xref>
+         are found in <classname>MasterServerSocket</classname>, and
+         we omit an explicit listing of them.</para>
+         
+     <para>
+        <emphasis role="bold">Note.</emphasis>
+        The constructors of <classname>VirtualServerSocket</classname>
+        that take a backlog parameter ignore its value.  The same is true for 
+        methods of <classname>VirtualServerSocketFactory</classname>.
+     </para>
+         
+      <table frame="all" id="table:2" xreflabel="Table 2">
+
+         <title>Categories of public methods in the primary public Multiplex classes</title>
+
+         <tgroup cols="4" colsep="1" rowsep="1">
+            <colspec colname='c1' align="center"/>
+            <colspec colname='c2'/>
+            <colspec colname='c3'/>
+            <colspec colname='c4'/>
+                        
+            <thead>
+               <row>
+                  <entry>
+                     <para/>
+                  </entry>
+                  <entry>
+                     <para><classname>VirtualSocket</classname></para>
+                  </entry>
+                  <entry>
+                     <para><classname>VirtualServerSocket</classname></para>
+                  </entry>
+                  <entry>
+                     <para><classname>MasterServerSocket</classname></para>
+                  </entry>
+               </row>
+            </thead>
+   
+            <tbody>
+               <row>
+                  <entry morerows='13' valign='middle'>
+                     <para><emphasis role="bold">category 1</emphasis></para>
+                  </entry>
+                  <entry><para><methodname>bind()</methodname></para></entry>
+                  <entry><para><methodname>accept()</methodname></para></entry>
+                  <entry><para><methodname>accept()</methodname></para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>close()</methodname></para></entry>
+                  <entry><para><methodname>bind()</methodname></para></entry>
+                  <entry><para><methodname>toString()</methodname></para></entry>
+               </row>
+               
+                <row>
+                  <entry><para><methodname>connect()</methodname></para></entry>
+                  <entry><para><methodname>close()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>getInputStream()</methodname></para></entry>
+                  <entry><para><methodname>getSoTimeout()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>getOutputStream()</methodname></para></entry>
+                  <entry><para><methodname>isBound()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>getSoTimeout()</methodname></para></entry>
+                  <entry><para><methodname>isClosed()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+                <row>
+                  <entry><para><methodname>isClosed()</methodname></para></entry>
+                  <entry><para><methodname>setSoTimeout()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>isConnected()</methodname></para></entry>
+                  <entry><para><methodname>toString()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>isInputShutdown()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>isOutputShutdown()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+                <row>
+                  <entry><para><methodname>setSoTimeout()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>shutdownInput()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+          
+                <row>
+                  <entry><para><methodname>shutdownOutput()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>toString()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry morerows='12' valign='middle'>
+                     <para><emphasis role="bold">category 3</emphasis></para>
+                  </entry>
+                  <entry><para><methodname>getInetAddress()</methodname></para></entry>
+                  <entry><para><methodname>getInetAddress()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+
+                <row>
+                  <entry>
+                     <para> 
+                        <methodname>getKeepAlive()</methodname>/ <methodname>setKeepAlive()</methodname></para>
+                  </entry>
+                  <entry><para><methodname>getLocalPort()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>getLocalAddress()</methodname></para></entry>
+                  <entry><para><methodname>getLocalSocketAddress()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>getLocalPort()</methodname></para></entry>
+                  <entry>
+                     <para> <methodname>getReceiveBufferSize()</methodname> 
+                        / <methodname>setReceiveBufferSize()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>getLocalSocketAddress()</methodname></para></entry>
+                  <entry>
+                     <para> 
+                        <methodname>getReuseAddress()</methodname>/ <methodname>setReuseAddress()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+                <row>
+                  <entry><para><methodname>getPort()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry>
+                     <para> <methodname>getReceiveBufferSize()</methodname> 
+                        / <methodname>setReceiveBufferSize()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+
+               <row>
+                  <entry><para><methodname>getRemoteSocketAddress()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+                <row>
+                  <entry>
+                     <para> 
+                        <methodname>getReuseAddress()</methodname>/ <methodname>setReuseAddress()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry>
+                     <para> <methodname>getSendBufferSize()</methodname>/
+                        <methodname>setSendBufferSize()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+          
+                <row>
+                  <entry>
+                     <para>
+                        <methodname>getSOLinger()</methodname>/ <methodname>setSOLinger()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry>
+                     <para>
+                        <methodname>getTCPNoDelay()</methodname>/ <methodname>setTCPNoDelay()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry>
+                     <para>
+                        <methodname>getTrafficClass()</methodname>/ <methodname>setTrafficClass()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry morerows='2' valign='middle'>
+                     <para><emphasis role="bold">category 4</emphasis></para>
+                  </entry>
+                  <entry><para><methodname>getChannel()</methodname></para></entry>
+                  <entry><para><methodname>getChannel()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry>
+                     <para>
+                        <methodname>getOOBInline()</methodname>/ <methodname>setOOBInline()</methodname></para>
+                  </entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+                <row>
+                  <entry><para><methodname>sendUrgentData()</methodname></para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+   
+               <row>
+                  <entry morerows='2' valign='middle'>
+                     <para><emphasis role="bold">category 5</emphasis></para>
+                  </entry>
+                  <entry>
+                     <para><methodname>connect()</methodname>
+                        <footnote>
+                           <para>This version of <methodname>connect()</methodname> is nonstandard
+                              in that it has both a local and remote address.  It binds to
+                              a local address and connects to a remote address in a single atomic action.</para>
+                        </footnote>
+                        </para>
+                  </entry>
+                  
+                  <entry><para><methodname>connect()</methodname></para></entry>
+                  <entry><para><methodname>acceptServerSocketConnection()</methodname></para></entry>
+               </row>
+               
+               <row>
+                  <entry><para></para></entry>
+                  <entry><para><methodname>isConnected()</methodname></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+    
+               <row>
+                  <entry><para></para></entry>
+                  <entry>
+                     <para><methodname>VirtualServerSocket()</methodname>
+                        <footnote>
+                           <para>This constructor is nonstandard
+                              in that it has both a local and remote address.  It binds to
+                              a local address and connects to a remote address in a single atomic action.</para>
+                        </footnote>
+                        </para>
+                  </entry>
+                   <entry><para></para></entry>
+               </row> 
+                
+            </tbody>
+         </tgroup>
+      </table>
+      
+      <table frame="all" id="table:3" xreflabel="Table 3">
+
+         <title>Categories of public methods in the other public Multiplex classes</title>
+
+         <tgroup cols="5" colsep="1" rowsep="1">
+            <colspec colname='c1' align="center"/>
+            <colspec colname='c2'/>
+            <colspec colname='c3'/>
+            <colspec colname='c4'/>
+            <colspec colname='c5'/>
+                        
+            <thead>
+               <row>
+                  <entry>
+                     <para/>
+                  </entry>
+                  <entry>
+                     <para><classname>MultiplexingInputStream</classname></para>
+                  </entry>
+                  <entry>
+                     <para><classname>MultiplexingOutputStream</classname></para>
+                  </entry>
+                  <entry>
+                     <para><classname>VirtualServerSocketFactory</classname></para>
+                  </entry>
+                  <entry>
+                     <para><classname>VirtualSocketFactory</classname></para>
+                  </entry>
+               </row>
+            </thead>
+   
+            <tbody>
+               <row>
+                  <entry morerows='3' valign='middle'>
+                     <para><emphasis role="bold">category 1</emphasis></para>
+                  </entry>
+                  <entry><para><methodname>available()</methodname></para></entry>
+                  <entry><para><methodname>close()</methodname></para></entry>
+                  <entry><para><methodname>createServerSocket()</methodname></para></entry>
+                  <entry><para><methodname>createSocket()</methodname></para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>close()</methodname></para></entry>
+                  <entry><para><methodname>write()</methodname></para></entry>
+                  <entry><para><methodname>getDefault()</methodname></para></entry> 
+                  <entry><para><methodname>getDefault()</methodname></para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>skip()</methodname></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+               </row>
+               
+               <row>
+                  <entry><para><methodname>read()</methodname></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para> </para></entry>
+               </row>
+
+               <row>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry morerows='2' valign='middle'>
+                     <para><emphasis role="bold">category 2</emphasis></para>
+                  </entry>
+                  <entry><para><methodname>mark()</methodname></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+               </row>
+
+               <row>
+                  <entry><para><methodname>markSupported()</methodname></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+               </row>
+                
+               <row>
+                  <entry><para><methodname>reset()</methodname></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+               </row>                
+               
+               <row>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry valign='middle'>
+                     <para><emphasis role="bold">category 4</emphasis></para>
+                  </entry>
+                  <entry><para></para></entry>
+                  <entry><para><methodname>flush()</methodname></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+               </row>
+               
+               <row>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+                  <entry><para> </para></entry>
+               </row>
+               
+               <row>
+                  <entry morerows='3' valign='middle'>
+                     <para><emphasis role="bold">category 5</emphasis></para>
+                  </entry>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para><methodname>isOnClient()</methodname></para></entry>
+                  <entry><para></para></entry>
+               </row>
+
+               <row>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para><methodname>isOnServer()</methodname></para></entry>
+                  <entry><para></para></entry>
+               </row>
+                
+               <row>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para><methodname>setOnClient()</methodname></para></entry>
+                  <entry><para></para></entry>
+               </row>              
+               
+               <row>
+                  <entry><para></para></entry>
+                  <entry><para></para></entry>
+                  <entry><para><methodname>setOnServer()</methodname></para></entry>
+                  <entry><para></para></entry>
+               </row>
+
+            </tbody>
+         </tgroup>
+      </table>
+   </section>
+
+   <section>
+      <title>Issues.</title>
+
+      <para>Please post issues and bugs to 
+          <uri>http://jira.jboss.com/jira/browse/JBREM-91</uri>.</para>
+   </section>
+
+   <section>
+      <title>Listings.</title>
+   
+      <blockquote id="listing:1" xreflabel="Listing 1">
+         <title>Listing 1. Client for Prime Scenario example.</title>
+            <programlisting>
+               public class PrimeScenarioExampleClient
+               { 
+                  public void runPrimeScenario()
+                  {
+                     try {
+                        // Create a VirtualSocket and connect it to MasterServerSocket.
+                        Socket v1 = new VirtualSocket(&quot;localhost&quot;, 5555);
+   
+                        // Do some asynchronous input in a separate thread.
+                        new AsynchronousThread(v1).start();
+   
+                        // Do some synchronous communication.
+                        ObjectOutputStream oos = new ObjectOutputStream(v1.getOutputStream());
+                        ObjectInputStream ois = new ObjectInputStream(v1.getInputStream());
+                        oos.writeObject(new Integer(3)); 
+                        Integer i1 = (Integer) ois.readObject();
+                        v1.close();
+                     }
+                     catch (Exception e) {}
+                  }
+   
+                  class AsynchronousThread extends Thread                                                                                                         
+                  {
+                     private Socket virtualSocket;
+   
+                     AsynchronousThread(Socket virtualSocket)
+                     {
+                        this.virtualSocket = virtualSocket;
+                     }
+                     
+                     public void run()
+                     {
+                        try {
+                           // Create a VirtualServerSocket that shares a port with virtualSocket.
+                           // (Note that it will be connected by virtue of joining a connected socket group.)
+                           ServerSocket serverSocket = new VirtualServerSocket(virtualSocket.getLocalPort());
+   
+                           // Create a VirtualSocket that shares a port with virtualSocket.
+                           serverSocket.setSoTimeout(10000);
+                           Socket v4 = serverSocket.accept();
+   
+                           // Get an object from the server.
+                           v4.setSoTimeout(10000);
+                           ObjectInputStream ois = new ObjectInputStream(v4.getInputStream());
+                           Object o = ois.readObject();
+                           serverSocket.close();
+                           v4.close();
+                        }
+                        catch (Exception e) {}
+                     }
+                  }
+   
+                  public static void main(String[] args)
+                  {
+                     new PrimeScenarioExampleClient().runPrimeScenario();
+                  }
+               }
+         </programlisting>
+      </blockquote>
+   
+      <blockquote id="listing:2" xreflabel="Listing 2">
+         <title>Listing 2. Server for Prime Scenario example.</title>
+         <programlisting>
+               public class PrimeScenarioExampleServer
+               {
+                  public void runPrimeScenario()
+                  {
+                     try {
+                        // Create a MasterServerSocket and get a VirtualSocket.
+                        ServerSocket serverSocket = new MasterServerSocket(5555);
+                        serverSocket.setSoTimeout(10000);
+                        Socket v2 = serverSocket.accept();
+      
+                        // Do some asynchronous communication in a separate thread.
+                        Thread asynchronousThread = new AsynchronousThread(v2);
+                        asynchronousThread.start();
+      
+                        // Do some synchronous communication.
+                        ObjectInputStream ois = new ObjectInputStream(v2.getInputStream());
+                        ObjectOutputStream oos = new ObjectOutputStream(v2.getOutputStream());
+                        v2.setSoTimeout(10000);
+                        Object o = ois.readObject();
+                        oos.writeObject(o);
+      
+                        serverSocket.close();
+                        v2.close();
+                     }
+                     catch (Exception e) { }
+                  }
+      
+                  class AsynchronousThread extends Thread
+                  {
+                     private Socket virtualSocket;
+      
+                     public AsynchronousThread(Socket socket) throws IOException
+                     {this.virtualSocket = socket;}
+      
+                     public void run()
+                     {
+                        try {
+                           // Connect to VirtualServerSocket.
+                           Thread.sleep(2000);
+                           String hostName = virtualSocket.getInetAddress().getHostName();
+                           int port = virtualSocket.getPort();
+                           Socket v3 = new VirtualSocket(hostName, port);
+      
+                           // Send an object to the client.
+                           ObjectOutputStream oos = new ObjectOutputStream(v3.getOutputStream());
+                           oos.writeObject(new Integer(7));
+      
+                           oos.flush();
+                           v3.close();
+                        }
+                        catch (Exception e) {}
+                     }
+                  }
+      
+                  public static void main(String[] args)
+                  {
+                     new PrimeScenarioExampleServer().runPrimeScenario();
+                  }
+               }
+         </programlisting>
+      </blockquote>   
+   
+      <blockquote id="listing:3" xreflabel="Listing 3">
+         <title>Listing 3. Sample client for N-socket scenario.</title>
+         <programlisting>           
+               public class N_SocketScenarioClient
+               {
+                  public void runN_SocketScenario()
+                  {
+                     try
+                     {
+                        // Create a VirtualServerSocket and connect it to the server.
+                        VirtualServerSocket serverSocket = new VirtualServerSocket(5555);
+                        InetSocketAddress connectAddress = new InetSocketAddress(“localhost”, 6666);
+                        serverSocket.setSoTimeout(10000);
+                        serverSocket.connect(connectAddress);
+   
+                        // Accept connection requests for 3 virtual sockets.
+                        Socket socket1 = serverSocket.accept();
+                        Socket socket2 = serverSocket.accept();
+                        Socket socket3 = serverSocket.accept();
+   
+                        // Do some i/o.
+                        InputStream is1 = socket1.getInputStream();
+                        OutputStream os1 = socket1.getOutputStream();
+                        InputStream is2 = socket2.getInputStream();
+                        OutputStream os2 = socket2.getOutputStream();
+                        InputStream is3 = socket3.getInputStream();
+                        OutputStream os3 = socket3.getOutputStream();
+                        os1.write(3);
+                        os2.write(7);
+                        os3.write(11);
+                        System.out.println(is1.read());
+                        System.out.println(is2.read());
+                        System.out.println(is3.read());
+   
+                        socket1.close();
+                        socket2.close();
+                        socket3.close();
+                        serverSocket.close();
+                     }
+                     catch (Exception e) {}
+                  }
+   
+                  public static void main(String[] args)
+                  {
+                     new N_SocketScenarioClient().runN_SocketScenario();
+                  }
+               }
+         </programlisting>
+      </blockquote>
+   
+      <blockquote id="listing:4" xreflabel="Listing 4">
+         <title>Listing 4. Sample server for N-socket scenario.</title>
+         <programlisting>
+               public class N_SocketScenarioServer
+               {
+                  public void runN_SocketScenario()
+                  {
+                     try
+                     {
+                        // Create and bind a MasterServerSocket.
+                        MasterServerSocket serverSocket = new MasterServerSocket(6666);
+   
+                        // Accept connection request from VirtualServerSocket.
+                        serverSocket.setSoTimeout(10000);
+                        serverSocket.acceptServerSocketConnection();
+   
+                        // Create 3 virtual sockets
+                        Thread.sleep(2000);
+                        Socket socket1 = new VirtualSocket(&quot;localhost&quot;, 5555);
+                        Socket socket2 = new VirtualSocket(&quot;localhost&quot;, 5555);
+                        Socket socket3 = new VirtualSocket(&quot;localhost&quot;, 5555);
+   
+                        // Do some i/o.
+                        InputStream is1 = socket1.getInputStream();
+                        OutputStream os1 = socket1.getOutputStream();
+                        InputStream is2 = socket2.getInputStream();
+                        OutputStream os2 = socket2.getOutputStream();
+                        InputStream is3 = socket3.getInputStream();
+                        OutputStream os3 = socket3.getOutputStream();
+                        os1.write(is1.read());
+                        os2.write(is2.read());
+                        os3.write(is3.read());
+   
+                        socket1.close();
+                        socket2.close();
+                        socket3.close();
+                        serverSocket.close();
+                     }
+                     catch (Exception e) {}
+                  }
+   
+                  public static void main(String[] args)
+                  {
+                     new N_SocketScenarioServer().runN_SocketScenario();
+                  }
+               }
+         </programlisting>
+      </blockquote>
+   
+      <blockquote id="listing:5" xreflabel="Listing 5">
+         <title>Listing 5. Symmetric Scenario client.</title>
+         <programlisting>
+               public class SymmetricScenarioClient
+               {
+                  public void runSymmetricScenario()
+                  {
+                     try {
+                        // Get a virtual socket to use for synchronizing client and server.
+                        Socket syncSocket = new Socket(&quot;localhost&quot;, 6666);
+                        InputStream is_sync = syncSocket.getInputStream();
+                        OutputStream os_sync = syncSocket.getOutputStream();
+                       
+                        // Create a VirtualServerSocket and connect 
+                        // it to MasterServerSocket running on the server.
+                        VirtualServerSocket serverSocket = new VirtualServerSocket(5555);
+                        InetSocketAddress address = new InetSocketAddress(&quot;localhost&quot;, 7777);
+                        is_sync.read();
+                        serverSocket.setSoTimeout(10000);
+                        serverSocket.connect(address);
+                       
+                        // Call constructor to create a virtual socket and make a connection
+                        // request to the port on the server to which the local VirtualServerSocket
+                        // is connected, i.e., to the remote VirtualServerSocket.
+                        os_sync.write(5);
+                        is_sync.read();
+                        int port = serverSocket.getRemotePort();
+                        Socket virtualSocket1 = new VirtualSocket(&quot;localhost&quot;, port);
+                        InputStream is1 = virtualSocket1.getInputStream();
+                        OutputStream os1 = virtualSocket1.getOutputStream();
+                       
+                        // Create a virtual socket with VirtualServerSocket.accept().
+                        Socket virtualSocket2 = serverSocket.accept();
+                        InputStream is2 = virtualSocket2.getInputStream();
+                        OutputStream os2 = virtualSocket2.getOutputStream();
+                       
+                        // Do some i/o and close sockets.
+                        os1.write(9);
+                        System.out.println(is1.read());
+                        os2.write(11);
+                        System.out.println(is2.read());
+                        virtualSocket1.close();
+                        virtualSocket2.close();
+                        syncSocket.close();
+                        serverSocket.close();
+                     }
+                     catch (Exception e) {}
+                  }
+   
+                  public static void main(String[] args)
+                  {
+                     new SymmetricScenarioClient().runSymmetricScenario();
+                  }
+               }
+         </programlisting>
+      </blockquote>
+
+      <blockquote id="listing:6" xreflabel="Listing 6">
+         <title>Listing 6. Symmetric Scenario server.</title>
+         <programlisting>
+               public class SymmetricScenarioServer
+               {
+                  public void runSymmetricScenario()
+                  {
+                     try {
+                        // Create ServerSocket and get synchronizing socket.
+                        ServerSocket ss = new ServerSocket(6666);
+                        Socket syncSocket = ss.accept();
+                        ss.close();
+                        InputStream is_sync = syncSocket.getInputStream();
+                        OutputStream os_sync = syncSocket.getOutputStream();
+                           
+                        // Create MasterServerSocket, accept connection request from remote
+                        // VirtualServerSocket, and get the bind port of the local actual
+                        // socket to which the VirtualServerSocket is connected. 
+                        MasterServerSocket mss = new MasterServerSocket(7777);
+                        os_sync.write(3);
+                        mss.setSoTimeout(10000);
+                        int port = mss.acceptServerSocketConnection();
+                        mss.close();
+                           
+                        // Wait until remote VirtualServerSocket is running, then create local
+                        // VirtualServerSocket, bind it to the local port to which the remote
+                        // VirtualServerSocket is connected, and connect it to the remote
+                        // VirtualServerSocket.
+                        is_sync.read();
+                        VirtualServerSocket vss = new VirtualServerSocket(port);
+                        InetSocketAddress address = new InetSocketAddress(&quot;localhost&quot;, 5555);
+                        vss.setSoTimeout(5000);
+                        vss.connect(address);
+                           
+                        // Indicate that the local VirtualServerSocket is running.
+                        os_sync.write(7);
+                           
+                        // Create a virtual socket by way of VirtualServerSocket.accept();
+                        serverSocket.setSoTimeout(10000);
+                        Socket virtualSocket1 = vss.accept();
+                        InputStream is1 = virtualSocket1.getInputStream();
+                        OutputStream os1 = virtualSocket1.getOutputStream();
+                           
+                        // Call constructor to create a virtual socket and make a connection
+                        // request to the remote VirtualServerSocket.
+                        Socket virtualSocket2 = new VirtualSocket(&quot;localhost&quot;, 5555);
+                        InputStream is2 = virtualSocket2.getInputStream();
+                        OutputStream os2 = virtualSocket2.getOutputStream();
+                           
+                        // Do some i/o and close sockets.
+                        os1.write(is1.read());
+                        os2.write(is2.read());
+                        virtualSocket1.close();
+                        virtualSocket2.close();
+                        syncSocket.close();
+                        vss.close();
+                     }
+                     catch (Exception e) {}
+                  }
+                           
+                  public static void main(String[] args)
+                  { 
+                     new SymmetricScenarioServer().runSymmetricScenario();
+                  }
+               }
+         </programlisting>
+      </blockquote>
+
+      <blockquote id="listing:7" xreflabel="Listing 7">
+         <title>Listing 7. Sample use of VirtualServerSocketFactory and VirtualSocketFactory.</title>
+         <programlisting>
+               public class FactoryExample
+               {
+                  
+                  void runFactoryExample()
+                  {
+                     ServerSocketFactory serverSocketFactory = VirtualServerSocketFactory.getDefault();
+                     ((VirtualServerSocketFactory) serverSocketFactory).setOnServer();
+                     SocketFactory socketFactory = VirtualSocketFactory.getDefault();
+                     useServerSocketFactory(serverSocketFactory);
+                     useSocketFactory(socketFactory);
+                  }
+                  
+                  void useServerSocketFactory(final ServerSocketFactory serverSocketFactory)
+                  {
+                     new Thread()
+                     {
+                        public void run()
+                        {
+                           try
+                           {
+                              ServerSocket serverSocket = serverSocketFactory.createServerSocket(5555);
+                              Socket socket = serverSocket.accept();
+                              int b = socket.getInputStream().read();
+                              socket.getOutputStream().write(b);
+                              socket.close();
+                              serverSocket.close();
+                           }
+                           catch (Exception e)
+                           {
+                              e.printStackTrace();
+                           }
+                        }
+                     }.start();
+                  }
+                  
+                  public void useSocketFactory(SocketFactory socketFactory)
+                  {
+                     try
+                     {
+                        Thread.sleep(1000);
+                        Socket socket = socketFactory.createSocket("localhost", 5555);
+                        socket.getOutputStream().write(7);
+                        System.out.println(socket.getInputStream().read());
+                        socket.close();
+                     }
+                     catch (Exception e)
+                     {
+                        e.printStackTrace();
+                     }
+                     
+                  }
+               
+                  public static void main(String[] args)
+                  {
+                     new FactoryExample().runFactoryExample();
+                  }
+               }
+         </programlisting>
+      </blockquote>
+
+   </section>
+
+</article>

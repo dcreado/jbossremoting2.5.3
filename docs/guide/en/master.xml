@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"../support/support/docbook-dtd/docbookx.dtd" [
+<!ENTITY chap1 SYSTEM "chap1.xml">
+<!ENTITY chap2 SYSTEM "chap2.xml">
+<!ENTITY chap3 SYSTEM "chap3.xml">
+<!ENTITY chap4 SYSTEM "chap4.xml">
+<!ENTITY chap5 SYSTEM "chap5.xml">
+<!ENTITY chap6 SYSTEM "chap6.xml">
+<!ENTITY chap7 SYSTEM "chap7.xml">
+<!ENTITY chap8 SYSTEM "chap8.xml">
+<!ENTITY chap_cl SYSTEM "chap-classloaders.xml">
+<!ENTITY chap9 SYSTEM "chap9.xml">
+<!ENTITY chap10 SYSTEM "chap10.xml">
+<!ENTITY chap11 SYSTEM "chap11.xml">
+<!ENTITY chap12 SYSTEM "chap12.xml">
+<!ENTITY chap13 SYSTEM "chap13.xml">
+<!ENTITY chap14 SYSTEM "chap14.xml">
+<!ENTITY chap15 SYSTEM "chap15.xml">
+<!ENTITY chap16 SYSTEM "chap16.xml">
+<!ENTITY chap17 SYSTEM "chap17.xml">
+]>
+<book>
+  <bookinfo>
+    <title>JBoss Remoting Guide</title>
+
+    <subtitle>JBoss Remoting version 2.5.3</subtitle>
+
+    <releaseinfo>July 4, 2010</releaseinfo>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="images/JBoss_logo.jpg" />
+      </imageobject>
+    </mediaobject>
+
+    <copyright>
+      <year>2010 JBoss by Red Hat</year>
+
+      <holder>.</holder>
+    </copyright>
+  </bookinfo>
+
+  &chap1;
+
+  &chap2;
+
+  &chap3;
+
+  &chap4;
+
+  &chap5;
+
+  &chap6;
+
+  &chap7;
+
+  &chap8;
+  
+  &chap_cl;
+
+  &chap9;
+
+  &chap10;
+
+  &chap11;
+
+  &chap12;
+
+  &chap13;
+
+  &chap14;
+
+  &chap15;
+
+  &chap16;
+  
+  &chap17;
+</book>

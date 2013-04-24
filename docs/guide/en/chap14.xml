@@ -1,0 +1,104 @@
+  <chapter>
+    <title>Getting the JBossRemoting source and building</title>
+
+    <para>The JBossRemoting source code resides in the JBoss SVN repository. The
+    tagged versions are found in
+    https://svn.jboss.org/repos/jbossremoting/remoting2/tags, and the working
+    branches are found in
+    https://svn.jboss.org/repos/jbossremoting/remoting2/branches.</para>
+    
+    <para>To check out the source for version 2.4.0.GA using the
+    anonymous account, use the following command:</para>
+
+    <programlisting> svn checkout http://anonsvn.jboss.org/repos/jbossremoting/remoting2/tags/2.4.0-GA.</programlisting>
+
+    <para>and to check out the source using a committer user id, use the
+    following:</para>
+
+    <programlisting>svn checkout https://svn.jboss.org/repos/jbossremoting/remoting2/tags/2.4.0-GA</programlisting>
+    
+    <para>On the other hand, to get the working branch for version 2.4, use</para>
+    
+    <programlisting> svn checkout http://anonsvn.jboss.org/repos/jbossremoting/remoting2/branches/2.x.</programlisting>
+
+    <para>or</para>
+
+    <programlisting>svn checkout https://svn.jboss.org/repos/jbossremoting/remoting2/branches/2.x.</programlisting>
+    
+    <para>These commands should checkout the entire remoting project, including
+    doc, tests, libs, etc.</para>
+    
+    <para>See <ulink url="http://wiki.jboss.org/wiki/SVNRepository">
+    http://wiki.jboss.org/wiki/SVNRepository</ulink> for more information on how
+    to access the JBoss SVN repository and how to get committer access.</para>
+
+    <para>The build process for JBossRemoting is based on a standard ant build
+    file (build.xml). The version of ant currently in use is ant 1.7.0, but
+    earlier versions should work as well as there are no special ant features
+    being used.</para>
+
+    <para>The main ant build targets are as follows:</para>
+
+    <para><emphasis role="bold">compile</emphasis> - compiles all the core
+    JBossRemoting classes.</para>
+
+    <para><emphasis role="bold">jars</emphasis> - creates the
+    jboss-remoting.jar file from the compiled classes</para>
+
+    <para><emphasis role="bold">dist.jars</emphasis> - creates the
+    subsystem jar files (jboss-remoting-core.jar, jboss-remoting-socket.jar, etc.)
+    from the compiled classes</para>
+    
+    <para><emphasis role="bold">javadoc</emphasis> - creates the javadoc html
+    files for JBossRemoting</para>
+
+    <para><emphasis role="bold">tests.compile</emphasis> - compiles the
+    JBossRemoting test files</para>
+
+    <para><emphasis role="bold">tests.jars</emphasis> - creates the
+    jboss-remoting-tests.jar and jboss-remoting-loading-tests.jar
+    files.</para>
+
+    <para><emphasis role="bold">tests.quick</emphasis> - runs the functional
+    unit tests for JBossRemoting.</para>
+
+    <para><emphasis role="bold">tests</emphasis> - runs all the functional tests
+    for all the different transports.</para>
+
+    <para><emphasis role="bold">tests.performance</emphasis> - runs all the
+    performance tests for all the different transports.</para>
+    
+    <para><emphasis role="bold">tests.versioning.all</emphasis> - runs all the
+    versioning tests for all the different transports.</para>
+
+    <para><emphasis role="bold">clean</emphasis> - removes all the build
+    artifacts and directories.</para>
+
+    <para><emphasis role="bold">most</emphasis> - calls clean then jars
+    targets.</para>
+
+    <para><emphasis role="bold">dist</emphasis> - builds the full
+    JBossRemoting distribution including running the full test suite.</para>
+
+    <para><emphasis role="bold">dist.quick</emphasis> - builds the full
+    JBossRemoting distribution, but does not run the test suite.</para>
+
+    <para>The root directory for all build output is the output directory.
+    Under this directory will be:</para>
+
+    <para><literal>classes</literal> - compiled core classes
+    <literal></literal></para>
+
+    <para><literal>etc</literal> - deployment and JMX XMBean xml files
+    <literal></literal></para>
+
+    <para><literal>lib</literal> - all the jars and war file produced by the
+    build <literal></literal></para>
+
+    <para><literal>tests</literal> - contains the compiled test classes and
+    test results</para>
+
+    <para>For most development, the most target can be used. Please run the
+    tests.quick target before checking anything in to ensure that code changes
+    did not break any previously functioning test.</para>
+  </chapter>

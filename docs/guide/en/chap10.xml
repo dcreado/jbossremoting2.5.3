@@ -1,0 +1,19 @@
+  <chapter>
+    <title>Transporters - beaming POJOs</title>
+
+    <para>There are many ways in which to expose a remote interface to a java
+    object. Some require a complex framework API based on a standard
+    specification and some require new technologies like annotations and AOP.
+    Each of these have their own benefits. JBoss Remoting transporters provide
+    the same behavior via a simple API without the need for any of the newer
+    technologies.</para>
+
+    <para>When boiled down, transporters take a plain old java object (POJO)
+    and expose a remote proxy to it via JBoss Remoting. Dynamic proxies and
+    reflection are used to make the typed method calls on that target POJO.
+    Since JBoss Remoting is used, can select from a number of different
+    network transports (i.e. rmi, http, socket, multiplex, etc.), including
+    support for SSL. Even clustering features can be included. See the
+    transporter samples in the next chapter for detailed examples of how to
+    set up use of a transporter.</para>
+  </chapter>

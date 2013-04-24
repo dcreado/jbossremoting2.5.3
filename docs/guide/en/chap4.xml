@@ -1,0 +1,258 @@
+  <chapter>
+    <title>Remoting libraries and thirdparty dependancies</title>
+
+    <para>Remoting partitions its functionality into several different libraries
+    to allow the size of the footprint to be controlled according to the
+    features that will be used. Remoting distribution will include
+    the following remoting binaries (found in the lib directory of the
+    distribution).</para>
+
+    <para><emphasis role="bold">jboss-remoting.jar</emphasis> - this binary
+    contains all the remoting classes. This is the only remoting jar that is
+    needed to perform any remoting function within JBoss Remoting.  Of course,
+    third party jars will be required.</para>
+
+    <para>Since some may want to better control size of the binary footprint
+    needed to use remoting, the remoting classes have been broken out into
+    multiple remoting binaries based on their function. There are four
+    categories of these binaries; core, detection, transport, and
+    other.</para>
+
+    <bridgehead>core</bridgehead>
+
+    <para><emphasis role="bold">jboss-remoting-core.jar</emphasis> - contains
+    all the core remoting classes needed for remoting to function. If not
+    using jboss-remoting.jar, then jboss-remoting.core.jar will be
+    required.</para>
+
+    <bridgehead>detection</bridgehead>
+
+    <para><emphasis role="bold">jboss-remoting-detection</emphasis> - contains
+    all the remoting classes needed to perform automatic discovery of remoting
+    servers. It includes both the jndi and multicast detector classes as well
+    as the network registry classes.</para>
+
+    <bridgehead>transport</bridgehead>
+
+    <para><emphasis role="bold">jboss-remoting-socket.jar</emphasis> -
+    contains all the classes needed for the socket and sslsocket transports to
+    function as both a client and a server.</para>
+
+    <para><emphasis role="bold">jboss-remoting-socket-client.jar</emphasis> -
+    contains all the classes needed for the socket and sslsocket transports to
+    function as a client only. This means will not be able to perform any push
+    callbacks or sending of streams using this jar.</para>
+
+    <para><emphasis role="bold">jboss-remoting-http.jar</emphasis> - contains
+    all the classes needed for the http and https transports to function as a
+    client and a server.</para>
+
+    <para><emphasis role="bold">jboss-remoting-http-client.jar</emphasis> -
+    contains all the classes needed for the http, https, servlet, and
+    sslservlet transports to function as a client only. This means will not be
+    able to perform any push callbacks or sending of streams using this
+    jar.</para>
+
+    <para><emphasis role="bold">jboss-remoting-servlet.jar</emphasis> -
+    contains all the classes needed for the servlet or sslservlet transports
+    to function as a server only (also requires servlet-invoker.war be
+    deployed within web container as well).</para>
+
+    <para><emphasis role="bold">jboss-remoting-rmi.jar</emphasis> - contains
+    all the classes needed for the rmi and sslrmi transports to function as a
+    client and a server.</para>
+    
+    <para><emphasis role="bold">jboss-remoting-bisocket.jar</emphasis> -
+    contains all the classes needed for the bisocket and sslbisocket transports
+    to function as both a client and a server.</para>
+
+    <para><emphasis role="bold">jboss-remoting-bisocket-client.jar</emphasis> -
+    contains all the classes needed for the bisocket and sslbisocket transports
+    to function as a client only. This means will not be able to perform any
+    push callbacks or sending of streams using this jar.</para>
+
+    <bridgehead>other</bridgehead>
+
+    <para><emphasis role="bold">jboss-remoting-serialization.jar</emphasis> -
+    contains just the remoting serialization classes (and serialization
+    manager implementations for java and jboss).</para>
+
+    <para><emphasis role="bold"><emphasis
+    role="bold">jboss-remoting-samples.jar</emphasis> </emphasis>- all the
+    remoting samples showing example code for different remotng
+    functions.</para>
+
+    <section>
+      <title>Third party libraries</title>
+
+      <para>This section covers which thirdparty jars are required based on
+      the feature or transport to be used. Remember, any
+      jboss-remoting-XXX.jar can be replaced with just the
+      jboss-remoting.jar.</para>
+      
+      <para> Table 1 gives the direct dependencies of the Remoting jars on
+      third party jars (and jboss-remoting-core.jar, in most cases).  Table 2
+      gives the transitive closure of Table 1.</para>
+
+      <para>The information in Tables 1 and 2 was derived with the use of the
+      extremely useful <emphasis role="bold">Tattletale</emphasis> tool,
+      available on the jboss.org website:
+      <ulink url="http://www.jboss.org/tattletale">
+      http://www.jboss.org/tattletale</ulink></para>
+      
+      <table frame="all" id="JarDependencyTable" xreflabel="Table 1">
+        <title>Jar dependencies.</title>
+
+        <tgroup cols="2">
+          <colspec align="left" colname="c1" colnum="1" />
+          <colspec align="left" colname="c2" colnum="2" />
+
+          <thead>
+            <row>
+              <entry align="center"><para>jar</para></entry>
+              <entry align="center"><para>depends on</para></entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><para>jboss-remoting-bisocket-client.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jboss-serialization.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-bisocket.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jboss-serialization.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-core.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-detection.jar, jboss-serialization.jar, log4j.jar</para></entry>
+            </row>     
+            <row>
+              <entry><para>jboss-remoting-detection.jar:</para></entry>
+              <entry><para>jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jnpserver.jar, log4j.jar</para></entry>
+            </row> 
+            <row>
+              <entry><para>jboss-remoting-http-client.jar:</para></entry>
+              <entry><para>jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar</para></entry>
+            </row>  
+            <row>
+              <entry><para>jboss-remoting-http.jar:</para></entry>
+              <entry><para>jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jbossweb.jar</para></entry>
+            </row>   
+            <row>
+              <entry><para>jboss-remoting-rmi.jar:</para></entry>
+              <entry><para>jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jboss-serialization.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-samples.jar:</para></entry>
+              <entry><para>jboss-common-core.jar, jboss-logging-log4j.jar, jboss-logging-spi.jar, jboss-remoting-bisocket-client.jar, jboss-remoting-core.jar, jboss-remoting-detection.jar, jboss-remoting.jar, jnpserver.jar, junit.jar, log4j.jar, servlet-api.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-serialization.jar:</para></entry>
+              <entry><para>jboss-logging-spi.jar, jboss-remoting-core.jar, jboss-serialization.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-servlet.jar:</para></entry>
+              <entry><para>jboss-logging-spi.jar, jboss-remoting-core.jar, servlet-api.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-socket-client.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-socket.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jboss-serialization.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-log4j.jar, jboss-logging-spi.jar, jboss-serialization.jar, jbossweb.jar, jnpserver.jar, junit.jar, log4j.jar, servlet-api.jar</para></entry>
+            </row>
+            
+          </tbody> 
+        </tgroup>
+      </table>
+        
+        
+      <table frame="all" id="JarTransitiveDependencyTable" xreflabel="Table 1">
+        <title>Transitive closure of jar dependencies.</title>
+
+        <tgroup cols="2">
+          <colspec align="left" colname="c1" colnum="1" />
+          <colspec align="left" colname="c2" colnum="2" />
+
+          <thead>
+            <row>
+              <entry align="center"><para>jar</para></entry>
+              <entry align="center"><para>depends on</para></entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><para>jboss-remoting-bisocket-client.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-bisocket.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-core.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>     
+            <row>
+              <entry><para>jboss-remoting-detection.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, jboss-serialization.jar, jnpserver.jar, log4j.jar, trove.jar</para></entry>
+            </row> 
+            <row>
+              <entry><para>jboss-remoting-http-client.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>  
+            <row>
+              <entry><para>jboss-remoting-http.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, jbossweb.jar, [jnpserver.jar], log4j.jar, servlet-api.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-rmi.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-samples.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-log4j.jar, jboss-logging-spi.jar, jboss-remoting-bisocket-client.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], junit.jar, log4j.jar,  servlet-api.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-serialization.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-servlet.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, servlet-api.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-socket-client.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting-socket.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-spi.jar, jboss-remoting-core.jar, [jboss-remoting-detection.jar], jboss-serialization.jar, [jnpserver.jar], log4j.jar, trove.jar</para></entry>
+            </row>
+            <row>
+              <entry><para>jboss-remoting.jar:</para></entry>
+              <entry><para>concurrent.jar, jboss-common-core.jar, jboss-j2se.jar, jboss-logging-log4j.jar, jboss-logging-spi.jar, jboss-serialization.jar, jbossweb.jar, jnpserver.jar, junit.jar, log4j.jar, servlet-api.jar, trove.jar</para></entry>
+            </row>
+            
+          </tbody> 
+        </tgroup>
+      </table>
+      
+      <para><emphasis role="bold">Notes.</emphasis></para>
+      
+      <para>1. jboss-remoting-core contains the transporter classes, and some of those
+      need jboss-remoting-detection.jar, which explains the proliferation of
+      jboss-remoting-detection.jar in Table 2.  If transporters are not used,
+      then jboss-remoting-detection.jar can be omitted.  Moreover, JNDI detection
+      requires jnpserver.jar, so that, if transporters are not used, jnpserver.jar
+      can be omitted.</para>
+
+    </section>
+  </chapter>

@@ -1,0 +1,100 @@
+  <chapter>
+    <title>Architecture</title>
+
+    <para>The most critical component of the JBoss Remoting architecture is
+    how servers are identified. This is done via an InvokerLocator, which can
+    be represented by a simple String with a URL based format (e.g.,
+    socket://myhost:5400). This is all that is required to either create a
+    remoting server or to make a call on a remoting server. The remoting
+    framework will then take the information embedded within the
+    InvokerLocator and construct the underlying remoting components needed and
+    build the full stack required for either making or receiving remote
+    invocations.</para>
+
+    <para>There are several layers to this framework that mirror each other on
+    the client and server side. The outermost layer is the one which the user
+    interacts with. On the client side, this is the Client class upon which
+    the user will make its calls. On the server side, this is the
+    InvocationHandler, which is implemented by the user and is the ultimate
+    receiver of invocation requests. Next is the transport, which is
+    controlled by the invoker layer. Finally, at the lowest layer is the
+    marshalling, which converts data type to wire format.</para>
+
+    <graphic fileref="images/design.jpg" />
+
+    <para>When a user calls on the Client to make an invocation, it will pass
+    this invocation request to the appropriate client invoker, based on the
+    transport specified by the locator url. The client invoker will then use
+    the marshaller to convert the invocation request object to the proper data
+    format to send over the network. On the server side, an unmarshaller will
+    receive this data from the network and convert it back into a standard
+    invocation request object and send it on to the server invoker. The server
+    invoker will then pass this invocation request on to the user’s
+    implementation of the invocation handler. The response from the invocation
+    handler will pass back through the server invoker and on to the
+    marshaller, which will then convert the invocation response object to the
+    proper data format and send back to the client. The unmarshaller on the
+    client will convert the invocation response from wire data format into
+    standard invocation response object, which will be passed back up through
+    the client invoker and Client to the original caller.</para>
+
+    <bridgehead>Client</bridgehead>
+
+    <para>On the client side, there are a few utility class that help in
+    figuring out which client invoker and marshal instances should be
+    used.</para>
+
+    <graphic fileref="images/design_client.jpg" />
+
+    <para>For determining which client invoker to use, the Client will pass
+    the InvokerRegistry the locator for the target server it wishes to make
+    invocations on. The InvokerRegistry will return the appropriate client
+    invoker instance based on information contained within the locator, such
+    as transport type. The client invoker will then call upon the
+    MarshalFactory to get the appropriate Marshaller and UnMarshaller for
+    converting the invocation objects to the proper data format for wire
+    transfer. All invokers have a default data type that can be used to get
+    the proper marshal instances, but can be overridden within the locator
+    specified.</para>
+
+    <bridgehead>Server</bridgehead>
+
+    <para>On the server side, there are also a few utility classes for
+    determining the appropriate server invoker and marshal instances that
+    should be used. There is also a server specific class for tying the
+    invocation handler to the server invoker.</para>
+
+    <graphic fileref="images/design_server.jpg" />
+
+    <para>On the server side, it is the Connector class that is used as the
+    external point for configuration and control of the remoting server. The
+    Connector class will call on the InvokerRegistry with its locator to
+    create a server invoker. Once the server invoker is returned, the
+    Connector will then register the invocation handlers on it. The server
+    invoker will use the MarshalFactory to obtain the proper marshal instances
+    as is done on the client side.</para>
+
+    <bridgehead>Detection</bridgehead>
+
+    <para>To add automatic detection, a remoting Detector will need to be
+    added on both the client and the server side as well as a NetworkRegistry
+    to the client side.</para>
+
+    <graphic fileref="images/design_detection.jpg" />
+
+    <para>When a Detector on the server side is created and started, it will
+    periodically pull from the InvokerRegistry all the server invokers that it
+    has created. The detector will then use the information to publish a
+    detection message containing the locator and subsystems supported by each
+    server invoker. The publishing of this detection message will be either
+    via a multicast broadcast or a binding into a JNDI server. On the client
+    side, the Detector will either receive the multicast broadcast message or
+    poll the JNDI server for detection messages. If the Detector determines a
+    detection message is for a remoting server that just came online it will
+    register it in the NetworkRegistry. The NetworkRegistry houses the
+    detection information for all the discovered remoting servers. The
+    NetworkRegistry will also emit a JMX notification upon any change to this
+    registry of remoting servers. The change to the NetworkRegistry can also
+    be for when a Detector has discovered that a remoting server is no longer
+    available and removes it from the registry.</para>
+  </chapter>

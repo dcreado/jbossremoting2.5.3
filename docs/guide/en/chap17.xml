@@ -1,0 +1,2031 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+  <title>Release Notes</title>
+
+  <section>
+  <title>Important changes and differences in 2.5.0 release (from 2.4.0
+  release)</title>
+  
+    <para>Version 2.5.0 represents the process of upgrading the jars with
+    which Remoting is tested and shipped. In particular, the jars are now
+    equivalent to the jars found in the JBoss Application Server version
+    5.0.0.CR2 (as of 9/6/08, before its release). Changes to jbossweb (the JBoss
+    version of Tomcat) have necessitated dropping the use of Apache Tomcat,
+    which means that the "http" transport will no longer function with jdk 1.4.</para>
+  
+    <para>Other features of Remoting 2.5.0.GA should function with jdk 1.4.
+    However, it is the policy of JBoss, a division of Red Hat, no longer to
+    support jdk 1.4.</para>
+
+  </section>
+  
+  <section>
+  <title>Important changes and differences in 2.4.0 release (from 2.2.0
+  release)</title>
+  
+    <para>JBossRemoting 2.4.0.GA is an incremental release, with dozens of bug fixes and several new features:
+    </para>
+    
+    <itemizedlist>
+      <listitem>
+        <para>servers can be bound to multiple IP addresses</para>
+      </listitem>
+      <listitem>
+        <para>can run in the presence of a security manager</para>
+      </listitem>
+      <listitem>
+        <para>greater configurability</para>
+      </listitem>
+      <listitem>
+        <para>supports IPv6 addresses</para>
+      </listitem>
+      <listitem>
+        <para>improved connection monitoring</para>
+      </listitem>
+      <listitem>
+        <para>server gets client address in invocations</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  
+  <section>
+  <title>Important changes and differences in 2.2.0 release (from 2.0.0
+  release)</title>
+
+  <para>- Asynchronous method for handling callbacks (JBREM-640)</para>
+
+  <para>- Bidirectional transport (JBREM-650) </para>
+
+  <para>- Local transport (JBREM-660) </para>
+
+  <para>- Marshallers/Unmarshallers construct their preferred streams
+  (JBREM-692)</para>
+
+  <para></para>
+  </section>
+
+  <section>
+  <title>Release history</title>
+  
+   <section>
+    <title>Version 2.5</title>
+
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.3 (Flounder)</bridgehead>
+   
+    <para><emphasis role="bold">Bug</emphasis></para>
+
+        <para>* [JBREM-1231] - InvokerRegistry needs to have security checks for the setters</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+
+        <para>* [JBREM-1233] - Release 2.5.3</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+
+        <para>* [JBREM-1219] - Update remoting guide for "generalizeSocketException"</para>
+        <para>* [JBREM-1229] - Display recreated InvokerLocator when bind address is 0.0.0.0</para>
+        <para>* [JBREM-1232] - Assure version compatibility with earlier versions of Remoting</para>
+        
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.2.SP3 (Flounder)</bridgehead>
+   
+    <para><emphasis role="bold">Bug</emphasis></para>
+
+        <para>* [JBREM-1180] - Formally reject hostnames which don't conform to RFC-952</para>
+        <para>* [JBREM-1181] - Fix NPE in SSLSocketBuilderr</para>
+        <para>* [JBREM-1183] - ServerThread should catch java.lang.Error</para>
+        <para>* [JBREM-1184] - Fix NPE in ClassByteClassLoader.addClass()"</para>
+        <para>* [JBREM-1185] - Change use of == to String.equals() in SSLSocketBuilder.validateStoreURL()</para>
+        <para>* [JBREM-1188] - Socket transport doesn't set "timeout" to default value</para>
+        <para>* [JBREM-1218] - ConnectionValidator.isValid should be volatile</para>
+        <para>* [JBREM-1225] - Eliminate extraneous "=" from reconstructed InvokerLocator</para>
+        
+    <para><emphasis role="bold">Feature request</emphasis></para>
+
+        <para>* [JBREM-1179] - jboss-remoting.jar should log a version message when it is loaded</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+
+        <para>* [JBREM-1223] - Release 2.5.2.SP3</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+
+        <para>* [JBREM-1163] - Evaluate FindBugs reports</para>
+        <para>* [JBREM-1220] - Update jars to match EAP 5.1.0</para>
+        <para>* [JBREM-1222] - Assure version compatibility with earlier versions of Remoting</para>
+        
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.2.SP2 (Flounder)</bridgehead>
+   
+    <para><emphasis role="bold">Bug</emphasis></para>
+
+        <para>* [JBREM-1164] - Remoting shouldn't require IPv6 addresses to be surrounded by brackets</para>
+        <para>* [JBREM-1166] - Possible race condition in ConnectionValidator</para>
+        <para>* [JBREM-1168] - CoyoteInvoker.normalize() should handle empty URLs</para>
+        <para>* [JBREM-1172] - SSLSocketBuilder should allow keystore and truststore URLs to be "NONE"</para>
+        <para>* [JBREM-1175] - URL-component-based InvokerLocator constructor generates incorrect locator string under IPv6</para>
+        <para>* [JBREM-1176] - Fix classloader leak caused by client invoker destruction delay facility</para>
+
+    <para><emphasis role="bold">Release</emphasis></para>
+
+        <para>* [JBREM-1178] - Release 2.5.2.SP2</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+
+        <para>* [JBREM-1165] - Reduce log level of "received new control socket for unrecognized listenerId" message</para>
+        <para>* [JBREM-1174] - Update jars to match EAP 5.0.1</para>
+        <para>* [JBREM-1177] - Assure version compatibility with earlier versions of Remoting</para>
+
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.2 (Flounder)</bridgehead>
+   
+    <para><emphasis role="bold">Bug</emphasis></para>
+
+        <para>* [JBREM-1077] - Fix problem in CompressingMarshaller</para>
+        <para>* [JBREM-1105] - DefaultLoadBalancer doesn't use all available server (if there are x servers available it uses x-1 of these)</para>
+        <para>* [JBREM-1121] - Client SocketFactory should be configurable by InvokerLocator</para>
+        <para>* [JBREM-1125] - Test for IllegalStateException when calling Timer.schedule()</para>
+        <para>* [JBREM-1133] - CLONE [JBREM-1129] - Eliminate nondeterminism in Lease updates</para>
+        <para>* [JBREM-1137] - New jnpserver requires wrapping call to new InitialContext() in PrivilegedExceptionAction</para>
+        <para>* [JBREM-1145] - HTTPUnMarshaller shouldn't use the value of content-type to determine the type of an object</para>
+        <para>* [JBREM-1147] - BisocketClientInvoker.createSocket() in callback mode should check for replaced control socket</para>
+        <para>* [JBREM-1150] - Lease should update client list if PING invocation has same time as previous PING</para>
+        <para>* [JBREM-1154] - Client.connect() should throw an exception when Lease creation fails</para>
+        <para>* [JBREM-1159] - Version compatibility problem with leasing</para>
+
+    <para><emphasis role="bold">Feature request</emphasis></para>
+
+        <para>* [JBREM-1102] - Make configuration map available to MarshalFactory</para>
+        <para>* [JBREM-1120] - Add a socket write timeout facility</para>
+        <para>* [JBREM-1123] - SocketServerInvoker needs an immediate shutdown option</para>
+        <para>* [JBREM-1124] - Invokers need option for configuration map parameters to override InvokerLocator parameters</para>
+        <para>* [JBREM-1132] - CLONE [JBREM-1128] - Introduce connection identity concept</para>
+        <para>* [JBREM-1139] - Modify PortUtil to allow a configurable range for MIN_UNPRIVILEGED_PORT and MAX_LEGAL_PORT.</para>
+        <para>* [JBREM-1146] - Treat IOException("Connection reset by peer") as a retriable exception</para>
+
+    <para><emphasis role="bold">Release</emphasis></para>
+
+        <para>* [JBREM-1135] - Release 2.5.2</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+
+        <para>* [JBREM-1134] - Assure version compatibility with earlier versions of Remoting</para>
+        <para>* [JBREM-1136] - Update jars to match AS 5.1.0</para>
+        <para>* [JBREM-1142] - Clarify use of "clientConnectAddress" in RemotingGuide</para>
+        <para>* [JBREM-1151] - Correct dependency discussion in Chapter 4 of Remoting Guide</para>
+        <para>* [JBREM-1155] - Assure version compatibility with earlier versions of Remoting</para>
+        <para>* [JBREM-1158] - Update jars to match AS 5.2.0.Beta2</para>
+
+
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.1 (Flounder)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-992]  - Can't restart a Connector that uses SocketServerInvoker</para>
+        <para>* [JBREM-1069] - Make ConnectorValidator configure ping period correctly</para>
+        <para>* [JBREM-1070] - Fix deadlock in ConnectionValidator</para>
+        <para>* [JBREM-1071] - IllegalStateException in ConnectorValidator.run()</para>
+        <para>* [JBREM-1072] - Synchronize access to static maps in MarshalFactory</para>
+        <para>* [JBREM-1076] - SocketServerInvoker.processInvocation() should return if running == false</para>
+        <para>* [JBREM-1081] - Fix NPE in ServerInvokerCallbackHandler </para>
+        <para>* [JBREM-1083] - Each Client creates a new invokerDestructionTimer</para>
+        <para>* [JBREM-1088] - MicroSocketClientInvoker(InvokerLocator locator, Map configuration) ctor - not propagating exceptions (only message is wrapped)</para>
+        <para>* [JBREM-1099] - Make MulticastDetector detection message send buffer size configurable</para>    
+        <para>* [JBREM-1109] - Eliminate race in MicroRemoteClientInvoker.getDataType()</para>    
+        <para>* [JBREM-1111] - CLONE [JBREM-851] - In LeasePinger replace Timer if it has shut down</para>           
+        <para>* [JBREM-1112] - Potential race between ConnectionValidator and ConnectionListener upon connection failure</para>
+        <para>* [JBREM-1113] - ServerInvokerCallbackHandlers leak when client doesn't shut down </para>
+    
+    <para><emphasis role="bold">Feature request</emphasis></para>
+        <para>* [JBREM-1082] - Allow ConnectionValidator to access InvokerLocator parameters</para>
+        <para>* [JBREM-1084] - Allow CallbackPoller to access Client and InvokerLocator parameters</para>
+        <para>* [JBREM-1102] - Make configuration map available to MarshalFactory</para>
+        <para>* [JBREM-1114] - Update servlet transport to support JBossMessaging</para>
+            
+    <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-1118] - Release 2.5.1</para>     
+      
+    <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-139]  - need automated test for servlet server invoker</para>
+        <para>* [JBREM-1085] - Reduce log level of ServerSocketWrapper.close() log messages</para>
+        <para>* [JBREM-1103] - correct javadoc for Client.invokeOneway()</para>
+        <para>* [JBREM-1104] - Identity.get() should create a more meaningful RuntimeException message</para>
+        <para>* [JBREM-1108] - Warn against making ConnectionValidator.validatorPingPeriod shorter than ConnectionValidator.validatorPingTimeout</para>
+        <para>* [JBREM-1110] - InvokerLocator.getParameters() should not return null</para>
+        <para>* [JBREM-1115] - Update jars to match AS 5.1.0.CR1</para>
+        <para>* [JBREM-1117] - Assure version compatibility with earlier versions of Remoting</para>
+        
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.0.SP2 (Flounder)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-1050] - HTTPClientInvoker does not support BASIC authentication for proxies when use of proxy is configured by system properties</para>
+        <para>* [JBREM-1055] - ConnectionValidator.run() should have a sanity test to prevent calls from application code</para>
+        <para>* [JBREM-1056] - Fix race condition in InvokerRegistry</para>
+        <para>* [JBREM-1058] - SocketServerInvoker is missing a privileged block</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-1053] - Release 2.5.0.SP2</para>     
+      
+    <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-1057] - Fix duplicate chapers in Remoting Guide</para>
+        <para>* [JBREM-1067] - Update dependencies to conform to Application Server 5.0.0.GA</para>
+        <para>* [JBREM-1068] - Assure version compatibility with earlier versions of Remoting</para>
+        
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.0.SP1 (Flounder)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-1044] - Old version of org.apache.tomcat.util.net.SocketStatus screws up JBossWeb</para>
+        <para>* [JBREM-1045] - ServerInvokerCallbackHandler can suffer deadlock when used with BlockingCallbackStore</para>
+        <para>* [JBREM-1046] - HTTPClientInvoker throws NullPointerException when HttpURLConnection.getInputStream() returns null</para>
+        <para>* [JBREM-1051] - CLONE [JBREM-1050] - HTTPClientInvoker does not support BASIC authentication for proxies when use of proxy is configured by system properties</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-1048] - Release 2.5.0.SP1</para>     
+      
+    <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-1047] - Assure version compatibility with earlier versions of Remoting</para>
+        <para>* [JBREM-1049] - Remove old versions of jboss-remoting.jar from distribution zip file</para>   
+    
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.5.0.GA (Flounder)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-1027] - CoyoteInvoker should pass URL query in InvocationRequest</para>
+        <para>* [JBREM-1028] - JavaSerializationManager should clear ObjectOutputStream internal tables</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-1030] - Release 2.5.0.GA</para>     
+      
+    <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-1029] - Assure version compatibility with earlier versions of Remoting</para>
+        <para>* [JBREM-1033] - Upgrade jars to versions in JBossAS 5.0.0.CR2</para>
+        <para>* [JBREM-1034] - Assure version compatibility with earlier versions of Remoting</para>    
+        
+    <para><emphasis role="bold">Sub-task</emphasis></para>
+      
+        <para>* [JBREM-1032] - Upgrade to the latest jboss-common-core 2.2.8.GA</para>
+        
+    </section>
+    
+    <section>
+    <title>Version 2.4</title>
+
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.SP2 (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-1027] - CoyoteInvoker should pass URL query in InvocationRequest</para>
+        <para>* [JBREM-1028] - JavaSerializationManager should clear ObjectOutputStream internal tables</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-1030] - Release 2.4.0.SP2</para>     
+      
+    <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-1029] - Assure version compatibility with earlier versions of Remoting</para>
+        
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.SP1 (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-302] - remote dynamic marshall loading not working on linux</para>
+        <para>* [JBREM-925] - SSLSocketBuilder config attribute names out of sync with docs</para>
+        <para>* [JBREM-990] - CLONE [JBREM-960] - Remoting configured with Servlet invoker can return misleading Exceptions when Servlet path is incorrect</para>
+        <para>* [JBREM-991] - Investigate MulticastDetector message flood</para>
+        <para>* [JBREM-1000] - CLONE [JBREM-962] - Remote classloading does not work with Isolated EARs</para>
+        <para>* [JBREM-1005] - Prevent build up of cancelled TimerTasks in bisocket transport</para>
+        <para>* [JBREM-1006] - SOA MTOM bug points to bug in Remoting codebase</para>
+        <para>* [JBREM-1019] - RemotingClassLoader needs option to delegate to user class loader before parent</para>
+        <para>* [JBREM-1022] - Fix misleading javadoc in InvokerLocator</para>
+        <para>* [JBREM-1023] - Dynamic marshalling fails with JBossSerialization</para>
+
+    <para><emphasis role="bold">Feature Request</emphasis></para>
+      
+        <para>* [JBREM-996] - CLONE [JBREM-971] - Enhance server-side connection error handling so certain (potentially revealing) socket-related exceptins are not discarded</para>
+        <para>* [JBREM-997] - CLONE [JBREM-970] - Enhance client-side error reporting so a misspelled truststore file name required by SSL can be easily spotted</para>
+        <para>* [JBREM-1012] - CLONE [JBREM-1010] - Add feature to declaratively turn on leasing for 2.4.0</para>
+        <para>* [JBREM-1015] - CLONE [JBREM-1014] - Support injection of socket factory class name into AbstractInvoker</para>
+        
+    <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-1025] - Release 2.4.0.SP1</para>     
+      
+    <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-999] - Make sure all fixes on 2.2 branch are ported to 2.x branch.</para>
+        <para>* [JBREM-1017] - Improve socket timeout log message</para>
+        <para>* [JBREM-1024] - Assure version compatibility with earlier versions of Remoting</para>
+        
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.GA (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+      
+        <para>* [JBREM-936] - CLONE [JBREM-915] - NullPointerException in InvokerLocator</para>
+        <para>* [JBREM-938] - CLONE [JBREM-937] - Callback BisocketServerInvoker should reuse available ServerThreads</para>
+        <para>* [JBREM-952] - CLONE [JBREM-944] - Fix race in ConnectionNotifier</para>
+        <para>* [JBREM-980] - ServerInvokerServlet should retrieve ServletServerInvoker based on updated InvokerLocator</para>
+      
+      <para><emphasis role="bold">Feature Request</emphasis></para>
+      
+        <para>* [JBREM-773] - Create bisocket sample code</para>
+        <para>* [JBREM-970] - Enhance client-side error reporting so a misspelled truststore file name required by SSL can be easily spotted</para>
+        <para>* [JBREM-971] - Enhance server-side connection error handling so certain (potentially revealing) socket-related exceptins are not discarded</para>
+        <para>* [JBREM-979] - Add invocation retry facility to http transport</para>
+        <para>* [JBREM-983] - Legacy XML configuration should support multihome feature</para>
+        
+      <para><emphasis role="bold">Release</emphasis></para>
+      
+        <para>* [JBREM-987] - Release 2.4.0.GA</para>     
+      
+      <para><emphasis role="bold">Task</emphasis></para>
+      
+        <para>* [JBREM-238] - JBossRemoting testsuite needs to generate artificats in the output folder</para>
+        <para>* [JBREM-599] - remoting doc does not cover enabling or configuring leasing from the client side</para>
+        <para>* [JBREM-816] - Add instructions to Remoting Guide for overriding a transport or create a new transport</para>
+        <para>* [JBREM-840] - Update Remoting Guide for release 2.4.0</para>
+        <para>* [JBREM-920] - Create build.xml target to run test suite with a Security Manager</para>
+        <para>* [JBREM-930] - Fix chronic testsuite failures</para>
+        <para>* [JBREM-964] - Make InvocationFailureException extend java.rmi.MarshalException</para>
+        <para>* [JBREM-975] - Make sure all fixes on 2.2 branch are applied to 2.x branch</para>
+        <para>* [JBREM-976] - CLONE [JBREM-912] - Remove stacktrace when SSLSocketBuilder.createSSLSocketFactory() fails</para>
+        <para>* [JBREM-977] - Wrap MBean proxies in security conscious wrappers</para>
+        <para>* [JBREM-978] - Put code subject to a security manager in privileged blocks, part 2</para>
+        <para>* [JBREM-982] - Performance testing</para>
+        <para>* [JBREM-984] - Run soak test</para>
+        <para>* [JBREM-985] - Assure version compatibility with earlier versions of Remoting</para>
+        <para>* [JBREM-986] - Make configurable time MicroSocketClientInvoker should wait to get connection from pool</para>
+        <para>* [JBREM-989] - Move reference to javax.servlet.ServletException out of SecurityUtility</para>
+      
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.CR2 (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+    
+      <para>* [JBREM-947] - ConnectionValidator hangs when server dies</para>
+      <para>* [JBREM-951] - CLONE [JBREM-942] - A deadlock encountered on ConnectionValidator</para>
+      <para>* [JBREM-955] - CLONE [JBREM-954] - InterruptException should not be rethrown as CannotConnectionException</para>
+      <para>* [JBREM-956] - Make LeasePinger timeout separately configurable</para>
+      <para>* [JBREM-966] - CLONE [JBREM-965] - Fix PortUtil.getRandomStartingPort()</para>
+    
+    <para><emphasis role="bold">Release</emphasis></para>
+    
+      <para>* [JBREM-968] - Release 2.4.0.CR2</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+    
+      <para>* [JBREM-934] - Put code subject to a security manager in privileged blocks</para>
+      <para>* [JBREM-953] - CLONE [JBREM-945] - Allow ServerThread to keep running after SocketTImeoutException</para>
+      <para>* [JBREM-967] - Assure version compatibility with earlier versions of Remoting</para>
+      <para>* [JBREM-969] - Run soak test</para>
+  
+      
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.CR1 (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+    
+      <para>* [JBREM-167] - RMI Invoker does not use true remoting marshalling/unmarshalling</para>
+      <para>* [JBREM-677] - Compression marshalling fails intermittently.</para>
+      <para>* [JBREM-810] - coyote.RequestMap not storing all request properties in the Map.Entry set</para>
+      <para>* [JBREM-826] - JBoss Remoting logs at ERROR and WARN in many places</para>
+      <para>* [JBREM-844] - Put instance variable "isRemotingUserAgent" on stack in CoyoteInvoker</para>
+      <para>* [JBREM-901] - can't start NetworkRegistry if hostname is not resolvable</para>
+      <para>* [JBREM-924] - Compilation errors in non ISO-8859-1 systems</para>
+      <para>* [JBREM-927] - Adjust content length when CompressingUnMarshaller wraps HTTPUnMarshaller</para>
+      <para>* [JBREM-932] - Check remaining time in MicroSocketClientInvoker per invocation timeout facility</para>
+      <para>* [JBREM-933] - Fix memory leak in RemotingRMIClientSocketFactory</para>
+    
+    <para><emphasis role="bold">Feature Request</emphasis></para>
+    
+      <para>* [JBREM-665] - Need better error reporting of response marshalling errors</para>
+      <para>* [JBREM-764] - Wire version should be configurable per client or server</para>
+    
+    <para><emphasis role="bold">Release</emphasis></para>
+    
+      <para>* [JBREM-935] - Release 2.4.0.CR1</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+    
+      <para>* [JBREM-698] - Update Remoting Marshaller/UnMarshallers to implement PreferredStreamMarshaller/PreferredStreamUnMarshaller interfaces.</para>
+      <para>* [JBREM-716] - Reduce log output from test suite</para>
+      <para>* [JBREM-825] - Verify that CoyoteInvoker works with Apache Portable Runtime</para>
+      <para>* [JBREM-876] - Get Remoting testsuite to run in hudson</para>
+      <para>* [JBREM-899] - Verify sslservlet transport works with jbossweb</para>
+      <para>* [JBREM-923] - Assure version compatibility with earlier versions of Remoting</para>
+      <para>* [JBREM-931] - Create and run soak test</para>
+  
+      
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.Beta2 (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+    
+      <para>* [JBREM-739] - Fix java serialization leak.</para>
+      <para>* [JBREM-864] - CLONE -ServerInvoker#getMBeanObjectName() returns invalid ObjectName if host value is IPv6 [JBREM-823]</para>
+      <para>* [JBREM-877] - New Socket Connection is being Created for Every Client Request to the Server</para>
+      <para>* [JBREM-900] - ClassCastExceptions when two apps in jboss make concurrent calls to a remote jboss</para>
+      <para>* [JBREM-909] - Connector.stop() cannot find invoker MBean when bind address is 0.0.0.0</para>
+      <para>* [JBREM-911] - Check out thread leak</para>
+    
+    <para><emphasis role="bold">Feature Request</emphasis></para>
+    
+      <para>* [JBREM-703] - allow for total configuration of socket via socket invoker</para>
+      <para>* [JBREM-865] - CLONE -Verify IPv6 addresses are handled correctly [JBREM-852]</para>
+    
+    <para><emphasis role="bold">Release</emphasis></para>
+    
+      <para>* [JBREM-922] - Release 2.4.0.Beta2</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+    
+      <para>* [JBREM-510] - SSLSocketBuilder should require a SocketFactory in server mode to have a keystore.</para>
+      <para>* [JBREM-518] - Remove HTTPServerInvoker</para>
+      <para>* [JBREM-521] - Organize configuration of client side socket/server socket factories and server side socket/server socket factories.</para>
+      <para>* [JBREM-522] - When Client.addListener() creates a callback Connector for an SSL transport, the SSLServerSocket should be put in client mode.</para>
+      <para>* [JBREM-753] - Assure version compatibility with earlier versions of Remoting</para>
+      <para>* [JBREM-809] - Verify that the behavior of the HTTPUnMarshaller re stripping CR and LF characters is correct</para>
+      <para>* [JBREM-842] - Deprecate multiplex transport</para>
+  
+    <bridgehead>Release Notes - JBoss Remoting - Version 2.4.0.Beta1 (Pinto)</bridgehead>
+    
+    <para><emphasis role="bold">Bug</emphasis></para>
+    
+      <para>* [JBREM-166] - JMXConnectorServer will not start if using rmi invoker elsewhere</para>
+      <para>* [JBREM-645] - Need to cleanup locatorURI parsing</para>
+      <para>* [JBREM-653] - allow user to set content-type for http responses</para>
+      <para>* [JBREM-675] - Problems with Servlet invoker</para>
+      <para>* [JBREM-717] - servlet invoker illegal state exception not serializable</para>
+      <para>* [JBREM-731] - Address of secondary server socket should be acquired each time a control connection is created.</para>
+      <para>* [JBREM-732] - When server terminates and has clients, when the server comes back up clients that survived, can't connect. Connection refused when trying to connect the control socket.</para>
+      <para>* [JBREM-743] - For polling callback handler, org.jboss.remoting.Client.addListener() should create only one CallbackPoller per InvokerCallbackHandler</para>
+      <para>* [JBREM-745] - client unable to send if server recycles</para>
+      <para>* [JBREM-747] - org.jboss.remoting.transport.Connector should unregister server invoker from MBeanServer</para>
+      <para>* [JBREM-748] - BisocketClientInvoker should guard agains scheduling on an expired Timer</para>
+      <para>* [JBREM-750] - Logger in HTTPClientInvoker should be static.</para>
+      <para>* [JBREM-751] - Eliminate unnecessary "Unable to process control connection:" message from BisocketServerInvoker</para>
+      <para>* [JBREM-752] - SSLSocket runs into BindException</para>
+      <para>* [JBREM-754] - Reset timeout on each use of HttpURLConnection</para>
+      <para>* [JBREM-761] - NPE in BisocketServerInvoker$ControlConnectionThread</para>
+      <para>* [JBREM-766] - Guard against "spurious wakeup" from Thread.sleep()</para>
+      <para>* [JBREM-769] - Sucky error message when identity creation fails</para>
+      <para>* [JBREM-771] - MicroSocketClientInvoker can experience socket leaks</para>
+      <para>* [JBREM-772] - MicroRemoteClientInvoker.establishLease() creates two LeasePinger TimerTasks</para>
+      <para>* [JBREM-774] - BisocketClientInvoker.replaceControlSocket() and handleDisconnect() should close control socket</para>
+      <para>* [JBREM-775] - MicroSocketClientInvoker.initPool() should omit pool from log message</para>
+      <para>* [JBREM-778] - BisocketServerInvoker.start() creates a new static Timer each time</para>
+      <para>* [JBREM-779] - BisocketClientInvoker should guard agains scheduling on an expired Timer, part 2</para>
+      <para>* [JBREM-784] - Use separate maps for control sockets and ordinary sockets in BisocketClientInvoker</para>
+      <para>* [JBREM-785] - BisocketClientInvoker.transport() inadvertently uses listenerId member variable</para>
+      <para>* [JBREM-786] - stale sockets can be gotten from pool even with current rety logic</para>
+      <para>* [JBREM-787] - Move network i/o in BisocketClientInvoker constructor to handleConnect()</para>
+      <para>* [JBREM-788] - Access to BisocketClientInvoker static maps should be synchronized in handleDisconnect()</para>
+      <para>* [JBREM-790] - NPE in BisocketClientInvoker$PingTimerTask</para>
+      <para>* [JBREM-793] - Lease should synchronize access to client map</para>
+      <para>* [JBREM-794] - LeasePinger.addClient() should not create a new LeaseTimerTask if none currently exists</para>
+      <para>* [JBREM-806] - In HTTPClientInvoker remove newlines and carriage returns from Base64 encoded user names and passwords</para>
+      <para>* [JBREM-811] - Privileged Block to create Class Loader</para>
+      <para>* [JBREM-813] - ServletServerInvoker should return an exception instead of just an error message</para>
+      <para>* [JBREM-820] - Fix race in ServerInvokerCallbackHandler.handleCallback()</para>
+      <para>* [JBREM-821] - JBoss Remoting fails under load</para>
+      <para>* [JBREM-822] - Avoid deadlock when Connector shuts down while callback client invoker is in handleConnect()</para>
+      <para>* [JBREM-838] - allow user to set content-type for http responses (part 2: ServletServerInvoker)</para>
+      <para>* [JBREM-843] - MicroSocketClientInvoker can miscount number of active sockets</para>
+      <para>* [JBREM-846] - Fix race in JNIDDetector</para>
+      <para>* [JBREM-851] - In LeasePinger and TimerUtil replace Timer if it has shut down</para>
+      <para>* [JBREM-853] - ServletServerInvoker should not put null URL path in metadata map</para>
+      <para>* [JBREM-863] - CLONE -Infinite loop in BisocketClientInvoker.createSocket [JBREM-845]</para>
+      <para>* [JBREM-866] - CLONE -Eliminate delay in MicroSocketClientInvoker.getConnection() [JBREM-860]</para>
+      <para>* [JBREM-870] - CLONE -MaxPoolSize value should be used in key to MicroSocketClientInvoker.connectionPools [JBREM-858]</para>
+      <para>* [JBREM-874] - CLONE -HTTP Client invoker doesn't throw exceptions when using the sslservlet protocol [JBREM-871]</para>
+      <para>* [JBREM-887] - ServerInvokerrCallbackHandler.createCallbackErrorHandler() inadvertently references callbackStore</para>
+      <para>* [JBREM-888] - Client side connection exception is not thrown on the client side when the lease times out</para>
+      <para>* [JBREM-890] - Fix thread pool eviction in socket transport</para>
+      <para>* [JBREM-895] - MicroSocketClientInvoker.transport() must check for timeout after invocation attempt.</para>
+    
+    <para><emphasis role="bold">Feature Request</emphasis></para>
+                                                                                                                            
+      <para>* [JBREM-298] - Need ability to add transport specific info to invocation payload</para>
+      <para>* [JBREM-643] - configuration for multi-homed server invokers</para>
+      <para>* [JBREM-701] - add timeout config per client invocation for transports not descended from socket transport</para>
+      <para>* [JBREM-728] - Improve access to HTTP response headers</para>
+      <para>* [JBREM-746] - need to be able to tell ServerInvokerServlet to use the platform MBean server</para>
+      <para>* [JBREM-749] - BisocketServerInvoker: Make configurable the address and port of secondary server socket</para>
+      <para>* [JBREM-755] - Make ConnectorValidator parameters configurable</para>
+      <para>* [JBREM-756] - CallbackPoller should shut down if too many errors occur.</para>
+      <para>* [JBREM-757] - Implement quick Client.removeListener() for polled callbacks.</para>
+      <para>* [JBREM-758] - Associate remote socket address with the invocation</para>
+      <para>* [JBREM-765] - Add a separate timeout parameter for callback clients</para>
+      <para>* [JBREM-792] - Provide to the client local address of a TCP/IP connection, as seen from the server</para>
+      <para>* [JBREM-797] - BisocketClientInvoker.PingTimerTask should terminate more gracefully</para>
+      <para>* [JBREM-798] - Implement quick Client.removeListener() for polled callbacks, part 2</para>
+      <para>* [JBREM-799] - Add a separate timeout parameter for callback clients, part 2</para>
+      <para>* [JBREM-804] - Enable HTTPClientInvoker to accept NO_THROW_ON_ERROR configuration by way of InvokerLocator</para>
+      <para>* [JBREM-868] - CLONE -Update build.xml to allow jdk 1.5 compiler to target JVM version 1.4 (JBREM-855)</para>
+      <para>* [JBREM-875] - CLONE -Have ServerInvokerCallbackHandler register as connection listener [JBREM-873]</para>
+      <para>* [JBREM-891] - ConnectionValidator should report if lease has expired</para>
+    
+    <para><emphasis role="bold">Release</emphasis></para>
+    
+      <para>* [JBREM-801] - Release 2.4.0.Beta1</para>
+    
+    <para><emphasis role="bold">Task</emphasis></para>
+    
+      <para>* [JBREM-63] - Get rid of the legacy configuration that embeds xml parsing</para>
+      <para>* [JBREM-228] - clustering</para>
+      <para>* [JBREM-557] - need to include all the transports within the tests.versioning ant target</para>
+      <para>* [JBREM-641] - re-implement the callback polling for http transport to reduce latency</para>
+      <para>* [JBREM-687] - allow binding to 0.0.0.0</para>
+      <para>* [JBREM-706] - In socket transport, prevent client side oneway invocations from artificially reducing concurrency</para>
+      <para>* [JBREM-710] - Correct occasional failures of org.jboss.test.remoting.transport.socket.load.SocketLoadTestCase</para>
+      <para>* [JBREM-713] - Check if jbossweb can replace tomcat jars for the http server invoker</para>
+      <para>* [JBREM-715] - Don't log error for exception thrown by application in org.jboss.remoting.transport.socket.ServerThread.</para>
+      <para>* [JBREM-730] - JNDIDetector should use rebind() instead of bind() to add new local detection messages</para>
+      <para>* [JBREM-733] - When org.jboss.remoting.Client.addListener() creates a Connector, it should pass in InvokerLocator parameters with configuration map.</para>
+      <para>* [JBREM-734] - BisocketClientInvoker constructor should get parameters from InvokerLocator as well as configuration map.</para>
+      <para>* [JBREM-735] - BisocketClientInvoker.PingTimerTask should try multiple times to send ping.</para>
+      <para>* [JBREM-741] - Eliminate unnecessary log.warn() in BisocketServerInvoker</para>
+      <para>* [JBREM-760] - Change port for shutdown tests.</para>
+      <para>* [JBREM-767] - Avoid deadlock in callback BisocketClientInvoker when timeout == 0</para>
+      <para>* [JBREM-768] - Fix ShutdownTestCase failures</para>
+      <para>* [JBREM-777] - Add quiet="true" in clean task of build.xml</para>
+      <para>* [JBREM-782] - Remove network i/o from synch block in ServerInvokerCallbackHandler.getCallbackHandler()</para>
+      <para>* [JBREM-783] - Remove network i/o from synch blocks that establish and terminate LeasePingers</para>
+      <para>* [JBREM-800] - Adjust timout values to avoid cruisecontrol failures</para>
+      <para>* [JBREM-807] - Fix failing org.jboss.test.remoting.transport.&lt;transport&gt;.shutdown tests</para>
+  
+    </section>
+    
+    <section>
+      <title>Version 2.2</title>
+      
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.2.0.GA (Bluto) </bridgehead>
+    
+      <para>** Bug * [JBREM-721] - Fix memory leaks in bisocket transport and
+      LeasePinger </para>
+    
+      <para>* [JBREM-722] - BisocketClientInvoker should start pinging on control
+      connection without waiting for call to createsocket() </para>
+    
+      <para>* [JBREM-725] - NPE in BisocketServeInvoker::createControlConnection
+      </para>
+    
+      <para>* [JBREM-726] - BisocketServerInvoker control connection creation
+      needs to be in loop </para>
+    
+      <para>** Feature Request</para>
+    
+      <para> * [JBREM-705] - Separate the http invoker and web container
+      dependency </para>
+    
+      <para>* [JBREM-727] - Make Client's implicitly created Connectors accessible
+      </para>
+    
+      <para>** Task * [JBREM-634] - update doc on callbacks </para>
+    
+      <para>* [JBREM-724] - Update build.xml to create bisocket transport jars
+      </para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.2.0.Beta1 (Bluto) </bridgehead>
+    
+      <para>** Bug * [JBREM-581] - can not do connection validation with ssl
+      transport (only impacts detection) </para>
+    
+      <para>* [JBREM-600] -
+      org.jboss.test.remoting.lease.multiplex.MultiplexLeaseTestCase fails </para>
+    
+      <para>* [JBREM-623] - need reset() call added back to
+      JavaSerializationManager.sendObject() method </para>
+    
+      <para>* [JBREM-642] - Socket.setReuseAddress() in MicroSocketClientInvoker
+      invocation is ignored </para>
+    
+      <para>* [JBREM-648] - Client.disconnect without clearing ConnectionListeners
+      will cause NPEs </para>
+    
+      <para>* [JBREM-651] - Array class loading problem under jdk6 </para>
+    
+      <para>* [JBREM-654] - a NullPointerException occures and is not handled in
+      SocketServerInvoker and MultiplexServerInvoker </para>
+    
+      <para>* [JBREM-655] - rename server thread when new socket connection comes
+      in </para>
+    
+      <para>* [JBREM-656] - Creating a client inside a ConnectionListener might
+      lead into Lease reference counting problems </para>
+    
+      <para>* [JBREM-658] - bug in oneway thread pool under heavy load </para>
+    
+      <para>* [JBREM-659] - Java 6 and ClassLoader.loadClass() </para>
+    
+      <para>* [JBREM-670] - Remove equals() and hashCode() from
+      org.jboss.remoting.transport.rmi.RemotingRMIClientSocketFactory. </para>
+    
+      <para>* [JBREM-671] - serlvet invoker no longer supports leasing </para>
+    
+      <para>* [JBREM-683] - ByValueInvocationTestCase is broken </para>
+    
+      <para>* [JBREM-685] - A server needs redundant information to detect a one
+      way invocation </para>
+    
+      <para>* [JBREM-690] - Once the socket of a callback server timeouts, it
+      starts to silently discard traffic </para>
+    
+      <para>* [JBREM-697] -
+      Horg.jboss.remoting.transport.rmi.RemotingRMIClientSocketFactory.ComparableHolder
+      should use InetAddress for host. </para>
+    
+      <para>* [JBREM-700] - NPE in AbstractDetector </para>
+    
+      <para>* [JBREM-704] - BisocketServerInvoker inadvertently logs "got
+      listener: null" as INFO </para>
+    
+      <para>* [JBREM-708] - Correct org.jboss.remoting.Client.readExternal()
+      </para>
+    
+      <para>* [JBREM-711] - ChunkedTestCase and Chuncked2TestCase failing </para>
+    
+      <para>* [JBREM-712] - HTTPInvokerProxyTestCase failing </para>
+    
+      <para>* [JBREM-723] - BisocketClientInvoker.transport() needs to distinguish
+      between push and pull callback connections </para>
+    
+      <para>** Feature Request </para>
+    
+      <para>* [JBREM-525] - Automatically set HostnameVerifier in
+      HTTPSClientInvoker to allow all hosts if authorization is turned off.
+      </para>
+    
+      <para>* [JBREM-598] - add timeout config per client invocation </para>
+    
+      <para>* [JBREM-618] - Support CallbackPoller configuration. </para>
+    
+      <para>* [JBREM-640] - Implement an asynchronous method for handling
+      callbacks. </para>
+    
+      <para>* [JBREM-650] - Create bidirectional transport </para>
+    
+      <para>* [JBREM-657] - Implement versions of Client.removeListener() and
+      Client.disconnect() which do not write to a broken server. </para>
+    
+      <para>* [JBREM-660] - create local transport </para>
+    
+      <para>* [JBREM-664] - Fix misleading InvalidConfigurationException </para>
+    
+      <para>* [JBREM-692] - Let marshallers/unmarshallers construct their
+      preferred streams. </para>
+    
+      <para>* [JBREM-720] - Need to expose create method for TransporterClient
+      that passes load balancing policy </para>
+    
+      <para>** Task </para>
+    
+      <para>* [JBREM-274] - add callback methods to the Client API </para>
+    
+      <para>* [JBREM-369] - For Connectors that support callbacks on SSL
+      connections, there should be a unified means of configuring SSLServerSocket
+      and callback Client SSLSocket.s. </para>
+    
+      <para>* [JBREM-453] - Send the pre-release jar to the messaging team for
+      testing </para>
+    
+      <para>* [JBREM-614] - Client.invoke() should check isConnected(). </para>
+    
+      <para>* [JBREM-631] - Fix
+      org.jboss.test.remoting.transport.socket.connection.SocketConnectionCheckTestCase
+      and SocketConnectionTestCase failures. </para>
+    
+      <para>* [JBREM-635] - Remove misleading error message from HTTPUnMarshaller.
+      </para>
+    
+      <para>* [JBREM-636] - Remove ServerInvokerCallbackHandler's dependence on
+      initial InvocationRequest for listerner id. </para>
+    
+      <para>* [JBREM-637] - add tomcat jar to component-info.xml for remoting
+      release </para>
+    
+      <para>* [JBREM-644] - Reduce unit test logging output. </para>
+    
+      <para>* [JBREM-647] - Initialize Client configuration map to empty HashMap.
+      </para>
+    
+      <para>* [JBREM-663] - Put org.jboss.remoting.LeasePinger on separate thread.
+      </para>
+    
+      <para>* [JBREM-669] - Client.removeListener() should catch exception and
+      continue if invocation to server fails. </para>
+    
+      <para>* [JBREM-674] - add test case for client exiting correctly </para>
+    
+      <para>* [JBREM-693] - Make sure "bisocket" can fully replace "socket" as
+      Messaging's default transport </para>
+    
+      <para>* [JBREM-695] - RemotingRMIClientSocketFactory.createSocket() should
+      return a socket even if a RMIClientInvoker has not been registered. </para>
+    
+      <para>* [JBREM-702] - http.basic.password should allow for empty passwords
+      </para>
+    
+      <para>* [JBREM-707] - Fix handling of OPTIONS invocations in CoyoteInvoker
+      </para>
+    
+      <para>* [JBREM-709] - Fix occasional failures of
+      org.jboss.test.remoting.lease.socket.multiple.SocketLeaseTestCase </para>
+    
+      <para>* [JBREM-719] - Fix spelling of
+      ServerInvokerCallbackHandler.REMOTING_ACKNOWLEDGES_PUSH_CALLBACKS </para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.2.0.Alpha6 </bridgehead>
+    
+      <para>** Bug * [JBREM-662] - Failed ClientInvoker not cleaned up properly
+      </para>
+    
+      <para>* [JBREM-673] - Use of java.util.Timer recently added and not set to
+      daemon, so applications not exiting </para>
+    
+      <para>* [JBREM-683] - ByValueInvocationTestCase is broken </para>
+    
+      <para>** Feature Request </para>
+    
+      <para>* [JBREM-678] - Sending an one-way invocation into a server invoker
+      that is not started should generate a warning in logs </para>
+    
+      <para>* [JBREM-679] - Add the possibility to obtain ConnectionValidator's
+      ping period from a Client </para>
+    
+      <para>* [JBREM-680] - An invocation into a "broken" client should throw a
+      subclass of IOException </para>
+    
+      <para>** Task </para>
+    
+      <para>* [JBREM-676] - TimerTasks run by TimerUtil should have a chance to
+      clean up if TimerUtil.destroy() is called. </para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.2.0.Alpha5</bridgehead>
+    
+      <para> ** Bug </para>
+    
+      <para>* [JBREM-666] - Broken or malicious clients can lock up the remoting
+      server </para>
+    
+      <para>* [JBREM-667] - Worker thread names are confusing </para>
+    
+      <para>** Feature Request </para>
+    
+      <para>* [JBREM-668] - jrunit should allow TRACE level logging </para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.2.0.Alpha4 </bridgehead>
+    
+      <para>** Bug </para>
+    
+      <para>* [JBREM-649] - Concurrent exceptions on Lease when
+      connecting/disconnecting new Clients </para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.2.0.Alpha3 (Bluto) </bridgehead>
+    
+      <para>** Bug </para>
+    
+      <para>* [JBREM-594] - invoker not torn down upon connector startup error
+      </para>
+    
+      <para>* [JBREM-596] - Lease stops working if the First Client using the same
+      Locator is closed </para>
+    
+      <para>* [JBREM-602] - If LeasePeriod is not set and if enableLease==true
+      leasePeriod assumes negative value </para>
+    
+      <para>* [JBREM-610] - Prevent org.jboss.remoting.callback.CallbackPoller
+      from delivering callbacks out of order. </para>
+    
+      <para>* [JBREM-611] - Initializing Client.sessionId outside constructor
+      leads to java.lang.NoClassDefFoundError in certain circumstances </para>
+    
+      <para>* [JBREM-615] - If CallbackStore.add() is called twice quickly,
+      System.currentTimeMillis() might not change, leading to duplicate file
+      names. </para>
+    
+      <para>* [JBREM-616] - Deletion of callback files in getNext() is not
+      synchronized, allowing callbacks to be returned multiple times. </para>
+    
+      <para>* [JBREM-619] - In SocketServerInvoker.run() and
+      MultiplexServerInvoker().run, guarantee ServerSocketRefresh thread
+      terminates. </para>
+    
+      <para>* [JBREM-622] - InvokerLocator already exists for listener </para>
+    
+      <para>* [JBREM-625] - MicroSocketClientInvoker should decrement count of
+      used sockets when a socket is discarded. </para>
+    
+      <para>* [JBREM-629] - NPE in sending notification of lost client </para>
+    
+      <para>** Feature Request </para>
+    
+      <para>* [JBREM-419] - Invokers Encryption </para>
+    
+      <para>* [JBREM-429] - Create JBossSerialization MarshalledValue more
+      optimized for RemoteCalls </para>
+    
+      <para>* [JBREM-548] - Support one way invocations with no response </para>
+    
+      <para>* [JBREM-597] - Allow access to underlying stream in marshaller with
+      socket transport </para>
+    
+      <para>* [JBREM-604] - allow socket server invoker to accept third party
+      requests </para>
+    
+      <para>* [JBREM-605] - Inform a server side listener that a callback has been
+      delivered. </para>
+    
+      <para>* [JBREM-607] - Add idle timeout setting for invoker threads </para>
+    
+      <para>* [JBREM-609] - Support nonserializable callbacks in CallbackStore
+      </para>
+    
+      <para>** Task </para>
+    
+      <para>* [JBREM-562] - publish performance benchmarks </para>
+    
+      <para>* [JBREM-601] - Integrate http with messaging </para>
+    
+      <para>* [JBREM-612] - Verify push callback connection with multiplex
+      transport shares client to server connection. </para>
+    
+      <para>* [JBREM-613] - ServerInvoker.InvalidStateException should be a static
+      class. </para>
+    
+      <para>* [JBREM-617] - CallbackPoller should have its own thread. </para>
+    
+      <para>* [JBREM-620] - If HTTPClientInvoker receives an Exception in an
+      InvocationRespose, it should throw it instead of creating a new Exception.
+      </para>
+    
+      <para>* [JBREM-621] - http transport should behave more like other
+      transports. </para>
+    
+      <para>* [JBREM-624] - Add JBoss EULA </para>
+    
+      <para>* [JBREM-627] - Fix
+      org.jboss.test.remoting.transport.multiplex.MultiplexInvokerShutdownTestCase
+      failure. </para>
+    
+      <para>* [JBREM-630] - Fix client/server race in
+      org.jboss.test.remoting.transport.multiplex.LateClientShutdownTestCase.
+      </para>
+    
+      <para>* [JBREM-632] - Modify src/etc/log4j.xml to allow DEBUG level logging
+      for org.jboss.remoting loggers in jrunit test cases.</para>
+      
+    </section>
+  <para></para>
+
+    <section>
+  
+      <title>Version 2.0</title>
+
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.0.0.GA (Boon)</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-568] - SSLSocketBuilderMBean does not have matching
+      getter/setter attribute types</para>
+    
+      <para>* [JBREM-569] - HTTP(S) proxy broken</para>
+    
+      <para>* [JBREM-576] - deadlock with socket invoker</para>
+    
+      <para>* [JBREM-579] - transporter does not handle reflection conversion for
+      primitive types</para>
+    
+      <para>* [JBREM-580] - detection can not be used with ssl based
+      transports</para>
+    
+      <para>* [JBREM-586] - socket client invoker connection pooling not
+      bounded</para>
+    
+      <para>* [JBREM-590] - SSL client socket invoker does not use configuration
+      map for SSLSocketBuilder</para>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-564] - Default client socket factory configured by a system
+      property</para>
+    
+      <para>* [JBREM-575] - local client invoker should convert itself to remote
+      client invoker when being serialized</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-570] - Change log in ConnectionValidator to be debug instead
+      of warn when not able to ping server</para>
+    
+      <para>* [JBREM-571] - fix/cleanup doc</para>
+    
+      <para>* [JBREM-574] - Write SSL info for virtual sockets and server sockets
+      in toString()</para>
+    
+      <para>* [JBREM-578] - add spring remoting to performance benchmark
+      tests</para>
+    
+      <para>* [JBREM-582] - remove System.out.println and printStackTrace
+      calls</para>
+    
+      <para>* [JBREM-583] - Fix ConcurrentModificationException in
+      MultiplexingManager.notifySocketsOfException()</para>
+    
+      <para>* [JBREM-584] - Get
+      org.jboss.test.remoting.performance.spring.rmi.SpringRMIPerformanceTestCase
+      to run with multiple clients and callback handlers</para>
+    
+      <para>* [JBREM-587] -
+      ClientConfigurationCallbackConnectorTestCase(jboss_serialization)
+      failure.</para>
+    
+      <para>* [JBREM-593] - Synchronize client and server in
+      org.jboss.test.remoting.transport.multiplex.LateClientShutdownTestCase</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.0.0.CR1 (Boon)</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-303] -
+      org.jboss.test.remoting.transport.multiplex.BasicSocketTestCase(jboss_serialization)
+      failure</para>
+    
+      <para>* [JBREM-387] - classloading problem - using wrong classloader</para>
+    
+      <para>* [JBREM-468] - No connection possible after an illegitimate
+      attempt</para>
+    
+      <para>* [JBREM-484] - AbstractDetector.checkInvokerServer() is probably
+      broken</para>
+    
+      <para>* [JBREM-494] - ClientDisconnectedException does not have serial
+      version UID</para>
+    
+      <para>* [JBREM-495] - classes that do not have serial version UID</para>
+    
+      <para>* [JBREM-500] - ServerThread never dies</para>
+    
+      <para>* [JBREM-502] - not getting REMOVED notification from registry for
+      intra-VM detection</para>
+    
+      <para>* [JBREM-503] - NPE in abstract detector</para>
+    
+      <para>* [JBREM-506] - StreamHandler throws index out of bounds
+      exception</para>
+    
+      <para>* [JBREM-508] - serialization exception with mustang</para>
+    
+      <para>* [JBREM-519] - StreamServer never shuts down the server</para>
+    
+      <para>* [JBREM-526] - TimeUtil not using daemon thread</para>
+    
+      <para>* [JBREM-528] - ConcurrentModificationException when checking for dead
+      servers (AbstractDetector)</para>
+    
+      <para>* [JBREM-530] - Detection heartbeat requires small timeout (for dead
+      server detection)</para>
+    
+      <para>* [JBREM-534] - multiplex client cannot re-connect to server after it
+      has died and then been re-started</para>
+    
+      <para>* [JBREM-537] -
+      org.jboss.test.remoting.transport.rmi.ssl.handshake.RMIInvokerTestCase(java_serialization)
+      - failing</para>
+    
+      <para>* [JBREM-541] - null pointer when receiving detection message</para>
+    
+      <para>* [JBREM-545] - setting of the bind address within MulticastDetector
+      not working</para>
+    
+      <para>* [JBREM-546] - InvokerLocator.equals is broken</para>
+    
+      <para>* [JBREM-552] - cannot init cause of ClassCastException</para>
+    
+      <para>* [JBREM-553] - deadlock when disconnecting</para>
+    
+      <para>* [JBREM-556] - versioning tests failing</para>
+    
+      <para>* [JBREM-561] - http chuncked test cases failing under jdk 1.5</para>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-427] - SSL Connection: load a new keystore at runtime</para>
+    
+      <para>* [JBREM-430] - transporter needs to be customizable</para>
+    
+      <para>* [JBREM-461] - Better documentation for sslmultiplex</para>
+    
+      <para>* [JBREM-491] - need to implement using ssl client mode for push
+      callbacks for all transports</para>
+    
+      <para>* [JBREM-492] - would like an API to indicate if a transport requires
+      SSL configuration</para>
+    
+      <para>* [JBREM-499] - need indication if invoker is secured by ssl</para>
+    
+      <para>* [JBREM-501] - give descriptive names to threads</para>
+    
+      <para>* [JBREM-504] - some synch blocks in AbstractDetector could
+      change</para>
+    
+      <para>* [JBREM-520] - Organize configuring of ServerSocketFactory's and
+      callback SocketFactory's.</para>
+    
+      <para>* [JBREM-527] - Allow user to pass Connector to be used for stream
+      server</para>
+    
+      <para>* [JBREM-532] - need synchronous call from detector client to get all
+      remoting servers on network</para>
+    
+      <para>* [JBREM-539] - add sslservlet procotol</para>
+    
+      <para>* [JBREM-544] - http client invoker (for http, https, servlet, and
+      sslservlet) needs to handle exceptions in same manner as other transport
+      implementations</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-21] - Add stress tests</para>
+    
+      <para>* [JBREM-218] - investigate why jrunit report on cruisecontrol
+      inaccurate</para>
+    
+      <para>* [JBREM-311] - need required library matrix</para>
+    
+      <para>* [JBREM-320] - optimize pass by value within remoting</para>
+    
+      <para>* [JBREM-321] - performance tuning</para>
+    
+      <para>* [JBREM-368] - Configure SSLSockets and SSLServerSockets used in
+      callbacks to be in server mode and client mode, respectively.</para>
+    
+      <para>* [JBREM-383] - Document new versioning for remoting</para>
+    
+      <para>* [JBREM-384] - correct manifest to comply with new standard</para>
+    
+      <para>* [JBREM-390] - finish multiplex</para>
+    
+      <para>* [JBREM-412] - Remoting Guide lacks left margin</para>
+    
+      <para>* [JBREM-423] - document how remoting identity works and how to
+      configure</para>
+    
+      <para>* [JBREM-428] - add the samples/transporter/multiple/ to the
+      distribution build (think may be there by default) and update the
+      docs</para>
+    
+      <para>* [JBREM-434] - fix configuration data within document (socketTimeout
+      should be timeout)</para>
+    
+      <para>* [JBREM-435] - break out remoting jars (serialization)</para>
+    
+      <para>* [JBREM-442] - need full doc on how socket invoker works (connection
+      pooling, etc.)</para>
+    
+      <para>* [JBREM-447] - convert static transporter factory methods into
+      constructor calls</para>
+    
+      <para>* [JBREM-452] - Send the pre-release jar to the messaging team for
+      testing</para>
+    
+      <para>* [JBREM-454] - cache socket wrapper classes</para>
+    
+      <para>* [JBREM-477] - remove Client.setInvoker() and Client.getInvoker()
+      methods</para>
+    
+      <para>* [JBREM-487] - Eliminate possible synchronization problem in
+      InvokerRegistry</para>
+    
+      <para>* [JBREM-490] - consolidate the remoting security related
+      classes</para>
+    
+      <para>* [JBREM-493] - Update version of jboss serialization being
+      used</para>
+    
+      <para>* [JBREM-496] - restructure service providers for remoting</para>
+    
+      <para>* [JBREM-497] - change InvokerLocator to respect hostname over ip
+      address</para>
+    
+      <para>* [JBREM-498] - change logging on cleaning up failed detection</para>
+    
+      <para>* [JBREM-507] - need to make configuration properties
+      consistent</para>
+    
+      <para>* [JBREM-509] - Fix call to super() in ServerInvoker's two argument
+      constructor.</para>
+    
+      <para>* [JBREM-511] - Allow HTTPSClientInvoker to create a HostnameVerifier
+      from classname.</para>
+    
+      <para>* [JBREM-513] - Create SSL version of RMI transport.</para>
+    
+      <para>* [JBREM-514] - Fix potential NullPointerException in
+      SSLSocketClientInvoker.createSocket().</para>
+    
+      <para>* [JBREM-516] - add very simple transporter sample</para>
+    
+      <para>* [JBREM-517] - HTTPServerInvoker needs to be deprecated</para>
+    
+      <para>* [JBREM-523] - connection pool on socket client invoker needs to be
+      bound</para>
+    
+      <para>* [JBREM-524] - Clean up MicrosocketClientInvoker code</para>
+    
+      <para>* [JBREM-529] - Need to be able to reuse socket connections after move
+      to TIME_WAIT state</para>
+    
+      <para>* [JBREM-533] - remove external http GET test</para>
+    
+      <para>* [JBREM-535] - add config to force use of remote invoker instead of
+      local</para>
+    
+      <para>* [JBREM-536] - turn off host verification when doing push callback
+      from server using same ssl config as server</para>
+    
+      <para>* [JBREM-538] - update remoting dist build to break out transports
+      into individual jars</para>
+    
+      <para>* [JBREM-540] - need to make servlet-invoker.war part of remoting
+      distribution</para>
+    
+      <para>* [JBREM-542] - change how remoting servlet finds servlet
+      invoker</para>
+    
+      <para>* [JBREM-543] - fix servlet invoker error handling to be more like
+      that of the http invoker</para>
+    
+      <para>* [JBREM-547] - need test case for exposing multiple interfaces for
+      transporter server target pojo</para>
+    
+      <para>* [JBREM-551] -
+      org.jboss.test.remoting.transport.multiplex.MultiplexInvokerTestCase(java_serialization)
+      failure</para>
+    
+      <para>* [JBREM-555] - fix connection validator to not require extra thread
+      to execute ping every time</para>
+    
+      <para>* [JBREM-558] - Break master.xml documentation into chapter
+      files</para>
+    
+      <para>* [JBREM-559] - update doc for 2.0.0.CR1 release</para>
+    
+      <para>* [JBREM-560] - InvokerGroupTestCase(java_serialization)
+      failure</para>
+    
+      <para>* [JBREM-563] - Multiplex
+      ClientConfigurationCallbackConnectorTestCase(jboss_serialization)
+      failure</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.0.0.Beta2 (Boon)</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-304] -
+      org.jboss.test.remoting.transport.multiplex.MultiplexInvokerTestCase(java_serialization)
+      fails</para>
+    
+      <para>* [JBREM-371] - HTTPClientInvoker does not pass an ObjectOutputStream
+      to the marshaller</para>
+    
+      <para>* [JBREM-405] - NPE when calling stop() twice on
+      MulticastDetector</para>
+    
+      <para>* [JBREM-406] - StringIndexOutOfBoundsException in
+      InvokerLocator</para>
+    
+      <para>* [JBREM-408] - client lease updates broken on server side</para>
+    
+      <para>* [JBREM-409] - Invocations fail when the pool exhausts and under
+      heavy load</para>
+    
+      <para>* [JBREM-414] - JNDI detection failing</para>
+    
+      <para>* [JBREM-418] - ObjectInputStreamWithClassLoader can't handle
+      primitives</para>
+    
+      <para>* [JBREM-426] - keyStorePath and keyStorePassword being printed to
+      standard out</para>
+    
+      <para>* [JBREM-432] - TransporterClient missing serialVersionUID</para>
+    
+      <para>* [JBREM-440] - CallbackStore.getNext() won't necessarily get the
+      oldest one</para>
+    
+      <para>* [JBREM-441] - DefaultCallbackErrorHandler.setConfig needs to avoid
+      NPE</para>
+    
+      <para>* [JBREM-449] - Failure Information lost in
+      RemotingSSLSocketFactory</para>
+    
+      <para>* [JBREM-450] - ClassNotFoundException for class array type during
+      deserialization</para>
+    
+      <para>* [JBREM-464] - ssl socket invoker not using ssl server socket
+      factory</para>
+    
+      <para>* [JBREM-467] - NPE when calling
+      Client.removeConnectionListener()</para>
+    
+      <para>* [JBREM-470] - javax.net.ssl.SSLException: No available certificate
+      corresponds to the SSL cipher suites</para>
+    
+      <para>* [JBREM-472] - Misspelled serialization type generates obscure
+      NPE</para>
+    
+      <para>* [JBREM-479] - ClientConfigurationMapTestCase failure</para>
+    
+      <para>* [JBREM-482] - client invoker configuration lost after first time
+      invoker is created</para>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-312] - make TransporterClient so can be sent over network as
+      dynamic proxy</para>
+    
+      <para>* [JBREM-363] - make callbacks easier with richer API for registering
+      for callbacks</para>
+    
+      <para>* [JBREM-411] - Add chunked streaming support to the HTTP
+      invoker</para>
+    
+      <para>* [JBREM-413] - Transporter server should allow multiple pojo
+      targets</para>
+    
+      <para>* [JBREM-422] - Add plugable load balancing policy to transporter
+      client</para>
+    
+      <para>* [JBREM-425] - Add support for setting the HTTP invoker content
+      encoding that is accepted</para>
+    
+      <para>* [JBREM-431] - transporter server should automatically expose all
+      interfaces implemented as subsystems</para>
+    
+      <para>* [JBREM-439] - StreamInvocationHandler.handleStream should throw
+      Throwable for consistency</para>
+    
+      <para>* [JBREM-469] - Enable HTTP polling</para>
+    
+      <para>* [JBREM-471] - need better InvokerLocator.equals()
+      implementation</para>
+    
+      <para>* [JBREM-481] - Changing StringUtilBuffer creation on
+      JBossSerialization</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-299] - MultiplexInvokerTestCase failure</para>
+    
+      <para>* [JBREM-314] - need org.jboss.test.pooled.test.SSLSocketsUnitTestCase
+      for remoting</para>
+    
+      <para>* [JBREM-328] - change lease ping to be HEAD instead of POST for http
+      transport</para>
+    
+      <para>* [JBREM-362] - convert Connector to be standard mbean instead of
+      xmbean</para>
+    
+      <para>* [JBREM-365] - set default user agent header in http client
+      invoker</para>
+    
+      <para>* [JBREM-366] - clean up client invoker tracking within
+      InvokerRegistry</para>
+    
+      <para>* [JBREM-367] - set live server socket factory on Connector</para>
+    
+      <para>* [JBREM-370] - add changes from 1.4.1 release to master.xml
+      doc</para>
+    
+      <para>* [JBREM-377] - need to convert ConnectionValidator to use
+      TimerQueue</para>
+    
+      <para>* [JBREM-379] - need to update jboss-serialization jar being
+      used</para>
+    
+      <para>* [JBREM-380] - change ConnectionValidator to only notify once of
+      failure</para>
+    
+      <para>* [JBREM-382] - disable lease ping for local invoker</para>
+    
+      <para>* [JBREM-415] - sync bug fixes with pooled invoker and socket
+      invoker</para>
+    
+      <para>* [JBREM-420] - JNDI Detector should not need a connector when running
+      in client mode</para>
+    
+      <para>* [JBREM-421] - remote stream handler api inconsistent with regular
+      handler</para>
+    
+      <para>* [JBREM-436] - Extend MultiplexingInputStream with readInt() to avoid
+      creating a MultiplexingDataInputStream in VirtualSocket.connect() and
+      elsewhere.</para>
+    
+      <para>* [JBREM-437] - Eliminate "verify connect" phase from virtual socket
+      connection protocol.</para>
+    
+      <para>* [JBREM-443] - add HandshakeCompletedListener support to ssl
+      multiplex</para>
+    
+      <para>* [JBREM-451] - Send the pre-release jar to the messaging team for
+      testing</para>
+    
+      <para>* [JBREM-455] - checking of socket connection is not really
+      needed</para>
+    
+      <para>* [JBREM-456] - block callback handling when callback store
+      full</para>
+    
+      <para>* [JBREM-460] - createSocket() in SSLSocketClientInvoker and
+      SSLMultiplexClientInvoker should not assume SocketFactory has been
+      created.</para>
+    
+      <para>* [JBREM-465] - property setting on the client from locator parameters
+      and config map</para>
+    
+      <para>* [JBREM-476] - make externalization of Client match original instance
+      state</para>
+    
+      <para>* [JBREM-478] - fix local client invoker handling of disconnected
+      server invokers</para>
+    
+      <para>* [JBREM-483] - remove LocalLeaseTestCase</para>
+    
+      <para>* [JBREM-485] - use the ClientInvokerHolder to contain the reference
+      counting instead of having to use clientInvokerCounter</para>
+    
+      <para>* [JBREM-486] - Fix ConcurrentModificationException in
+      org.jboss.test.remoting.transport.mock.MockServerInvocationHandler</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 2.0.0.Beta1</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-372] - memory leak on server side leasing</para>
+    
+      <para>* [JBREM-376] - problem versioning with not using connection
+      checking</para>
+    
+      <para>* [JBREM-378] - client connection checking not working</para>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-340] - Strong version compatibility guarantee</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-374] - single thread the leasing timer</para>
+    
+      <para></para>
+    </section>
+  
+    <section>
+  
+      <title>Version 1.4</title>
+      
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.4.4.GA</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-426] - keyStorePath and keyStorePassword being printed to
+      standard out</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.4.3.GA</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-418] - ObjectInputStreamWithClassLoader can't handle
+      primitives</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.4.2 final</bridgehead>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-429] - Create JBossSerialization MarshalledValue more
+      optimized for RemoteCalls</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.4.1 final</bridgehead>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-310] - Ability to turn connection checking off</para>
+    
+      <para>* [JBREM-325] - move IMarshalledValue from jboss-commons to
+      jboss-remoting.jar</para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-313] - client lease does not work if client and server in
+      same VM (using local invoker)</para>
+    
+      <para>* [JBREM-317] - HTTPClientInvoker conect sends gratuitous POST</para>
+    
+      <para>* [JBREM-341] - Client ping interval must be lease than lease
+      period</para>
+    
+      <para>* [JBREM-343] - Exceptions on connection closing</para>
+    
+      <para>* [JBREM-345] - problem using client address and port</para>
+    
+      <para>* [JBREM-346] - fix ConcurrentModificationException in cleanup of
+      MultiplexServerInvoker</para>
+    
+      <para>* [JBREM-350] - ConcurrentModificationException in
+      InvokerRegistry</para>
+    
+      <para>* [JBREM-361] - Race condition in invoking on Client</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-2] - sample-bindings.xml does not have entry for
+      remoting</para>
+    
+      <para>* [JBREM-220] - clean up remoting wiki</para>
+    
+      <para>* [JBREM-316] - Maintain tomcat originated code under the ASF
+      license.</para>
+    
+      <para>* [JBREM-319] - ability to inject socket factory by classname or
+      instance in all remoting transports</para>
+    
+      <para>* [JBREM-323] - client lease config changes</para>
+    
+      <para>* [JBREM-329] - create global transport config for timeout</para>
+    
+      <para>* [JBREM-330] - create socket server factory based off of
+      configuration properties</para>
+    
+      <para>* [JBREM-335] - Client.invoke() should pass configuration map to
+      InvokerRegistry.createClientInvoker().</para>
+    
+      <para>* [JBREM-336] - InvokerRegistry doesn't purge InvokerLocators from
+      static Set registeredLocators.</para>
+    
+      <para>* [JBREM-337] - PortUtil.findFreePort() should return ports only
+      between 1024 and 65535.</para>
+    
+      <para>* [JBREM-342] - Thread usage for timers and lease functionality</para>
+    
+      <para>* [JBREM-354] - ServerInvokerCallbackHandler should make its subsystem
+      accessible.</para>
+    
+      <para>* [JBREM-356] - ServerInvoker should destroy its callback
+      handlers.</para>
+    
+      <para>* [JBREM-359] - MultiplexInvokerConfigTestCase should execute
+      MultiplexInvokerConfigTestServer instead of
+      MultiplexInvokerTestServer.</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.4.0 final</bridgehead>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-91] - UIL2 type transport (duplex calling of same
+      socket)</para>
+    
+      <para>* [JBREM-117] - clean up callback client after several failures
+      delivering callbacks</para>
+    
+      <para>* [JBREM-138] - HTTP/Servlet invokers require content length to be
+      set</para>
+    
+      <para>* [JBREM-229] - Remove dependency on ThreadLocal for
+      SerializationManagers and pluggable serialization</para>
+    
+      <para>* [JBREM-233] - Server side exception listeners for client
+      connections</para>
+    
+      <para>* [JBREM-257] - Append client stack trace to thrown remote
+      exception</para>
+    
+      <para>* [JBREM-261] - Integration with IMarshalledValue from
+      JBossCommons</para>
+    
+      <para>* [JBREM-278] - remoting detection needs ability to accept detection
+      of server invoker running locally</para>
+    
+      <para>* [JBREM-280] - no way to add path to invoker uri when using complex
+      configuration</para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-41] - problem using localhost/127.0.0.1</para>
+    
+      <para>* [JBREM-115] - http server invoker does not wait to finish processing
+      on stop</para>
+    
+      <para>* [JBREM-223] - Broken Pipe if client don't do any calls before the
+      timeout value</para>
+    
+      <para>* [JBREM-224] - java.net.SocketTimeoutException when socket timeout on
+      the keep alive</para>
+    
+      <para>* [JBREM-231] - bug in invoker locator when there are no params
+      (NPE)</para>
+    
+      <para>* [JBREM-234] - StreamCorruptedException in DTM testcase</para>
+    
+      <para>* [JBREM-240] - TestUtil does not always give free port for
+      server</para>
+    
+      <para>* [JBREM-243] - socket client invoker sharing pooled
+      connections</para>
+    
+      <para>* [JBREM-250] - InvokerLocator doesn't support URL in IPv6 format (ex:
+      socket://3000::117:5400/)</para>
+    
+      <para>* [JBREM-251] - transporter passes method signature based on concrete
+      object and not the parameter type</para>
+    
+      <para>* [JBREM-256] - NullPointer in MarshallerLoaderHandler.java:69</para>
+    
+      <para>* [JBREM-259] - Unmarshalling of server response is not using caller's
+      classloader</para>
+    
+      <para>* [JBREM-271] - http client invoker needs to explicitly set the
+      content type if not provided</para>
+    
+      <para>* [JBREM-277] - error shutting down coyote invoker when using APR
+      protocol</para>
+    
+      <para>* [JBREM-281] - getting random port for connectors is not
+      reliable</para>
+    
+      <para>* [JBREM-282] - ServletServerInvoker not working with depployed for
+      use as ejb invoker</para>
+    
+      <para>* [JBREM-286] - Socket server does not clean up server threads on
+      shutdown</para>
+    
+      <para>* [JBREM-289] - PortUtil only checking for free ports on
+      localhost</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-7] - Add more tests for local invoker</para>
+    
+      <para>* [JBREM-121] - improve connection failure callback</para>
+    
+      <para>* [JBREM-126] - add tests for client vs. server address
+      bindings</para>
+    
+      <para>* [JBREM-195] - Performance optimization</para>
+    
+      <para>* [JBREM-199] - remoting clients required to include
+      servlet-api.jar</para>
+    
+      <para>* [JBREM-207] - clean up build file</para>
+    
+      <para>* [JBREM-214] - multiplex performance tests getting out of memory
+      error</para>
+    
+      <para>* [JBREM-215] - re-write http transport/handler documentation</para>
+    
+      <para>* [JBREM-216] - Need to add new samples to example build in
+      distro</para>
+    
+      <para>* [JBREM-217] - create samples documentation</para>
+    
+      <para>* [JBREM-219] - move remoting site to jboss labs</para>
+    
+      <para>* [JBREM-226] - Release JBoss Remoting 1.4.0 final</para>
+    
+      <para>* [JBREM-230] - create interface for marshallers to implement for
+      swapping out serialization impl</para>
+    
+      <para>* [JBREM-235] - add new header to source files</para>
+    
+      <para>* [JBREM-239] - Update the LGPL headers</para>
+    
+      <para>* [JBREM-242] - Subclass multiplex invoker from socket invoker.</para>
+    
+      <para>* [JBREM-249] - http invoker (tomcat connector) documentation</para>
+    
+      <para>* [JBREM-253] - Convert http server invoker implementation to use
+      tomcat connector and protocols</para>
+    
+      <para>* [JBREM-255] - HTTPClientInvoker not setting response code or
+      message</para>
+    
+      <para>* [JBREM-275] - fix package error in examle-service.xml</para>
+    
+      <para>* [JBREM-276] - transporter does not throw original exception from
+      server implementation</para>
+    
+      <para>* [JBREM-279] - socket server invoker spits out error messages on
+      shutdown when is not needed</para>
+    
+      <para>* [JBREM-287] - need to complete javadoc for all user
+      classes/interfaces</para>
+    
+      <para>* [JBREM-288] - update example-service.xml with new
+      configurations</para>
+    
+      <para>** Reactor Event</para>
+    
+      <para>* [JBREM-241] - Refactor SocketServerInvoker so that can be subclassed
+      by MultiplexServerInvoker</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.4.0 beta</bridgehead>
+    
+      <para></para>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-28] - Marshaller for non serializable objects</para>
+    
+      <para>* [JBREM-40] - Compression marshaller/unmarshaller</para>
+    
+      <para>* [JBREM-120] - config for using hostname in locator url instead of
+      ip</para>
+    
+      <para>* [JBREM-140] - can not set response headers from invocation
+      handlers</para>
+    
+      <para>* [JBREM-148] - support pluggable object serialization packages</para>
+    
+      <para>* [JBREM-175] - Remove Dependencies to Server Classes from
+      UnifiedInvoker</para>
+    
+      <para>* [JBREM-180] - add plugable serialization</para>
+    
+      <para>* [JBREM-187] - Better HTTP 1.1 stack support for HTTP invoker</para>
+    
+      <para>* [JBREM-201] - Remove dependency from JBossSerialization</para>
+    
+      <para></para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-127] - RMI Invoker will not bind to specified address</para>
+    
+      <para>* [JBREM-192] - distro contains samples in src and examples
+      directory</para>
+    
+      <para>* [JBREM-193] - HTTPClientInvoker doesn't call getErrorStream() on
+      HttpURLConnection when an error response code is returned</para>
+    
+      <para>* [JBREM-194] - multiplex performance tests hang</para>
+    
+      <para>* [JBREM-202] - getUnmarshaller always calls Class.forName operation
+      for creating Unmarshallers</para>
+    
+      <para>* [JBREM-203] - rmi server invoker hangs if custom unmarshaller</para>
+    
+      <para>* [JBREM-205] - Spurious java.net.SocketException: Connection reset
+      error logging</para>
+    
+      <para>* [JBREM-210] - InvokerLocator should be insensitive to parameter
+      order</para>
+    
+      <para></para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-9] - Fix performance tests</para>
+    
+      <para>* [JBREM-33] - Add GET support within HTTP server invoker</para>
+    
+      <para>* [JBREM-145] - convert user guide from MS word doc to docbook</para>
+    
+      <para>* [JBREM-182] - Socket timeout too short (and better error
+      message)</para>
+    
+      <para>* [JBREM-183] - keep alive support for http invoker</para>
+    
+      <para>* [JBREM-196] - reducde the number of retries for socket client
+      invoker</para>
+    
+      <para>* [JBREM-204] - create complex remoting example using dynamic proxy to
+      endpoint</para>
+    
+      <para>* [JBREM-212] - create transporter implementation</para>
+    
+      <para>* [JBREM-213] - allow config of ignoring https host validation (ssl)
+      via metadata</para>
+    
+      <para></para>
+    
+      <para></para>
+    
+      <para>** Patch</para>
+    
+      <para>* [JBREM-152] - NullPointerException in SocketServerInvoker.stop() at
+      line 185.</para>
+    
+      <para>* [JBREM-153] - LocalClientInvoker's outlive their useful lifetime,
+      causing anomalous behavior</para>
+      
+    </section>
+  
+    <para></para>
+
+    <section>
+    
+      <title>Version 1.2</title>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.2.1 final</bridgehead>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-161] - Upgrade JRunit to Beta 2</para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-147] - Invalid reuse of target location</para>
+    
+      <para>* [JBREM-163] - NPE in Mutlicast Detector</para>
+    
+      <para>* [JBREM-164] - HTTP Invoker unable to send large amounts of
+      data</para>
+    
+      <para>* [JBREM-176] - Correct inheritance structure for detectors</para>
+    
+      <para>* [JBREM-177] - configuration attribute spelled incorrectly in
+      ServerInvokerMBean</para>
+    
+      <para>* [JBREM-178] - SocketServerInvoker hanging on Linux</para>
+    
+      <para>* [JBREM-179] - socket timeout not being set properly</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-156] - Better exception handling within socket server
+      invoker</para>
+    
+      <para>* [JBREM-158] - Clean up test cases</para>
+    
+      <para>* [JBREM-162] - add version to the remoting jar</para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.2.0 final</bridgehead>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-8] - Ability to stream files via remoting</para>
+    
+      <para>* [JBREM-22] - Manipulation of the client proxy interceptor
+      stack</para>
+    
+      <para>* [JBREM-24] - Allow for specific network interface bindings</para>
+    
+      <para>* [JBREM-27] - Support for HTTP/HTTPS proxy</para>
+    
+      <para>* [JBREM-35] - Servlet Invoker - counterpart to HTTP Invoker (runs
+      within web container)</para>
+    
+      <para>* [JBREM-43] - custom socket factories</para>
+    
+      <para>* [JBREM-46] - Connection failure callback</para>
+    
+      <para>* [JBREM-87] - Add handler metadata to detection messages</para>
+    
+      <para>* [JBREM-93] - Callback handler returning a generic Object</para>
+    
+      <para>* [JBREM-94] - callback server specific implementation</para>
+    
+      <para>* [JBREM-109] - Add support for JaasSecurityDomain within SSL
+      support</para>
+    
+      <para>* [JBREM-122] - need log4j.xml in examples</para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-58] - Bug with multiple callback handler registered with same
+      server</para>
+    
+      <para>* [JBREM-64] - Need MarshalFactory to produce new instance per get
+      request</para>
+    
+      <para>* [JBREM-84] - Duplicate Connector shutdown using same server
+      invoker</para>
+    
+      <para>* [JBREM-92] - in-VM push callbacks don't work</para>
+    
+      <para>* [JBREM-97] - Won't compile under JDK 1.5</para>
+    
+      <para>* [JBREM-108] - can not set bind address and port for rmi and
+      http(s)</para>
+    
+      <para>* [JBREM-114] - getting callbacks for a callback handler always
+      returns null</para>
+    
+      <para>* [JBREM-125] - can not configure transport, port, or host for the
+      stream server</para>
+    
+      <para>* [JBREM-131] - invoker registry not update if server invoker changes
+      locator</para>
+    
+      <para>* [JBREM-134] - can not remove callback listeners from multiple
+      callback servers</para>
+    
+      <para>* [JBREM-137] - Invalid RemoteClientInvoker reference maintained by
+      InvokerRegistry after invoker disconnect()</para>
+    
+      <para>* [JBREM-141] - bug connecting client invoker when client detects that
+      previously used one is disconnected</para>
+    
+      <para>* [JBREM-143] - NetworkRegistry should not be required for detector to
+      run on server side</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-11] - Create seperate JBoss Remoting module in CVS</para>
+    
+      <para>* [JBREM-20] - break out remoting into two seperate projects</para>
+    
+      <para>* [JBREM-34] - Need to add configuration properties for HTTP server
+      invoker</para>
+    
+      <para>* [JBREM-39] - start connector on new thread</para>
+    
+      <para>* [JBREM-55] - Clean up Callback implementation</para>
+    
+      <para>* [JBREM-57] - Remove use of InvokerRequest in favor of Callback
+      object</para>
+    
+      <para>* [JBREM-62] - update UnifiedInvoker to use remote marshall
+      loading</para>
+    
+      <para>* [JBREM-67] - Add ability to set ThreadPool via configuration</para>
+    
+      <para>* [JBREM-98] - remove isDebugEnabled() within code as is now
+      depricated</para>
+    
+      <para>* [JBREM-101] - Fix serialization versioning between releases of
+      remoting</para>
+    
+      <para>* [JBREM-104] - Release JBossRemoting 1.1.0</para>
+    
+      <para>* [JBREM-110] - create jboss-remoting-client.jar</para>
+    
+      <para>* [JBREM-113] - Convert remote tests to use JRunit instead of
+      distributed test framework</para>
+    
+      <para>* [JBREM-123] - update detection samples</para>
+    
+      <para>* [JBREM-128] - standardize address and port binding configuration for
+      all transports</para>
+    
+      <para>* [JBREM-130] - updated wiki for checkout and build</para>
+    
+      <para>* [JBREM-132] - write test case for JBREM-131</para>
+    
+      <para>* [JBREM-133] - Document use of Client (as a session object)</para>
+    
+      <para>* [JBREM-135] - Remove ClientInvokerAdapter</para>
+    
+      <para>** Reactor Event</para>
+    
+      <para>* [JBREM-65] - move callback specific classes into new callback
+      package</para>
+    
+      <para>* [JBREM-111] - pass socket's output/inputstream directly to
+      marshaller/unmarshaller</para>
+
+    </section>
+    
+    <section>
+    
+      <title>Version 1.0</title>
+      
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.0.2 final</bridgehead>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-36] - performance tests fail for http transports</para>
+    
+      <para>* [JBREM-66] - Race condition on startup</para>
+    
+      <para>* [JBREM-82] - Bad warning in Connector.</para>
+    
+      <para>* [JBREM-88] - HTTP invoker only binds to localhost</para>
+    
+      <para>* [JBREM-89] - HTTPUnMarshaller finishing read early</para>
+    
+      <para>* [JBREM-90] - HTTP header values not being picked up on the http
+      invoker server</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-70] - Clean up build.xml. Fix .classpath and .project for
+      eclipse</para>
+    
+      <para>* [JBREM-83] - Updated Invocation marshalling to support standard
+      payloads</para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.0.1 final</bridgehead>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-54] - Need access to HTTP response headers</para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-1] - Thread.currentThread().getContextClassLoader() is
+      wrong</para>
+    
+      <para>* [JBREM-31] - Exception handling in http server invoker</para>
+    
+      <para>* [JBREM-32] - HTTP Invoker - check for threading issues</para>
+    
+      <para>* [JBREM-50] - Need ability to set socket timeout on socket client
+      invoker</para>
+    
+      <para>* [JBREM-59] - Pull callback collection is unbounded - possible Out of
+      Memory</para>
+    
+      <para>* [JBREM-60] - Incorrect usage of debug level logging</para>
+    
+      <para>* [JBREM-61] - Possible RMI exception semantic regression</para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-15] - merge UnifiedInvoker from remoting branch</para>
+    
+      <para>* [JBREM-30] - Better integration for registering invokers with
+      MBeanServe</para>
+    
+      <para>* [JBREM-37] - backport to 4.0 branch before 1.0.1 final
+      release</para>
+    
+      <para>* [JBREM-56] - Add Callback object instead of using
+      InvokerRequest</para>
+    
+      <para>** Reactor Event</para>
+    
+      <para>* [JBREM-51] - defining marshaller on remoting client</para>
+    
+      <para></para>
+    
+      <bridgehead>Release Notes - JBoss Remoting - Version 1.0.1 beta</bridgehead>
+    
+      <para></para>
+    
+      <para>** Bug</para>
+    
+      <para>* [JBREM-19] - Try to reconnect on connection failure within socket
+      invoker</para>
+    
+      <para>* [JBREM-25] - Deadlock in InvokerRegistry</para>
+    
+      <para></para>
+    
+      <para>** Feature Request</para>
+    
+      <para>* [JBREM-12] - Support for call by value</para>
+    
+      <para>* [JBREM-26] - Ability to use MBeans as handlers</para>
+    
+      <para></para>
+    
+      <para>** Task</para>
+    
+      <para>* [JBREM-3] - Fix Asyn invokers - currently not operable</para>
+    
+      <para>* [JBREM-4] - Added test for throwing exception on server side</para>
+    
+      <para>* [JBREM-5] - Socket invokers needs to be fixed</para>
+    
+      <para>* [JBREM-16] - Finish HTTP Invoker</para>
+    
+      <para>* [JBREM-17] - Add CannotConnectException to all transports</para>
+    
+      <para>* [JBREM-18] - Backport remoting from HEAD to 4.0 branch</para>
+    
+      <para></para>
+    
+      <para></para>
+    
+      <para>** Reactor Event</para>
+    
+      <para>* [JBREM-23] - Refactor Connector so can configure transports</para>
+    
+      <para>* [JBREM-29] - Over load invoke() method in Client so metadata not
+      required</para>
+  
+    </section>
+
+    <para></para>
+  
+  </section>
+</chapter>

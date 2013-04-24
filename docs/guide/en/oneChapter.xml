@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"../support/support/docbook-dtd/docbookx.dtd"
+[
+<!ENTITY temp  SYSTEM "temp.xml">
+]>
+
+<book>
+  <bookinfo>
+    <title>JBoss Remoting Guide</title>
+
+    <subtitle>JBoss Remoting version 2.0.0.GA</subtitle>
+
+    <releaseinfo>July 31, 2006</releaseinfo>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="images/JBoss_logo.jpg" />
+      </imageobject>
+    </mediaobject>
+
+    <copyright>
+      <year>2006</year>
+
+      <holder>JBoss, Inc.</holder>
+    </copyright>
+  </bookinfo>
+
+	&temp;
+   
+   <!-- The following title accomodates linking between chapters. -->
+   <title id="section-multiplex-invokers"
+      xreflabel="Multiplex invokers">Multiplex invokers</title>
+	
+</book>

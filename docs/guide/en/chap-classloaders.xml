@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+  <title>Remote classloading facility</title>
+
+  <para>When a Remoting unmarshaller reads a serialized request or response from
+  the network, it needs to have access to the classes of the objects contained
+  in the serialized object. Frequently, these will be a simple combination of
+  Remoting and Java objects. For example, if an application returns a
+  <classname>java.lang.String</classname>, it will be wrapped in an
+  <classname>org.jboss.remoting.InvocationResponse</classname>, and both classes
+  will be known to the unmarshaller. But what if an application returns an
+  unknown implementation of a known interface? Remoting has a remote
+  classloading facility to support the latter scenario.</para>
+  
+  <section id="section-client-classloading"
+    xreflabel="Classloading in client invokers">
+    <title>Classloading in client invokers</title>
+
+    <para>An instance of
+    <classname>org.jboss.remoting.marshal.serializable.SerializableUnMarshaller</classname>,
+    which is the default unmarshaller, or parent of the default unmarshaller,
+    for the socket, bisocket, and http transports (marshalling and unmarshalling
+    in the rmi transport is handled by the RMI runtime), will look for classes
+    in the following order:</para>
+    
+    <orderedlist>
+
+       <listitem>
+          <para>try system classloader, which loads from locations specified in the classpath;</para>
+       </listitem>
+       
+       <listitem>
+          <para>try the Remoting classloader, that is, the classloader that
+          loaded the Remoting classes (which, depending on the context, may or may not be the system classloader);</para>
+       </listitem>
+       
+       <listitem>
+          <para>try to load from Remoting's remote classloading facility;</para>
+       </listitem>
+       
+       <listitem>
+          <para>try the current thread's context classloader.</para>
+       </listitem>
+    </orderedlist>
+    
+    <para>The current thread's context classloader can be moved to the front of
+    the list to enable the alternative behavior:</para>
+
+    <orderedlist>
+       
+       <listitem>
+          <para>try the current thread's context classloader;</para>
+       </listitem>
+
+       <listitem>
+          <para>try system classloader, which loads from locations specified in the classpath;</para>
+       </listitem>
+       
+       <listitem>
+          <para>try the Remoting classloader, that is, the classloader that
+          loaded the Remoting classes (which, depending on the context, may or may not be the system classloader);</para>
+       </listitem>
+       
+       <listitem>
+          <para>try to load from Remoting's remote classloading facility.</para>
+       </listitem>
+    </orderedlist>
+    
+    <para>This alternative behavior may be enabled either by setting the
+    <code>org.jboss.remoting.Remoting.CLASSLOADING_PARENT_FIRST_DELEGATION</code>
+    parameter (actual value "classloadingParentFirstDelegation") to "false" in
+    the <classname>InvokerLocator</classname> or in the client invoker's
+    configuration map (see <xref linkend="chapter-configuration"/> for more on
+    configuration options) or by setting the system property
+    Remoting.CLASSLOADING_PARENT_FIRST_DELEGATION_PROP (actual value
+    "org.jboss.remoting.classloadingParentFirstDelegation") to "false".</para>
+    
+    <para>Note that the default behavior, in the absence of any explicit action
+    to the contrary, is for a thread's context classloader to be set to the same
+    classloader that loaded the application. However, somewhere outside of
+    Remoting, the context classloader may be set otherwise. For example, a
+    Remoting client invoker might be running inside an EJB3 container that
+    maintains a classloader associated with the EJB3's EAR file and sets the
+    thread context classloader to the EAR classloader whenever it passes control
+    into code supplied in the EAR. This situation would arise when one EJB3
+    calls another EJB3, where the invocation would ultimately be made by a
+    Remoting client invoker. <emphasis role="bold">Note</emphasis>, by the way,
+    the implication that this discussion about classloading in client invokers
+    applies not only to clients in the ordinary client server sense, but also to
+    clients running inside the server.</para>
+  </section>
+ 
+  <section id="section-server-classloading"
+    xreflabel="Server side support for remote classloading">
+    <title>Server side support for remote classloading</title>
+ 
+    <para>Remoting implements an optional remote classloading facility that
+    makes it possible for a client invoker unmarshaller to request copies of
+    classes that it encounters during the deserialization process. This facility
+    is provided by a special
+    <classname>org.jboss.remoting.transport.Connector</classname> that runs an
+    <classname>org.jboss.remoting.ServerInvocationHandler</classname> designed
+    to locate and return requested classes. This facility is enabled by
+    configuring a <classname>Connector</classname> with the parameter
+    <code>org.jboss.remoting.InvokerLocator.LOADER_PORT</code> (actual value
+    "loaderport") set to an available port number. (See <xref
+    linkend="chapter-configuration"/> for more on configuration options.) Using
+    the "loaderport" parameter will result in the creation of a second
+    <classname>Connector</classname> which responds to requests to download
+    classes.</para>
+    
+    <para>Prior to Remoting release 2.4.0.SP1, the classloading search
+    implemented by the classloading
+    <classname>SerrverInvocationHandler</classname> was the following:</para>
+
+    <orderedlist>
+      <listitem>
+         <para>try system classloader, which loads from locations specified in the classpath;</para>
+      </listitem>
+     
+      <listitem>
+         <para>try the Remoting classloader, that is, the classloader that
+         loaded the Remoting classes (which, depending on the context, may or
+         may not be the system classloader).</para>
+      </listitem>
+   </orderedlist>
+   
+   <para>This original behavior is too restrictive in the context of the rich
+   classloading options of the JBoss Application Server. As of release
+   2.4.0.SP1, it is possible to configure the classloading facility with a list
+   of additional classloaders. One option is to pass a list of classloaders to a
+   <classname>Connector</classname> programatically using the
+   <code>org.jboss.remoting.Remoting.Remoting.REMOTE_CLASS_LOADERS</code>
+   parameter (actual value "remoteClassLoaders") in either a configuration map
+   or an <classname>org.jboss.remoting.ServerConfiguration</classname>. For
+   example:</para>
+   
+          <programlisting>
+ServerConfiguration serverConfiguration = new ServerConfiguration("socket");
+Map invokerLocatorParameters = new HashMap();
+invokerLocatorParameters.put(InvokerLocator.LOADER_PORT, "5544");
+serverConfiguration.setInvokerLocatorParameters(invokerLocatorParameters);
+Map serverParameters = new HashMap();
+ArrayList classLoaders = new ArrayList();
+classLoader1 = ...
+classLoader2 = ...
+classLoaders.add(classLoader1);
+classLoaders.add(classLoader2);
+serverParameters.put(Remoting.REMOTE_CLASS_LOADERS, classLoaders);
+serverConfiguration.setServerParameters(serverParameters);
+connector = new Connector();
+connector.setServerConfiguration(serverConfiguration);
+          </programlisting>
+   
+   <para>An alternative in the presence of the JBoss microcontainer, e.g., in
+   the Application Server, would be to achieve the same result declaratively.
+   For example:</para>
+   
+        <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;deployment xmlns="urn:jboss:bean-deployer:2.0"&gt;
+             
+   &lt;bean name="remoting:serverConfiguration"
+         class="org.jboss.remoting.ServerConfiguration"&gt;
+      &lt;constructor&gt;
+         &lt;parameter&gt;socket&lt;/parameter&gt;
+      &lt;/constructor&gt;
+      &lt;property name="invokerLocatorParameters"&gt;
+         &lt;map keyClass="java.lang.String" valueClass="java.lang.String"&gt;
+            &lt;entry&gt;
+               &lt;key&gt;loaderport&lt;/key&gt;
+               &lt;value&gt;5544&lt;/value&gt;
+            &lt;/entry&gt;
+         &lt;/map&gt;
+      &lt;/property&gt;
+      &lt;property name="serverParameters"&gt;
+         &lt;map keyClass="java.lang.String" valueClass="java.lang.Object"&gt;
+            &lt;entry&gt;
+               &lt;key&gt;remoteClassLoaders&lt;/key&gt;
+               &lt;value&gt;
+                 &lt;list elementClass="java.lang.ClassLoader"&gt;
+                   &lt;value&gt;ear1:classloader&lt;/value&gt;
+                   &lt;value&gt;ear2:classloader&lt;/value&gt;
+                 &lt;/list&gt;
+               &lt;/value&gt;
+            &lt;/entry&gt;
+         &lt;/map&gt;
+      &lt;/property&gt;
+      &lt;property name="invocationHandlers"&gt;
+      ...
+      &lt;/property&gt;
+   &lt;/bean&gt;
+             
+   &lt;bean name="remoting:connector" class="org.jboss.remoting.transport.Connector"&gt;
+      &lt;property name="serverConfiguration"&gt;
+         &lt;inject bean="remoting:serverConfiguration"/&gt;
+      &lt;/property&gt;
+   &lt;/bean&gt;
+             
+&lt;/deployment&gt;</programlisting>
+ </section>
+</chapter>

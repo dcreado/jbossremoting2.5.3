@@ -1,0 +1,44 @@
+  <chapter>
+    <title>Serialization</title>
+
+    <para>Serialization - how it works within remoting: In general, remoting
+    will rely on a factory to provide the serialization implementation, or
+    <code>org.jboss.remoting.serialization.SerializationManager</code>, to be
+    used when doing object serialization. This factory is
+    <code>org.jboss.remoting.serialization.SerializationStreamFactory</code>
+    and is a (as defined by its javadoc):</para>
+
+    <literallayout>factory is for defining the Object stream implemenations to be used along with creating those implemenations for use.
+The main function will be to return instance of ObjectOutput and ObjectInput.  By default, the implementations will be 
+java.io.ObjectOutputStream and java.io.ObjectInputStream.
+</literallayout>
+
+    <para>Currently there are only two different types of serialization
+    implementations; 'java' and 'jboss'. The 'java' type uses
+    <code>org.jboss.remoting.serialization.impl.java.JavaSerializationManager</code>
+    as the SerializationManager implementation and is backed by standard Java
+    serialization provide by the JVM, which is the default. The 'jboss' type
+    uses
+    <code>org.jboss.remoting.serialization.impl.jboss.JBossSerializationManager</code>
+    as the SerializationManager implementation and is backed by JBoss
+    Serialization.</para>
+
+    <para>JBoss Serialization is a project intended to provide a
+    more performant implementation of object serialization. It complies with
+    java serialization standard with three exceptions:</para>
+
+    <para>- SerialUID not needed</para>
+
+    <para>- java.io.Serializable is not required</para>
+
+    <para>- different protocol</para>
+
+    <para>JBoss Serialization requires JDK 1.5</para>
+
+    <para></para>
+
+    <para>It is possible to override the default SerializationManger
+    implementation to be used by setting the system property 'SERIALIZATION'
+    to the fully qualified name of the class to use (which will need to
+    provide a void constructor).</para>
+  </chapter>

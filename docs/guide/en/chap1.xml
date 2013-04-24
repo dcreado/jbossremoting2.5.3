@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+  <title>Overview</title>
+
+  <section>
+    <title>What is JBoss Remoting?</title>
+
+    <para>The purpose of JBoss Remoting is to provide a single API for most
+    network based invocations and related service that uses pluggable
+    transports and data marshallers. The JBossRemoting API provides the
+    ability for making synchronous and asynchronous remote calls, push and
+    pull callbacks, and automatic discovery of remoting servers. The intention
+    is to allow for the use of different transports to fit different needs,
+    yet still maintain the same API for making the remote invocations and only
+    requiring configuration changes, not code changes.</para>
+
+    <para>JBossRemoting is a standalone project, separate from the JBoss
+    Application Server project, but will be the framework used for many of the
+    JBoss projects and components when making remote calls. JBossRemoting is
+    included in the recent releases of the JBoss Application Server and can be
+    run as a service within the container as well. Service configurations are
+    included in the configuration section below.</para>
+  </section>
+
+  <section>
+    <title>Features</title>
+
+    <para>The features available with JBoss Remoting are:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Server identification</emphasis> – a
+        simple url based identifier which allows for remoting servers to be
+        identified and called upon.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Pluggable transports</emphasis> – can use
+        different protocol transports the same remoting API.</para>
+
+        <para>Provided transports:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Socket (SSL Socket)</para>
+          </listitem>
+
+          <listitem>
+            <para>RMI (SSL RMI)</para>
+          </listitem>
+
+          <listitem>
+            <para>HTTP(S)</para>
+          </listitem>
+          
+          <listitem>
+            <para>Servlet (SSL Servlet)</para>
+          </listitem>
+
+          <listitem>
+            <para>Bisocket (SSL Bisocket)</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Pluggable data marshallers</emphasis> –
+        can use different data marshallers and unmarshallers to convert the
+        invocation payloads into desired data format for wire transfer.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Pluggable serialization</emphasis> - can
+        use different serialization implementations for data streams.</para>
+
+        <para>Provided serialization implementations:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Java serialization</para>
+          </listitem>
+
+          <listitem>
+            <para>JBoss serialization</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Automatic discovery</emphasis> – can
+        detect remoting servers as they come on and off line.</para>
+
+        <para>Provided detection implementations:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Multicast</para>
+          </listitem>
+
+          <listitem>
+            <para>JNDI</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Server grouping</emphasis> – ability to
+        group servers by logical domains, so only communicate with servers
+        within specified domains.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Callbacks</emphasis> – can receive server
+        callbacks via push and pull models. Pull model allows for persistent
+        stores and memory management.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Asynchronous calls</emphasis> – can make
+        asynchronous, or one way, calls to server.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Local invocation</emphasis> – if making an
+        invocation on a remoting server that is within the same process space,
+        remoting will automatically make this call by reference, to improve
+        performance.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Remote classloading</emphasis> – allows
+        for classes, such as custom marshallers, that do not exist within
+        client to be loaded from server.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Sending of streams</emphasis> – allows for
+        clients to send input streams to server, which can be read on demand
+        on the server.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Clustering</emphasis> - seamless client
+        failover for remote invocations.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Connection failure notification</emphasis>
+        - notification if client or server has failed</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Data Compression</emphasis> - can use
+        compression marshaller and unmarshaller for compresssion of large
+        payloads.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>All the features within JBoss Remoting were created with ease of use
+    and extensibility in mind. If you have a suggestion for a new feature or
+    an improvement to a current feature, please log in our issue tracking
+    system at <!--<link linkend="???">http://jira.jboss.com</link>--> <ulink
+    url="http://jira.jboss.com">http://jira.jboss.com</ulink></para>
+  </section>
+
+  <section>
+    <title>How to get JBoss Remoting</title>
+
+    <para>The JBossRemoting distribution can be downloaded from <ulink
+    url="http://www.jboss.org/jbossremoting/">
+    http://www.jboss.org/jbossremoting/</ulink> . This distribution
+    contains everything needed to run JBossRemoting stand alone. The
+    distribution includes binaries, source, documentation, javadoc, and sample
+    code.</para>
+  </section>
+
+  <section>
+    <title>What's new in version 2.5?</title>
+    
+    <para>Version 2.5.0 represents the process of upgrading the jars with
+    which Remoting is tested and shipped. In particular, the jars are now
+    equivalent to the jars found in the JBoss Application Server version
+    5.0.0.CR2 (as of 9/6/08, before its release). Changes to jbossweb (the JBoss
+    version of Tomcat) have necessitated dropping the use of Apache Tomcat,
+    which means that the "http" transport will no longer function with jdk 1.4.</para>
+  
+    <para>Other features of Remoting 2.5.0.GA should function with jdk 1.4.
+    However, it is the policy of JBoss, a division of Red Hat, no longer to
+    support jdk 1.4.</para>
+
+    <section>
+      <title>Release 2.5.3</title>
+      <itemizedlist>
+        <listitem>
+           <para>Security update.  Calls to state changing methods  of
+           <classname>org.jboss.remoting.InvokerRegistry</classname> require permission
+           <code>java.lang.RuntimePermission("invokerRegistryUpdate")</code></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.5.2.SP3</title>
+      <itemizedlist>
+        <listitem>
+           <para>Multiple bug fixes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.5.2.SP2</title>
+      <itemizedlist>
+        <listitem>
+           <para>Multiple bug fixes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.5.2</title>
+      <itemizedlist>
+        <listitem>
+          <para>Introduction of "connection identity" concept</para>
+        </listitem>
+        <listitem><para>Introduction of write timeout facility;</para></listitem>
+        <listitem><para>improved reliability for callbacks in bisocket transport;</para></listitem> 
+        <listitem><para>improved treatment of invocation retries in socket and bisocket transports;</para></listitem>
+        <listitem>
+          <para>More flexible configuration (see, for example, <code>org.jboss.remoting.Remoting.CONFIG_OVERRIDES_LOCATOR</code>)</para>
+        </listitem>
+        <listitem>
+          <para>Added immediate shutdown option for socket transport</para>
+        </listitem>
+        <!--listitem>
+          <para>Jars updated to conform to Application Server 5.1.0.CR1</para>
+        </listitem-->
+        <listitem>
+           <para>Multiple bug fixes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.5.1</title>
+      <itemizedlist>
+        <listitem>
+          <para>Security fix (JBREM-1116 "Remove SecurityUtility")</para>
+        </listitem>
+        <listitem>
+          <para>More flexible configuration (see <code>org.jboss.remoting.Client.USE_ALL_PARAMS</code>)</para>
+        </listitem>
+        <listitem>
+          <para>Jars updated to conform to Application Server 5.1.0.CR1</para>
+        </listitem>
+        <listitem>
+           <para>Multiple bug fixes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.5.0.SP2</title>
+      <itemizedlist>
+        <listitem>
+           <para>A few bug fixes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+        
+    <section>
+      <title>Release 2.5.0.SP1</title>
+      
+      <itemizedlist>
+        <listitem>
+           <para>The distribution zip file no longer contains previous versions of
+           jboss-remoting.jar.</para>
+        </listitem>
+        
+        <listitem>
+           <para>A few bug fixes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+  </section>
+  
+  <section>
+    <title>What's new in version 2.4?</title>
+
+    <section>
+      <title>Release 2.4.0.SP2</title>
+      
+      <itemizedlist>
+        <listitem>
+          <para><classname>CoyoteInvoker</classname> adds the URL query to the
+          <classname>InvocationRequest</classname> request map.</para>
+        </listitem>
+        
+        <listitem>
+          <para>A leak in Java serialization output marshalling has been fixed.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.4.0.SP1</title>
+      
+      <itemizedlist>
+        <listitem>
+          <para>The remote classloading facility can be configured with lists of
+          classloaders.</para>
+        </listitem>
+        
+        <listitem>
+          <para>Classloading in the client can optionally start with the thread
+         context classloader.</para>
+        </listitem>
+        
+        <listitem>
+          <para>Leasing can be enabled declaratively.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    
+    <section>
+      <title>Release 2.4.0.GA</title>
+      
+      <para>JBossRemoting 2.4.0.GA is an incremental release, with dozens of bug
+      fixes and several new features: </para>
+      
+      <itemizedlist>
+        <listitem>
+          <para>servers can be bound to multiple IP addresses</para>
+        </listitem>
+        <listitem>
+          <para>can run in the presence of a security manager</para>
+        </listitem>
+        <listitem>
+          <para>greater configurability</para>
+        </listitem>
+        <listitem>
+          <para>supports IPv6 addresses</para>
+        </listitem>
+        <listitem>
+          <para>improved connection monitoring</para>
+        </listitem>
+        <listitem>
+          <para>server gets client address in invocations</para>
+        </listitem>
+        
+      </itemizedlist>
+    </section>
+      
+  </section>
+</chapter>

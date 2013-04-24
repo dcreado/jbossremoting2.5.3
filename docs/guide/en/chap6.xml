@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="chapter-adding-new-transport" xreflabel="Adding a New Transport">
+  <title>Adding a New Transport</title>
+  
+  <para>It is quite straightforward to extend Remoting with a new transport (other than the part about writing the new transport!).  There are only three requirements.  Suppose the new transport is to be called "nio", which would then be used by an <classname>InvokerLocator</classname> such as "nio://bluemonkey.com:5555/?timeout=10000".</para>
+  
+  <orderedlist>
+     <listitem>
+       <para>There needs to be a class <classname>org.jboss.remoting.transport.nio.TransportServerFactory</classname> which implements the interface <classname>org.jboss.remoting.transport.ServerFactory:</classname></para>
+       
+       <programlisting>
+          public interface ServerFactory
+          {
+             public ServerInvoker createServerInvoker(InvokerLocator locator, Map config) throws IOException;
+          
+             public boolean supportsSSL();
+          }
+       </programlisting>
+     </listitem>
+     
+     <listitem>
+       <para>There needs to be a class <classname>org.jboss.remoting.transport.nio.TransportClientFactory</classname> which implements the interface <classname>org.jboss.remoting.transport.ClientFactory:</classname></para>
+       
+       <programlisting>
+          public interface ClientFactory
+          {
+             public ClientInvoker createClientInvoker(InvokerLocator locator, Map config) throws IOException;
+          
+             public boolean supportsSSL();
+          }
+       </programlisting>
+     </listitem>
+     
+     <listitem>
+        <para>The factory classes must be loadable when the first "nio" <classname>InvokerLocator</classname> is encountered.</para>
+     </listitem>
+     
+  </orderedlist>
+  
+  <para>The factories can be quite simple. The
+  <methodname>createServerInvoker()</methodname> method must return an instance
+  of an appropriate subclass of
+  <classname>org.jboss.remoting.ServerInvoker</classname>, the
+  <methodname>createClientInvoker()</methodname> method must return an
+  appropriate implementation of the interface
+  <classname>org.jboss.remoting.transport.ClientInvoker</classname>, and the
+  <methodname>supportsSSL()</methodname> methods indicate if the transport
+  supports SSL.</para>
+  
+  <para>The factories for the "socket" transport, for example, are</para>
+  
+  <programlisting>
+    package org.jboss.remoting.transport.socket;
+    
+    import org.jboss.remoting.InvokerLocator;
+    import org.jboss.remoting.ServerInvoker;
+    import org.jboss.remoting.transport.ServerFactory;    
+    import java.util.Map;
+
+    public class TransportServerFactory implements ServerFactory
+    {
+       public ServerInvoker createServerInvoker(InvokerLocator locator, Map config)
+       {
+          return new SocketServerInvoker(locator, config);
+       }
+    
+       public boolean supportsSSL()
+       {
+          return false;
+       }
+    }
+  </programlisting>
+  
+  <para>and</para>
+  
+  <programlisting>
+    package org.jboss.remoting.transport.socket;
+    
+    import org.jboss.remoting.InvokerLocator;
+    import org.jboss.remoting.transport.ClientFactory;
+    import org.jboss.remoting.transport.ClientInvoker;
+    import java.io.IOException;
+    import java.util.Map;
+    
+    public class TransportClientFactory implements ClientFactory
+    {
+       public ClientInvoker createClientInvoker(InvokerLocator locator, Map config)
+             throws IOException
+       {
+          return new SocketClientInvoker(locator, config);
+       }
+    
+       public boolean supportsSSL()
+       {
+          return false;
+       }
+    }
+  </programlisting>
+  
+  <para>Similarly, the server invoker factory for the "sslsocket" transport is</para>
+  
+  <programlisting>
+    package org.jboss.remoting.transport.sslsocket;
+    
+    import org.jboss.remoting.InvokerLocator;
+    import org.jboss.remoting.ServerInvoker;
+    import org.jboss.remoting.transport.ServerFactory;    
+    import java.util.Map;
+
+    public class TransportServerFactory implements ServerFactory
+    {
+       public ServerInvoker createServerInvoker(InvokerLocator locator, Map config)
+       {
+          return new SSLSocketServerInvoker(locator, config);
+       }
+    
+       public boolean supportsSSL()
+       {
+          return true;
+       }
+    }
+  </programlisting>
+</chapter>

@@ -1,0 +1,22 @@
+  <chapter>
+    <title>Future plans</title>
+
+    <para>Full road map for JBossRemoting can be found at <!--<link linkend="???">
+                http://jira.jboss.com/jira/browse/JBREM?report=com.atlassian.jira.plugin.system.project:roadmap-panel
+             </link>--> <ulink
+    url="http://jira.jboss.com/jira/browse/JBREM?report=com.atlassian.jira.plugin.system.project:roadmap-panel">
+    http://jira.jboss.com/jira/browse/JBREM?report=com.atlassian.jira.plugin.system.project:roadmap-panel
+    </ulink>.</para>
+
+    <para>If you have questions, comments, bugs, fixes, contributions, or
+    flames, please post them to the JBoss Remoting users forum <!--<link linkend="???">http://www.jboss.com/index.html?module=bb&amp;op=viewforum&amp;f=222</link>-->
+    (<ulink
+    url="http://www.jboss.com/index.html?module=bb&amp;op=viewforum&amp;f=222">
+    http://www.jboss.com/index.html?module=bb&amp;op=viewforum&amp;f=222
+    </ulink>). You can also find more information about JBoss Remoting on our
+    <!--<link linkend="???">http://www.jboss.org/wiki/Wiki.jsp?page=Remoting</link>-->
+    wiki (<ulink url="http://www.jboss.org/wiki/Wiki.jsp?page=Remoting">
+    http://www.jboss.org/wiki/Wiki.jsp?page=Remoting </ulink> ). The wiki will
+    usually contain the latest updates to doc and features that did not make it
+    into the previous release.</para>
+  </chapter>

@@ -1,0 +1,121 @@
+<chapter>
+    <title>Sending streams</title>
+
+    <para>Remoting supports the sending of InputStreams. It is important to
+    note that this feature DOES NOT copy the stream data directly from the
+    client to the server, but is a true on demand stream. Although this is
+    obviously slower than reading from a stream on the server that has been
+    copied locally, it does allow for true streaming on the server. It also
+    allows for better memory control by the user (versus the framework trying
+    to copy a 3 Gig file into memory and getting out of memory errors).</para>
+
+    <para>Use of this new feature is simple. From the client side, there is a
+    method in org.jboss.remoting.Client with the signature:</para>
+
+    <programlisting>public Object invoke(InputStream inputStream, Object param) throws Throwable
+      </programlisting>
+
+    <para>So from the client side, would just call invoke as done in the past,
+    and pass the InputStream and the payload as the parameters. An example of
+    the code from the client side would be (this is taken directly from
+    org.jboss.test.remoting.stream.StreamingTestClient):</para>
+
+    <programlisting>
+         String param = "foobar";
+         File testFile = new File(fileURL.getFile());
+         ...
+         Object ret = remotingClient.invoke(fileInput, param);
+    </programlisting>
+
+    <para>From the server side, will need to implement
+    <code>org.jboss.remoting.stream.StreamInvocationHandler</code> instead of
+    <code>org.jboss.remoting.ServerInvocationHandler</code> .
+    StreamInvocationHandler extends ServerInvocationHandler, with the addition
+    of one new method:</para>
+
+    <programlisting>public Object handleStream(InputStream stream, Object param)</programlisting>
+
+    <para>The stream passed to this method can be called on just as any
+    regular local stream. Under the covers, the InputStream passed is really
+    proxy to the real input stream that exists in the client's VM. Subsequent
+    calls to the passed stream will actually be converted to calls on the real
+    stream on the client via this proxy. If the client makes an invocation on
+    the server passing an InputStream as the parameter and the server handler
+    does not implement StreamInvocationhandler, an exception will be thrown to
+    the client caller.</para>
+
+    <para>If want to have more control over the stream server being created to
+    send the stream data back to the caller, instead of letting remoting
+    create it internally, can do this by creating a Connector to act as stream
+    server and pass it when making Client invocation.</para>
+
+    <programlisting>public Object invoke(InputStream inputStream, Object param, Connector streamConnector) throws Throwable</programlisting>
+
+    <para>Note, the Connector passed must already have been started (else an
+    exception will be thrown). The stream handler will then be added to the
+    connector with the subystem 'stream'. The Connector passed will NOT be
+    stopped when the stream is closed by the server's stream proxy (which
+    happens automatically when remoting creates the stream server
+    internally).</para>
+
+    <para>Can also call <methodname>invoke()</methodname> method on client and
+    pass the invoker locator
+    would like to use and allow remoting to create the stream server using the
+    specified locator.</para>
+
+    <programlisting>public Object invoke(InputStream inputStream, Object param, InvokerLocator streamServerLocator) throws Throwable </programlisting>
+
+    <para>In this case, the Connector created internally by remoting will be
+    stopped when the stream is closed by the server's stream proxy.</para>
+
+    <para>It is VERY IMPORTANT that the StreamInvocationHandler implementation
+    close the InputStream when it finishes reading, as will close the real
+    stream that lives within the client VM.</para>
+
+    <section>
+      <title>Configuration</title>
+
+      <para>By default, the stream server which runs within the client JVM
+      uses the following values for its locator uri:</para>
+
+      <para>transport - socket</para>
+
+      <para>host - tries to first get local host name and if that fails, the
+      local ip (if that fails, localhost).</para>
+
+      <para>port - 5405</para>
+
+      <para>Currently, the only way to override these settings is to set the
+      following system properties (either via JVM arguments or via
+      <code>System.setProperty()</code> method):</para>
+
+      <para>remoting.stream.transport - sets the transport type (rmi, http,
+      socket, etc.)</para>
+
+      <para>remoting.stream.host - host name or ip address to use</para>
+
+      <para>remoting.stream.port - the port to listen on</para>
+
+      <para>These properties are important because currently the only way for
+      a target server to get the stream data from the stream server (running
+      within the client JVM) is to have the server invoker make the invocation
+      on a new connection back to the client (see issues below).</para>
+    </section>
+
+    <section>
+      <title>Issues</title>
+
+      <para>This is a first pass at the implementation and needs some work in
+      regards to optimizations and configuration. In particular, there is a
+      remoting server that is started to service requests from the stream
+      proxy on the target server for data from the original stream. This
+      raises an issue with the current transports, since the client will have
+      to accept calls for the original stream on a different socket. This may
+      be difficult when control over the client's environment (including
+      firewalls) may not be available. A bi-directional transport, called
+      multiplex, is being introduced as of 1.4.0 release which will allow
+      calls from the server to go over the same socket connection established
+      by the client to the server (JBREM-91). This will make communications
+      back to client much simpler from this standpoint.</para>
+    </section>
+  </chapter>
