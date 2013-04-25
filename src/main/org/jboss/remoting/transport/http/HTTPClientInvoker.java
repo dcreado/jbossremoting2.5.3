@@ -22,6 +22,31 @@
 
 package org.jboss.remoting.transport.http;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.jboss.logging.Logger;
 import org.jboss.remoting.CannotConnectException;
 import org.jboss.remoting.ConnectionFailedException;
@@ -50,28 +75,6 @@ import org.jboss.util.threadpool.BlockingMode;
 import org.jboss.util.threadpool.RunnableTaskWrapper;
 import org.jboss.util.threadpool.Task;
 import org.jboss.util.threadpool.ThreadPool;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * HTTP client invoker.  Used for making http requests on http/servlet invoker.
@@ -1000,7 +1003,6 @@ public class HTTPClientInvoker extends RemoteClientInvoker
       return HTTPMarshaller.DATATYPE;
    }
 
-
    /**
     * Sets the thread pool to be used for simulating timeouts with jdk 1.4.
     */
@@ -1011,6 +1013,13 @@ public class HTTPClientInvoker extends RemoteClientInvoker
    
    protected void configureParameters()
    {
+	  synchronized (CookieHandler.class) {
+		  if(CookieHandler.getDefault() == null){
+			 CookieHandler.setDefault(new CookieManager());
+		   	 ((CookieManager)CookieHandler.getDefault()).setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+		  }
+	  }
+	  
       Object val = configuration.get(HTTPMetadataConstants.NO_THROW_ON_ERROR);
       if (val != null)
       {
